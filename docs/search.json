@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "correlation_matrix.html",
+    "href": "correlation_matrix.html",
+    "title": "Loading Data",
+    "section": "",
+    "text": "import numpy as np\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport scipy.stats\nabundance_table = pd.read_excel(\"abundance_table.xlsx\")\n#remove first 4 characters in every column name\nabundance_table.columns = abundance_table.columns.str[4:] \n#split string in column to get date and process\nabundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\nabundance_table = abundance_table.drop(columns=['le'])\nprocesses = ['AS-1', 'AS-2']\nas_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\nas_abundance_table = as_abundance_table.drop(columns=['Process'])\n#group by date and find the mean of all values\nas_abundance_table = as_abundance_table.groupby(['Date']).mean()\n#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\n#remove first column in a\na = a.iloc[:,1:]\na = a.to_numpy()"
+  },
+  {
+    "objectID": "correlation_matrix.html#correlation-between-count-data",
+    "href": "correlation_matrix.html#correlation-between-count-data",
+    "title": "Loading Data",
+    "section": "Correlation between count data",
+    "text": "Correlation between count data\n\ncorrelation = np.corrcoef(a.T)\n\nmask = ((correlation &gt; 0.75) & (correlation &lt; 0.99)) | (correlation &lt; -0.75) & (correlation &gt; -0.99)\n\n# Plotting\nfig = plt.figure()\n# Put in title and axis labels\nfig.suptitle('Correlation Matrix of OTU Counts Over Time')\nax = fig.add_subplot(111)\n\n# Use the mask to display the significant correlations\nmasked_correlation = np.ma.masked_where(~mask, correlation)\ncax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)\nfig.colorbar(cax)\n\nplt.show()\n\n/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning:\n\ninvalid value encountered in divide\n\n/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2898: RuntimeWarning:\n\ninvalid value encountered in divide"
+  }
+]
