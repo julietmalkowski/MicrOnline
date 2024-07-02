@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="./index.qmd"> 
 <span class="menu-text">Home</span></a>
   </li>  
 </ul>
@@ -168,13 +168,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="400f1722" class="cell" data-execution_count="1">
+<div id="060eab7f" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="e1e9bd76" class="cell" data-execution_count="2">
+<div id="6093b446" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> pd.read_excel(<span class="st">"abundance_table.xlsx"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>abundance_table.columns <span class="op">=</span> abundance_table.columns.<span class="bu">str</span>[<span class="dv">4</span>:] </span>
@@ -195,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="correlation-between-count-data" class="level2">
 <h2 class="anchored" data-anchor-id="correlation-between-count-data">Correlation between count data</h2>
-<div id="9ef56249" class="cell" data-execution_count="3">
+<div id="eddd1bf4" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(a.T)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> ((correlation <span class="op">&gt;</span> <span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&lt;</span> <span class="fl">0.99</span>)) <span class="op">|</span> (correlation <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&gt;</span> <span class="op">-</span><span class="fl">0.99</span>)</span>

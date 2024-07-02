@@ -1,7 +1,8 @@
 project:
   type: website
   output-dir: docs
-
+  render:
+    - correlation_matrix.qmd
 
 website:
   title: "Activated Sludge Model"
