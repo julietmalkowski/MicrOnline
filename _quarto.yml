@@ -1,24 +1,21 @@
 project:
   type: website
   output-dir: docs
-  render:
-    - correlation_matrix.qmd
 
 website:
   title: "Activated Sludge Model"
   navbar:
+    background: primary
+    search: true
     left:
-      - href: index.qmd
-        text: Home
-        menu:
-        - about.qmd
-        - correlation_matrix.qmd
+      - text: "Home"
+        href: index.qmd
+      - correlation_matrix.qmd
+      - about.qmd 
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
-
-
 
