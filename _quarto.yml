@@ -13,7 +13,7 @@ website:
     search: true
     left:
       - text: "Home"
-        href: introduction.qmd 
+        href: index.qmd 
       - text: "Correlation Matrix"
         href: correlation_matrix.qmd
       - text: "Fourier Transform"
