@@ -123,16 +123,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="./index.qmd"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./correlation_matrix.html" aria-current="page"> 
-<span class="menu-text">Loading Data</span></a>
+<span class="menu-text">Correlations</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
+    <a class="nav-link" href="./fourier_transform.html"> 
+<span class="menu-text">Fourier Discrete Transform of Count Data</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="./about.qmd"> 
+<span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -150,7 +154,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#correlation-between-count-data" id="toc-correlation-between-count-data" class="nav-link active" data-scroll-target="#correlation-between-count-data">Correlation between count data</a></li>
+  <li><a href="#loading-dependencies" id="toc-loading-dependencies" class="nav-link active" data-scroll-target="#loading-dependencies">Loading Dependencies</a></li>
+  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading Data</a></li>
+  <li><a href="#correlation-between-count-data" id="toc-correlation-between-count-data" class="nav-link" data-scroll-target="#correlation-between-count-data">Correlation between count data</a></li>
   </ul>
 </nav>
     </div>
@@ -159,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Loading Data</h1>
+<h1 class="title">Correlations</h1>
 </div>
 
 
@@ -176,13 +182,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="457db868" class="cell" data-execution_count="1">
+<section id="loading-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="loading-dependencies">Loading Dependencies</h3>
+<div id="75343067" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="1231362a" class="cell" data-execution_count="2">
+</section>
+<section id="loading-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
+<div id="5795e367" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> pd.read_excel(<span class="st">"abundance_table.xlsx"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>abundance_table.columns <span class="op">=</span> abundance_table.columns.<span class="bu">str</span>[<span class="dv">4</span>:] </span>
@@ -201,9 +212,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.iloc[:,<span class="dv">1</span>:]</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.to_numpy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 <section id="correlation-between-count-data" class="level2">
 <h2 class="anchored" data-anchor-id="correlation-between-count-data">Correlation between count data</h2>
-<div id="fbf14f8a" class="cell" data-execution_count="3">
+<div id="e28fdf59" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(a.T)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> ((correlation <span class="op">&gt;</span> <span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&lt;</span> <span class="fl">0.99</span>)) <span class="op">|</span> (correlation <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&gt;</span> <span class="op">-</span><span class="fl">0.99</span>)</span>
@@ -221,19 +233,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning:
-
-invalid value encountered in divide
-
-/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2898: RuntimeWarning:
-
-invalid value encountered in divide
-</code></pre>
+<pre><code>/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="correlation_matrix_files/figure-html/cell-4-output-2.png" width="528" height="438" class="figure-img"></p>
+<p><img src="correlation_matrix_files/figure-html/cell-4-output-2.png" width="535" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>

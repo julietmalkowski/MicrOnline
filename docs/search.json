@@ -1,30 +1,44 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "fourier_transform.html",
+    "href": "fourier_transform.html",
+    "title": "Fourier Discrete Transform of Count Data",
     "section": "",
-    "text": "About this site"
+    "text": "import numpy as np\nimport matplotlib.pyplot as plt\nimport pandas as pd"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Activated Sludge Model",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "objectID": "fourier_transform.html#creating-count-data",
+    "href": "fourier_transform.html#creating-count-data",
+    "title": "Fourier Discrete Transform of Count Data",
+    "section": "Creating Count Data",
+    "text": "Creating Count Data\n\nabundance_table = pd.read_excel(\"abundance_table.xlsx\")\n#remove first 4 characters in every column name\nabundance_table.columns = abundance_table.columns.str[4:] \n#split string in column to get date and process\nabundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\nabundance_table = abundance_table.drop(columns=['le'])\n#keep only AS-1 and AS-2 data\nprocesses = ['AS-1', 'AS-2']\nas_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\nas_abundance_table = as_abundance_table.drop(columns=['Process'])\n#group by date and find the mean of all values\nas_abundance_table = as_abundance_table.groupby(['Date']).mean()\n\n\nShow Count Data\n\n#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\nprint(a.head())\n#remove first column in a\na = a.iloc[:,1:]\n#tranform to numpy array\na = a.to_numpy()\n\n         Date   121   22       4    61  9124   190    33   70  1716  ...  \\\n0  01/05/2023  66.5  0.0   267.5  27.0   0.0  17.0  34.0  0.5   0.0  ...   \n1  01/10/2023  86.0  0.0  1260.0  35.0   0.0  32.0  43.0  0.0   0.0  ...   \n2  01/12/2023  38.5  0.0   374.5  10.0   0.0  12.0  38.5  0.5   0.0  ...   \n3  01/17/2023  41.0  0.0   738.0  10.0   0.0  28.5  45.0  0.0   1.0  ...   \n4  01/19/2023  39.0  0.0   616.5  16.0   0.0  29.0  98.0  0.0   0.0  ...   \n\n   9558  12913  10999  13677  17024  11155  10242  6130  15569  17515  \n0   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n1   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n2   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n3   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n4   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n\n[5 rows x 16033 columns]"
+  },
+  {
+    "objectID": "fourier_transform.html#fourier-transform-of-count-data",
+    "href": "fourier_transform.html#fourier-transform-of-count-data",
+    "title": "Fourier Discrete Transform of Count Data",
+    "section": "Fourier Transform of Count Data",
+    "text": "Fourier Transform of Count Data\n\ndef FFT(input_array):\n\n    fig, ax = plt.subplots(2, 1, figsize=(10, 10))\n\n    #Taking each OTU and fourier transforming its signal through time\n    for i in range(input_array.shape[1]):\n        ax[0].plot(input_array[:,i])\n\n        #Calculate the FFT\n        #calculate fourier transform by using np.fft.fft to calculate fft of each column (each OTU count through time)\n        #calculate the fourier sample frequencies by using np.fft.fftfreq\n        #Use np.fft.fftshift to shift the zero-frequency component to the center of the spectrum.\n\n        fft = np.fft.fftshift(np.fft.fft(input_array[:,i]))\n        fft_freq = np.fft.fftshift(np.fft.fftfreq(len(fft)))\n\n        fft = np.abs(fft[fft_freq &gt; 0])\n        fft_freq = fft_freq[fft_freq &gt; 0]\n\n        ax[1].plot(fft_freq, fft)\n\n    ax[0].set_title('Input signal')\n    ax[0].set_xlabel('Time')\n    ax[0].set_ylabel('Amplitude')\n\n    ax[1].set_title('FFT of the signal')\n    ax[1].set_xlabel('Frequency')\n    ax[1].set_ylabel('Amplitude')\n\n    plt.show()\n\nFFT(a.copy())"
   },
   {
     "objectID": "correlation_matrix.html",
     "href": "correlation_matrix.html",
-    "title": "Loading Data",
+    "title": "Correlations",
     "section": "",
-    "text": "import numpy as np\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport scipy.stats\nabundance_table = pd.read_excel(\"abundance_table.xlsx\")\n#remove first 4 characters in every column name\nabundance_table.columns = abundance_table.columns.str[4:] \n#split string in column to get date and process\nabundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\nabundance_table = abundance_table.drop(columns=['le'])\nprocesses = ['AS-1', 'AS-2']\nas_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\nas_abundance_table = as_abundance_table.drop(columns=['Process'])\n#group by date and find the mean of all values\nas_abundance_table = as_abundance_table.groupby(['Date']).mean()\n#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\n#remove first column in a\na = a.iloc[:,1:]\na = a.to_numpy()"
+    "text": "import numpy as np\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport scipy.stats"
+  },
+  {
+    "objectID": "correlation_matrix.html#loading-data",
+    "href": "correlation_matrix.html#loading-data",
+    "title": "Correlations",
+    "section": "Loading Data",
+    "text": "Loading Data\n\nabundance_table = pd.read_excel(\"abundance_table.xlsx\")\n#remove first 4 characters in every column name\nabundance_table.columns = abundance_table.columns.str[4:] \n#split string in column to get date and process\nabundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\nabundance_table = abundance_table.drop(columns=['le'])\nprocesses = ['AS-1', 'AS-2']\nas_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\nas_abundance_table = as_abundance_table.drop(columns=['Process'])\n#group by date and find the mean of all values\nas_abundance_table = as_abundance_table.groupby(['Date']).mean()\n#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\n#remove first column in a\na = a.iloc[:,1:]\na = a.to_numpy()"
   },
   {
     "objectID": "correlation_matrix.html#correlation-between-count-data",
     "href": "correlation_matrix.html#correlation-between-count-data",
-    "title": "Loading Data",
+    "title": "Correlations",
     "section": "Correlation between count data",
-    "text": "Correlation between count data\n\ncorrelation = np.corrcoef(a.T)\n\nmask = ((correlation &gt; 0.75) & (correlation &lt; 0.99)) | (correlation &lt; -0.75) & (correlation &gt; -0.99)\n\n# Plotting\nfig = plt.figure()\n# Put in title and axis labels\nfig.suptitle('Correlation Matrix of OTU Counts Over Time')\nax = fig.add_subplot(111)\n\n# Use the mask to display the significant correlations\nmasked_correlation = np.ma.masked_where(~mask, correlation)\ncax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)\nfig.colorbar(cax)\n\nplt.show()\n\n/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning:\n\ninvalid value encountered in divide\n\n/Users/julietmalkowski/opt/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:2898: RuntimeWarning:\n\ninvalid value encountered in divide"
+    "text": "Correlation between count data\n\ncorrelation = np.corrcoef(a.T)\n\nmask = ((correlation &gt; 0.75) & (correlation &lt; 0.99)) | (correlation &lt; -0.75) & (correlation &gt; -0.99)\n\n# Plotting\nfig = plt.figure()\n# Put in title and axis labels\nfig.suptitle('Correlation Matrix of OTU Counts Over Time')\nax = fig.add_subplot(111)\n\n# Use the mask to display the significant correlations\nmasked_correlation = np.ma.masked_where(~mask, correlation)\ncax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)\nfig.colorbar(cax)\n\nplt.show()\n\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[:, None]\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[None, :]"
   }
 ]

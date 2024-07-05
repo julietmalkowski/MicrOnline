@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: docs
+  render:
+      - correlation_matrix.qmd
+      - fourier_transform.qmd
+
 
 website:
   title: "Activated Sludge Model"
@@ -11,6 +15,7 @@ website:
       - text: "Home"
         href: index.qmd
       - correlation_matrix.qmd
+      - fourier_transform.qmd
       - about.qmd 
 
 format:

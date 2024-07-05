@@ -1,0 +1,73 @@
+# Fourier Discrete Transform of Count Data
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+## Creating Count Data
+```{python}
+abundance_table = pd.read_excel("abundance_table.xlsx")
+#remove first 4 characters in every column name
+abundance_table.columns = abundance_table.columns.str[4:] 
+#split string in column to get date and process
+abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)
+abundance_table = abundance_table.drop(columns=['le'])
+#keep only AS-1 and AS-2 data
+processes = ['AS-1', 'AS-2']
+as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
+as_abundance_table = as_abundance_table.drop(columns=['Process'])
+#group by date and find the mean of all values
+as_abundance_table = as_abundance_table.groupby(['Date']).mean()
+```
+
+### Show Count Data
+```{python}
+#remove last two rows of as_abundance_table
+a = as_abundance_table.iloc[:,:-2]
+a = a.reset_index()
+print(a.head())
+#remove first column in a
+a = a.iloc[:,1:]
+#tranform to numpy array
+a = a.to_numpy()
+```
+
+
+## Fourier Transform of Count Data
+```{python}
+def FFT(input_array):
+
+    fig, ax = plt.subplots(2, 1, figsize=(10, 10))
+
+    #Taking each OTU and fourier transforming its signal through time
+    for i in range(input_array.shape[1]):
+        ax[0].plot(input_array[:,i])
+
+        #Calculate the FFT
+        #calculate fourier transform by using np.fft.fft to calculate fft of each column (each OTU count through time)
+        #calculate the fourier sample frequencies by using np.fft.fftfreq
+        #Use np.fft.fftshift to shift the zero-frequency component to the center of the spectrum.
+
+        fft = np.fft.fftshift(np.fft.fft(input_array[:,i]))
+        fft_freq = np.fft.fftshift(np.fft.fftfreq(len(fft)))
+
+        fft = np.abs(fft[fft_freq > 0])
+        fft_freq = fft_freq[fft_freq > 0]
+
+        ax[1].plot(fft_freq, fft)
+
+    ax[0].set_title('Input signal')
+    ax[0].set_xlabel('Time')
+    ax[0].set_ylabel('Amplitude')
+
+    ax[1].set_title('FFT of the signal')
+    ax[1].set_xlabel('Frequency')
+    ax[1].set_ylabel('Amplitude')
+
+    plt.show()
+
+FFT(a.copy())
+
+```

@@ -1,0 +1,63 @@
+# Clustering for Relative Abundance and SRT Time
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+All of this data is filtered already for outliers
+```{python}
+srt_table = pd.read_excel("as_outliers_removed_july5.xlsx")
+
+```
+
+```{python}
+table = srt_table.iloc[:,[1,2,4]]
+table = table.drop_duplicates()
+table = table.groupby(['week','OTU'])['SRT'].agg('mean').reset_index()
+table = table.pivot(index = 'week', columns = "OTU", values = 'SRT')
+table = table.fillna(0)
+```
+
+```{python}
+table = table.reset_index()
+time = table.iloc[:,0]
+time = time.to_numpy()
+otus = table.iloc[:,1:]
+otus = otus.to_numpy()
+```
+
+```{python}
+data = []
+for i in range(otus.shape[1]):
+    z = np.polyfit(time, otus[:,i], 10)
+    data.append(z)
+```
+
+Find number of clusters to use
+```{python}
+from sklearn.cluster import KMeans
+inertias = []
+
+for i in range(1,50):
+    kmeans = KMeans(n_clusters=i)
+    kmeans.fit(data)
+    inertias.append(kmeans.inertia_)
+
+plt.plot(range(1,11), inertias, marker='o')
+plt.title('Elbow method')
+plt.xlabel('Number of clusters')
+plt.ylabel('Inertia')
+plt.show()
+```
+
+```{python}
+# Create a sample distribution 
+N = 100
+X = np.concatenate((np.random.normal(0, 1, int(0.6 * N)),  
+                    np.random.normal(10, 1, int(0.4 * N))) 
+                )[:, np.newaxis] 
+X_plot = np.linspace(-5, 15, 1000)[:, np.newaxis] 
+
+```
