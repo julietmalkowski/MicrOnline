@@ -142,6 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./trend_decomposition.html" aria-current="page"> 
 <span class="menu-text">Decomposition of Trends</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./linear_regressions.html"> 
+<span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -158,12 +162,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#what-dependencies-to-install" id="toc-what-dependencies-to-install" class="nav-link active" data-scroll-target="#what-dependencies-to-install">What dependencies to install</a></li>
-  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading data</a></li>
-  <li><a href="#creating-dataframes" id="toc-creating-dataframes" class="nav-link" data-scroll-target="#creating-dataframes">Creating Dataframes</a>
+  <li><a href="#decomposition-of-trends" id="toc-decomposition-of-trends" class="nav-link active" data-scroll-target="#decomposition-of-trends">Decomposition of Trends</a>
   <ul class="collapse">
+  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading Data</a></li>
   <li><a href="#seasonal-decomposition" id="toc-seasonal-decomposition" class="nav-link" data-scroll-target="#seasonal-decomposition">Seasonal Decomposition</a></li>
-  <li><a href="#shannon-index-over-time" id="toc-shannon-index-over-time" class="nav-link" data-scroll-target="#shannon-index-over-time">Shannon Index over time</a></li>
+  <li><a href="#stl-decomposition" id="toc-stl-decomposition" class="nav-link" data-scroll-target="#stl-decomposition">STL Decomposition</a></li>
+  <li><a href="#stationarity-check" id="toc-stationarity-check" class="nav-link" data-scroll-target="#stationarity-check">Stationarity Check</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#so-what-can-we-model" id="toc-so-what-can-we-model" class="nav-link" data-scroll-target="#so-what-can-we-model">So what can we model?</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -171,140 +177,227 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Decomposition of Trends</h1>
+
+
+
+<section id="decomposition-of-trends" class="level1">
+<h1>Decomposition of Trends</h1>
+<section id="loading-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
+<p>Note: All Abundances have been filtered out to only contain relative abundances &gt; 0.01</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: permute</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: lattice</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>This is vegan 2.6-4</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ape</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: nlme</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:nlme':
+
+    collapse</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:ape':
+
+    where</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>corrplot 0.92 loaded</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ forcats   1.0.0     ✔ readr     2.1.5
+✔ lubridate 1.9.3     ✔ stringr   1.5.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::collapse() masks nlme::collapse()
+✖ dplyr::filter()   masks stats::filter()
+✖ dplyr::lag()      masks stats::lag()
+✖ dplyr::where()    masks ape::where()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+
+Attaching package: 'reshape2'
+
+
+The following object is masked from 'package:tidyr':
+
+    smiths
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
+Attaching package: 'ggpubr'
 
 
-</header>
+The following object is masked from 'package:ape':
 
-
-<section id="what-dependencies-to-install" class="level1">
-<h1>What dependencies to install</h1>
-<div id="2ef0ce67" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> interpolate</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> random <span class="im">import</span> gauss</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pandas.plotting <span class="im">import</span> autocorrelation_plot</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.graphics.tsaplots <span class="im">import</span> plot_acf, plot_pacf</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.ar_model <span class="im">import</span> AR</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.seasonal <span class="im">import</span> seasonal_decompose</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> adfuller</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'fivethirtyeight'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+    rotate</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tseries' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+New names:New names:</code></pre>
+</div>
 </div>
 </section>
-<section id="loading-data" class="level1">
-<h1>Loading data</h1>
-<div id="9e20e77a" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> pd.read_excel(<span class="st">'/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx'</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>as_outliers_removed <span class="op">=</span> pd.read_excel(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/as_outliers_removed_june16.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="creating-dataframes" class="level1">
-<h1>Creating Dataframes</h1>
-<div id="a49eeafd" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>abundance_table.columns <span class="op">=</span> abundance_table.columns.<span class="bu">str</span>[<span class="dv">4</span>:] </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#split string in column to get date and process</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>abundance_table[[<span class="st">'Process'</span>,<span class="st">'Date'</span>]] <span class="op">=</span> abundance_table[<span class="st">'le'</span>].<span class="bu">str</span>.split(<span class="st">'_'</span>,expand<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> abundance_table.drop(columns<span class="op">=</span>[<span class="st">'le'</span>])</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#keep only AS-1 and AS-2 data</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>processes <span class="op">=</span> [<span class="st">'AS-1'</span>, <span class="st">'AS-2'</span>]</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> abundance_table[abundance_table[<span class="st">'Process'</span>].isin(processes)]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.drop(columns<span class="op">=</span>[<span class="st">'Process'</span>])</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#group by date and find the mean of all values</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.groupby([<span class="st">'Date'</span>]).mean()</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>as_abundance_table[<span class="st">'sum'</span>] <span class="op">=</span> as_abundance_table.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.reset_index()</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance_table.set_index(<span class="st">'Date'</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#find percentage each column by dividing by sum</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.div(as_abundance[<span class="st">'sum'</span>], axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.drop(columns<span class="op">=</span>[<span class="st">'sum'</span>])</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#pivot dataframe from wide to long format</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.reset_index()</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Abundance'</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#remove all rows with an abundance less than 0.01</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] &gt;= 0.0005] </span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance[as_abundance[<span class="st">'Abundance'</span>] <span class="op">&gt;=</span> <span class="fl">0.01</span>] </span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shannon_index(x):</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span> <span class="op">*</span> np.<span class="bu">sum</span>(x<span class="op">*</span>np.log(x))</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>Shannon_Diversity <span class="op">=</span> as_abundance.groupby(<span class="st">'Date'</span>)[<span class="st">'Abundance'</span>].agg(shannon_index).reset_index()</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.merge(Shannon_Diversity, on<span class="op">=</span><span class="st">'Date'</span>)</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.rename(columns<span class="op">=</span>{<span class="st">'Abundance_x'</span>:<span class="st">'Abundance'</span>, <span class="st">'Abundance_y'</span>:<span class="st">'Shannon Index'</span>})</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>as_abundance_table_moved <span class="op">=</span> as_abundance_table.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Counts'</span>)</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#merging with as_abundance</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> as_abundance.merge(as_abundance_table_moved, on<span class="op">=</span>[<span class="st">'Date'</span>,<span class="st">'OTU'</span>])</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>unfiltered_data[<span class="st">'Date'</span>] <span class="op">=</span> pd.to_datetime(unfiltered_data[<span class="st">'Date'</span>])</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> unfiltered_data.set_index(<span class="st">'Date'</span>)</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> unfiltered_data.sort_values(by<span class="op">=</span><span class="st">'Date'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <section id="seasonal-decomposition" class="level2">
 <h2 class="anchored" data-anchor-id="seasonal-decomposition">Seasonal Decomposition</h2>
-<div id="18dedc4f" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> unfiltered_data</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>decomposition <span class="op">=</span> sm.tsa.seasonal_decompose(unfiltered_data[<span class="st">'Shannon Index'</span>], period <span class="op">=</span> <span class="dv">4</span>) </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>figure <span class="op">=</span> decomposition.plot()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="trend_decomposition_files/figure-html/cell-5-output-1.png" width="655" height="459" class="figure-img"></p>
-</figure>
+<p>For Shannon Index</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># otu_1_shannon %&gt;% decompose(type="additive") %&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   autoplot()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Result: Error in <code>decompose()</code>: ! time series has no or less than 2 periods</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># otu_1_abundance %&gt;% decompose(type="additive") %&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   autoplot()</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># otu_1_count%&gt;% decompose(type="additive") %&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   autoplot()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
+<p>Result: Error in <code>decompose()</code>: ! time series has no or less than 2 periods</p>
 </section>
-<section id="shannon-index-over-time" class="level2">
-<h2 class="anchored" data-anchor-id="shannon-index-over-time">Shannon Index over time</h2>
-<div id="0b3c69ef" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot Shannon Index over time with angle = 90 on x-axis labels</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plt.xticks(rotation<span class="op">=</span><span class="dv">90</span>, size <span class="op">=</span> <span class="dv">5</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sns.lineplot(x<span class="op">=</span><span class="st">'Date'</span>, y<span class="op">=</span><span class="st">'Shannon Index'</span>, data<span class="op">=</span>unfiltered_data)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Shannon Index Over Time'</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#add x-axis label</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plt.xticks(size <span class="op">=</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>(array([19174., 19236., 19297., 19358., 19417., 19478.]),
- [Text(19174.0, 0, '2022-07'),
-  Text(19236.0, 0, '2022-09'),
-  Text(19297.0, 0, '2022-11'),
-  Text(19358.0, 0, '2023-01'),
-  Text(19417.0, 0, '2023-03'),
-  Text(19478.0, 0, '2023-05')])</code></pre>
+<section id="stl-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="stl-decomposition">STL Decomposition</h2>
+<p>For Shannon Index</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># otu_1_shannon  %&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   stl(s.window="periodic", robust=TRUE) %&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   autoplot()</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># otu_1_abundance  %&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   stl(s.window="periodic", robust=TRUE) %&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   autoplot()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="trend_decomposition_files/figure-html/cell-6-output-2.png" width="665" height="524" class="figure-img"></p>
-</figure>
+<p>Result: Error in <code>decompose()</code>: ! time series has no or less than 2 periods</p>
+</section>
+<section id="stationarity-check" class="level2">
+<h2 class="anchored" data-anchor-id="stationarity-check">Stationarity Check</h2>
+<p>Augmented Dickey-Fuller Test: This is a statistical test that checks for the presence of a unit root in the time series. If the test indicates that there is no unit root, then the time series is likely stationary.</p>
+<p>For Shannon Index</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>adf_test_shannon <span class="ot">&lt;-</span> <span class="fu">adf.test</span>(otu_1_shannon)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(adf_test_shannon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Augmented Dickey-Fuller Test
+
+data:  otu_1_shannon
+Dickey-Fuller = -1.9299, Lag order = 4, p-value = 0.6044
+alternative hypothesis: stationary</code></pre>
 </div>
 </div>
+<p>Result: Not Stationary</p>
+<p>For OTU 1 Counts</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>adf_test_otu <span class="ot">&lt;-</span> <span class="fu">adf.test</span>(otu_1_abundance)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(adf_test_otu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Augmented Dickey-Fuller Test
+
+data:  otu_1_abundance
+Dickey-Fuller = -2.6805, Lag order = 4, p-value = 0.2971
+alternative hypothesis: stationary</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#adf.test(otu_1_count) </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Result: Not Stationary</p>
+<p>Kwiatkowski-Phillips-Schmidt-Shin Test: his test checks for the presence of a trend or structural break in the time series. If the test indicates that there is no trend or structural break, then the time series may be considered stationary.</p>
+<p>For Shannon Index</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kpss.test</span>(otu_1_shannon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in kpss.test(otu_1_shannon): p-value smaller than printed p-value</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    KPSS Test for Level Stationarity
+
+data:  otu_1_shannon
+KPSS Level = 0.89563, Truncation lag parameter = 3, p-value = 0.01</code></pre>
+</div>
+</div>
+<p>Result: Not Stationary</p>
+<p>For OTU 1</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#on relative abudance</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kpss.test</span>(otu_1_abundance)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in kpss.test(otu_1_abundance): p-value smaller than printed p-value</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    KPSS Test for Level Stationarity
+
+data:  otu_1_abundance
+KPSS Level = 0.92455, Truncation lag parameter = 3, p-value = 0.01</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kpss.test</span>(otu_1_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in kpss.test(otu_1_count): p-value smaller than printed p-value</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    KPSS Test for Level Stationarity
+
+data:  otu_1_count
+KPSS Level = 0.89444, Truncation lag parameter = 3, p-value = 0.01</code></pre>
+</div>
+</div>
+<p>Result: Not Stationary</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>There are no cyclical trends in either our shannon index or in our otu_1 abundance Our data is considered non-stationary which would make it not possible to model a time series based on previous time values</p>
+</section>
+<section id="so-what-can-we-model" class="level2">
+<h2 class="anchored" data-anchor-id="so-what-can-we-model">So what can we model?</h2>
+<p>There does seem to be a correlation between different groups of OTU’s- lets examine this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Counts</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cor_mat = otu_counts[,-1]</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># #cor() computes the correlation coefficient</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># c_m = cor( cor_mat, method = "pearson")</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Relative Abundance</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> OTU, <span class="at">values_from =</span> Abundance) <span class="sc">%&gt;%</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace</span>(<span class="fu">is.na</span>(.), <span class="dv">0</span>)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">#remove date column</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">=</span> otu_p_wide[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>c_m_a <span class="ot">=</span> <span class="fu">cor</span>(otu_p_wide, <span class="at">method =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co">#heatmap(c_m)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Results show: - When calculating correlation coefficient between counts- little to no correlation between OTU’s - When calculating correlation coefficient between relative abundance- high correlations can be seen</p>
 
 
 </section>

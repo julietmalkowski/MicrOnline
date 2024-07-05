@@ -1,0 +1,291 @@
+## Linear Regressions on Input and Output Parameters
+
+```{r}
+#| echo: false
+library(phyloseq)
+library(vegan)
+library(picante)
+library(ggplot2)
+library(ggbiplot)
+library(tibble)
+library(readxl)
+library(dplyr)
+library(microbiome)
+library(ape)
+library(tidyr)
+library(tidyverse)
+library(RColorBrewer)
+library(reshape2)
+library(lubridate)
+library(ggpubr)
+
+#For reproducibility
+set.seed(123)
+```
+
+## Loading Data
+Note: All Abundances have been filtered out to only contain relative abundances > 0.01
+```{r}
+otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
+#remove first 4 characters in every column name
+colnames(otu_mat)<- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))
+otu_mat = as.data.frame(otu_mat)
+#split first column by character '_' into two seperate columns
+otu_mat[c('Process', 'Date')] <- str_split_fixed(otu_mat$le, '_', 2)
+#drop le column
+otu_mat = otu_mat[,-1]
+#move last two columns to the front
+otu_mat <- otu_mat %>%
+  select(Process, everything())
+otu_mat <- otu_mat %>%
+  select(Date, everything())
+#filter otu_mat to only contain AS-1 and AS-2 in process column
+otu_mat <- otu_mat %>%
+  filter(Process == "AS-1" | Process == "AS-2")
+#remove Process column
+otu_mat = otu_mat[,-2]
+#groupby date and find the mean of each column
+otu_counts <- otu_mat %>%
+  group_by(Date) %>%
+  summarise_all(mean)
+otu_p = otu_counts
+#find the sum of each row
+otu_p$sum <- rowSums(otu_p[,-1])
+#divide each row by the sum
+otu_p[,-1] <- otu_p[,-1] / otu_p$sum
+#remove sum column
+otu_p = otu_p[,-ncol(otu_p)]
+#make otu_p from wide form to long form
+otu_p <- otu_p %>%
+  pivot_longer(cols = -Date, names_to = "OTU", values_to = "Abundance")
+#filter out rows with an Abundance less than 0.01
+otu_p <- otu_p %>%
+  filter(Abundance >= 0.01)
+#calculate Shannon Index and add it to otu_p column
+shannon = function(x) {
+  -sum(x * log(x))
+}
+otu_shannon = otu_p
+s = otu_shannon %>% group_by(Date) %>%
+  summarize(Shannon = shannon(Abundance))
+otu_shannon = merge(otu_shannon, s, by = "Date")
+output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
+output_metadata = as.data.frame(output_metadata)
+
+#input parameters
+input_metadata = output_metadata
+input_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]
+input_data = input_metadata
+input_data = merge(otu_shannon, input_metadata, by = "Date")
+
+#output parameters
+output_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]
+output_data = merge(otu_shannon, output_metadata, by = "Date")
+#change column 6 name
+colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
+```
+
+## Connecting Metadata and OTU Counts
+
+```{r}
+output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
+output_metadata = as.data.frame(output_metadata)
+
+#input parameters
+input_metadata = output_metadata
+input_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]
+input_data = input_metadata
+input_data = merge(otu_shannon, input_metadata, by = "Date")
+colnames(input_data)[8] <- "BOD_CBOD_Load_PE"
+
+#output parameters
+output_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]
+output_data = merge(otu_shannon, output_metadata, by = "Date")
+#change column 6 name
+colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
+#remove column in output_data
+input_data_ = input_data[,-c(2:4)]
+input_data_ = as.data.frame(input_data_)
+#remove duplicates
+input_data_ = input_data_[!duplicated(input_data_[,1]),]
+#make first column rownames in output_data_
+rownames(input_data_) <- input_data_[,1]
+#remove first column
+input_data_ = input_data_[,-1]
+
+```
+## Effect of Input Parameters on Shannon Index
+Using a multiple linear regression
+I will briefly assume our variables have a normal distribution of residuals and are linear
+
+Notation for plots:
+
+Plot 1- distribution of residuals according to values predicted by linear regression model- each point represents the distance between the response variable and the model prediction- we need a uniform distribution of the residual. For this plot we need a uniform distribution of the residuals- the homoscedasticity condition. This condition states that if the residuals form an approximate horizontal band around the 0 line, the variance of the residuals is homogeneous.
+
+Plot 2- checks if the dispersion of residuals is caused by the explanatory variable- if the dispersion increases then it means the variances in each group are different
+
+Plot 3- this plot shows the distribution of residuals in a quantile- quantile plot which evaluated the normality of the residuals. This plot compares the probability distribution of normal data and standardized residuals can be seen near the 1:1 line 
+
+Plot 4- shows the residuals and their influence- the location of points with strong influence can influence the interpretation of the data. If one or more observations are outliers then the model may be misfitted because of their exaggerated influence. A distance greater than 0.5 is problematic
+
+```{r}
+#create multiple linear regression
+lm.mult <- lm(Shannon ~ pH_RSS + temp_RSS + BOD_CBOD_Load_PE + COD_Load_PE + Ammonia_Load_RAW + TKN_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)
+summary(lm.mult)
+par(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,
+                                                        0, 0))
+plot(lm.mult)
+```
+As can be seen above, the results from each plot do not meet the assumptions of linear regression. The residuals are not homoscedastic, the residuals are not normally distributed, and there are outliers that are influencing the model.
+
+Significant values include pH_RSS, BOD_CBOD_Load_PE,Ammonia_Load_RAW, P_Load_PE, and SCT_Detention_Time.
+To fix this data run now with only significant values
+```{r}
+lm.mult2 <- lm(Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)
+summary(lm.mult2)
+par(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,
+                                                        0, 0))
+plot(lm.mult2)
+```
+Now we see slightly better results with Ammonia Loading no longer being relevant
+
+## Determine Most Important Input Parameters based on Relative Abundances
+Using Redundancy Analysis
+```{r}
+otu_p_wide <- otu_p %>%
+  pivot_wider(names_from = OTU, values_from = Abundance) %>%
+  replace(is.na(.), 0)
+otu_p_wide = as.data.frame(otu_p_wide)
+#make first column rownames in output_data_
+rownames(otu_p_wide) <- otu_p_wide[,1]
+#remove first column
+otu_p_wide = otu_p_wide[,-1]
+
+as_metadata_input.z <- decostand(input_data_, method = "standardize")
+as_metadata_input.rda <- rda(otu_p_wide  ~ ., data = as_metadata_input.z)
+summary(as_metadata_input.rda)
+
+fwd.sel <- ordiR2step(rda(otu_p_wide ~ 1, data = as_metadata_input.z), # lower model limit (simple!)
+                      scope = formula(as_metadata_input.rda), # upper model limit (the "full" model)
+                      direction = "forward",
+                      R2scope = TRUE, # can't surpass the "full" model's R2
+                      pstep = 1000,
+                      trace = FALSE) # change to TRUE to see the selection process
+#see which variables were selected
+fwd.sel$call
+```
+
+#result RDA is: rda(formula = otu_p_wide \~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)
+
+## Effect of Shannon Index on Output Parameters using Linear Regression
+
+```{r}
+lm1 <- lm(COD_Load_Removed ~ Shannon, data = output_data)
+par(mfrow = c(2, 2))
+plot(lm1)
+title("Linear Model for COD_Load_Removed ~ Shannon", line = -1, outer = TRUE)
+summary(lm1)
+
+lm2 <- lm(P_Removed ~ Shannon, data = output_data)
+par(mfrow = c(2, 2))
+plot(lm2)
+title("Linear Model for P_Removed ~ Shannon", line = -1, outer = TRUE)
+summary(lm2)
+
+lm3 <- lm(TKN_Removed ~ Shannon, data = output_data)
+par(mfrow = c(2, 2))
+plot(lm3)
+title("Linear Model for TKN_Removed ~ Shannon", line = -1, outer = TRUE)
+summary(lm3)
+
+lm4 <- lm(Ammonia_Removed ~ Shannon, data = output_data)
+par(mfrow = c(2, 2))
+plot(lm4)
+title("Linear Model for Ammonia_Removed ~ Shannon", line = -1, outer = TRUE)
+summary(lm4)
+
+lm5 <- lm(BOD_CBOD_Load_Removed ~ Shannon, data = output_data)
+par(mfrow = c(2, 2))
+plot(lm5)
+title("Linear Model for BOD_CBOD_Load_Removed ~ Shannon", line = -1, outer = TRUE)
+summary(lm5)
+```
+Resulting p-values are all significant:
+In order:
+COD_Load_Removed:0.00025
+P_Removed: 2e-16
+TKN_Removed: 2e-16
+Ammonia_Removed: 2.92e-05
+BOD_CBOD_Load_Removed: 0.024
+
+
+## OTU 1 Analysis
+The generalized linear model used a binomial distribution for the relative abundance data (between 0-1) so the changes of the inputs on this distribution can be specifically calculated. This model also does not assume a linear relationship. 
+
+The poisson relationship would be used for count data
+
+## Comparing a General Linear Model vs. Linear Model for Input Parameters on OTU 1
+
+```{r}
+#filter out for OTU 1
+otu_1 <- input_data %>% filter(OTU == 1)
+model1 <- glm(Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, family = binomial,
+              data = otu_1)
+summary(model1)
+par(mfrow = c(2, 2))
+plot(model1)
+title("General Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time", line = -1, outer = TRUE)
+
+#normal linear model
+model2 <- lm(Abundance ~  temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE,
+              data = otu_1)
+summary(model2)
+par(mfrow = c(2, 2))
+plot(model2)
+title("Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time", line = -1, outer = TRUE)
+```
+Here we see the generalized linear model predict no significant values, while the linear model predicts significant values. 
+
+## Conclusions
+
+Relevant Input Parameters that explain 36% of variance in the data: 
+
+- temp_RSS
+  
+- SCT_Detention_Time
+  
+- P_Load_PE
+  
+- TKN_Load_RAW
+  
+- Ammonia_Load_RAW
+
+
+
+From multiple linear regression on shannon index:
+  
+- pH_RSS
+
+- BOD_CBOD_Load_PE
+
+- Ammonia_Load_RAW
+
+- P_Load_PE
+
+- SCT_Detention_Time
+
+From generalized linear model on OTU 1:
+- none
+
+
+Relevant Output Parameters:
+
+- COD_Load_Removed
+  
+- P_Removed
+  
+- TKN_Removed
+  
+- Ammonia_Removed
+  
+- BOD_CBOD_Load_Removed

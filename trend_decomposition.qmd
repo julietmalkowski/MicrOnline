@@ -1,93 +1,233 @@
 # Decomposition of Trends
 
-# What dependencies to install
-```{python}
-import pandas as pd
-from scipy import interpolate
-import numpy as np
-import seaborn as sns
-import pandas as pd
-import numpy as np
-from random import gauss
-from pandas.plotting import autocorrelation_plot
-import statsmodels.formula.api as smf
-import statsmodels.api as sm
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.tsa.ar_model import AR
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
-import matplotlib.pyplot as plt
-plt.style.use('fivethirtyeight')
-```
+## Loading Data
 
-# Loading data
-```{python}
-abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
-as_outliers_removed = pd.read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/as_outliers_removed_june16.xlsx")
-```
+Note: All Abundances have been filtered out to only contain relative abundances \> 0.01
 
-# Creating Dataframes
-```{python}
+```{r}
+#| echo: false
+library(phyloseq)
+library(vegan)
+library(picante)
+library(ggplot2)
+library(ggbiplot)
+library(tibble)
+library(readxl)
+library(dplyr)
+library(corrplot)
+library(ape)
+library(tidyr)
+library(tidyverse)
+library(RColorBrewer)
+library(reshape2)
+library(lubridate)
+library(ggpubr)
+library(tseries)
+
+#For reproducibility
+set.seed(123)
+
+otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
 #remove first 4 characters in every column name
-abundance_table.columns = abundance_table.columns.str[4:] 
-#split string in column to get date and process
-abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)
-abundance_table = abundance_table.drop(columns=['le'])
-#keep only AS-1 and AS-2 data
-processes = ['AS-1', 'AS-2']
-as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
-as_abundance_table = as_abundance_table.drop(columns=['Process'])
-#group by date and find the mean of all values
-as_abundance_table = as_abundance_table.groupby(['Date']).mean()
-as_abundance_table['sum'] = as_abundance_table.sum(axis=1)
-as_abundance_table = as_abundance_table.reset_index()
-as_abundance = as_abundance_table.set_index('Date')
-#find percentage each column by dividing by sum
-as_abundance = as_abundance.div(as_abundance['sum'], axis=0)
-as_abundance = as_abundance.drop(columns=['sum'])
-#pivot dataframe from wide to long format
-as_abundance = as_abundance.reset_index()
-as_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')
-#remove all rows with an abundance less than 0.01
-#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] >= 0.0005] 
-as_abundance = as_abundance[as_abundance['Abundance'] >= 0.01] 
+colnames(otu_mat)<- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))
+otu_mat = as.data.frame(otu_mat)
+#split first column by character '_' into two seperate columns
+otu_mat[c('Process', 'Date')] <- str_split_fixed(otu_mat$le, '_', 2)
+#drop le column
+otu_mat = otu_mat[,-1]
+#move last two columns to the front
+otu_mat <- otu_mat %>%
+  select(Process, everything())
+otu_mat <- otu_mat %>%
+  select(Date, everything())
+#filter otu_mat to only contain AS-1 and AS-2 in process column
+otu_mat <- otu_mat %>%
+  filter(Process == "AS-1" | Process == "AS-2")
+#remove Process column
+otu_mat = otu_mat[,-2]
+#groupby date and find the mean of each column
+otu_counts <- otu_mat %>%
+  group_by(Date) %>%
+  summarise_all(mean)
+otu_p = otu_counts
+#find the sum of each row
+otu_p$sum <- rowSums(otu_p[,-1])
+#divide each row by the sum
+otu_p[,-1] <- otu_p[,-1] / otu_p$sum
+#remove sum column
+otu_p = otu_p[,-ncol(otu_p)]
+#make otu_p from wide form to long form
+otu_p <- otu_p %>%
+  pivot_longer(cols = -Date, names_to = "OTU", values_to = "Abundance")
+#filter out rows with an Abundance less than 0.01
+otu_p <- otu_p %>%
+  filter(Abundance >= 0.01)
+#calculate Shannon Index and add it to otu_p column
+shannon = function(x) {
+  -sum(x * log(x))
+}
+otu_shannon = otu_p
+s = otu_shannon %>% group_by(Date) %>%
+  summarize(Shannon = shannon(Abundance))
+otu_shannon = merge(otu_shannon, s, by = "Date")
+output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
+output_metadata = as.data.frame(output_metadata)
 
-def shannon_index(x):
-    return -1 * np.sum(x*np.log(x))
+#input parameters
+input_metadata = output_metadata
+input_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]
+input_data = input_metadata
+input_data = merge(otu_shannon, input_metadata, by = "Date")
 
-Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()
+#output parameters
+output_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]
+output_data = merge(otu_shannon, output_metadata, by = "Date")
+#change column 6 name
+colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
 
-as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')
-as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})
 
-as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')
+output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
+output_metadata = as.data.frame(output_metadata)
 
-#merging with as_abundance
-unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])
+#input parameters
+input_metadata = output_metadata
+input_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]
+input_data = input_metadata
+input_data = merge(otu_shannon, input_metadata, by = "Date")
+colnames(input_data)[8] <- "BOD_CBOD_Load_PE"
 
-unfiltered_data['Date'] = pd.to_datetime(unfiltered_data['Date'])
-unfiltered_data = unfiltered_data.set_index('Date')
-unfiltered_data = unfiltered_data.sort_values(by='Date')
+#output parameters
+output_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]
+output_data = merge(otu_shannon, output_metadata, by = "Date")
+#change column 6 name
+colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
+#remove column in output_data
+input_data_ = input_data[,-c(2:4)]
+input_data_ = as.data.frame(input_data_)
+#remove duplicates
+input_data_ = input_data_[!duplicated(input_data_[,1]),]
+#make first column rownames in output_data_
+rownames(input_data_) <- input_data_[,1]
+#remove first column
+input_data_ = input_data_[,-1]
 
+#get only otu 1 data
+otu_1 = input_data %>% filter(OTU == 1)
+otu_1_abundance = otu_1[,3]
+#get only shannon column from otu_1
+otu_1_shannon = otu_1[,4]
+
+#on count
+otu_1_count = otu_counts[,14]
+#turn otu_1_count into vector
+otu_1_count = as.vector(t(otu_1_count))
 ```
-
 
 ## Seasonal Decomposition
-```{python}
-unfiltered_data = unfiltered_data
-decomposition = sm.tsa.seasonal_decompose(unfiltered_data['Shannon Index'], period = 4) 
-figure = decomposition.plot()
-plt.show()
+
+For Shannon Index
+
+```{r}
+# otu_1_shannon %>% decompose(type="additive") %>%
+#   autoplot()
 ```
 
+Result: Error in `decompose()`: ! time series has no or less than 2 periods
 
-## Shannon Index over time
-``` {python}
-#plot Shannon Index over time with angle = 90 on x-axis labels
-plt.xticks(rotation=90, size = 5)
-sns.lineplot(x='Date', y='Shannon Index', data=unfiltered_data)
-plt.title('Shannon Index Over Time')
-#add x-axis label
-plt.xlabel('Date')
-plt.xticks(size = 10)
+```{r}
+# otu_1_abundance %>% decompose(type="additive") %>%
+#   autoplot()
+
+# otu_1_count%>% decompose(type="additive") %>%
+#   autoplot()
 ```
+
+Result: Error in `decompose()`: ! time series has no or less than 2 periods
+
+## STL Decomposition
+
+For Shannon Index
+
+```{r}
+# otu_1_shannon  %>%
+#   stl(s.window="periodic", robust=TRUE) %>%
+#   autoplot()
+
+# otu_1_abundance  %>%
+#   stl(s.window="periodic", robust=TRUE) %>%
+#   autoplot()
+
+```
+
+Result: Error in `decompose()`: ! time series has no or less than 2 periods
+
+## Stationarity Check
+
+Augmented Dickey-Fuller Test: This is a statistical test that checks for the presence of a unit root in the time series. If the test indicates that there is no unit root, then the time series is likely stationary.
+
+For Shannon Index
+
+```{r}
+adf_test_shannon <- adf.test(otu_1_shannon)
+print(adf_test_shannon)
+```
+
+Result: Not Stationary
+
+For OTU 1 Counts
+
+```{r}
+adf_test_otu <- adf.test(otu_1_abundance)
+print(adf_test_otu)
+
+#adf.test(otu_1_count) 
+```
+
+Result: Not Stationary
+
+Kwiatkowski-Phillips-Schmidt-Shin Test: his test checks for the presence of a trend or structural break in the time series. If the test indicates that there is no trend or structural break, then the time series may be considered stationary.
+
+For Shannon Index
+
+```{r}
+kpss.test(otu_1_shannon)
+```
+
+Result: Not Stationary
+
+For OTU 1
+
+```{r}
+#on relative abudance
+kpss.test(otu_1_abundance)
+kpss.test(otu_1_count)
+```
+
+Result: Not Stationary
+
+## Conclusion
+
+There are no cyclical trends in either our shannon index or in our otu_1 abundance Our data is considered non-stationary which would make it not possible to model a time series based on previous time values
+
+## So what can we model?
+
+There does seem to be a correlation between different groups of OTU's- lets examine this:
+
+```{r}
+#Counts
+# cor_mat = otu_counts[,-1]
+# #cor() computes the correlation coefficient
+# c_m = cor( cor_mat, method = "pearson")
+
+#Relative Abundance
+otu_p_wide <- otu_p %>%
+  pivot_wider(names_from = OTU, values_from = Abundance) %>%
+  replace(is.na(.), 0)
+#remove date column
+otu_p_wide = otu_p_wide[,-1]
+c_m_a = cor(otu_p_wide, method = "pearson")
+
+#heatmap(c_m)
+```
+
+Results show: - When calculating correlation coefficient between counts- little to no correlation between OTU's - When calculating correlation coefficient between relative abundance- high correlations can be seen

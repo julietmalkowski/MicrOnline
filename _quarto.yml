@@ -14,7 +14,7 @@ website:
       - correlation_matrix.qmd
       - fourier_transform.qmd
       - trend_decomposition.qmd
-        
+      - linear_regressions.qmd
 
 format:
   html:
