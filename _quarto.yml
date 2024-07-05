@@ -4,8 +4,6 @@ project:
   render:
       - correlation_matrix.qmd
       - fourier_transform.qmd
-      - introduction.qmd
-
 
 website:
   title: "Activated Sludge Model"
@@ -15,7 +13,6 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - introduction.qmd 
       - correlation_matrix.qmd
       - fourier_transform.qmd
         
