@@ -21,6 +21,20 @@
     "text": "Fourier Transform of Count Data\n\ndef FFT(input_array):\n\n    fig, ax = plt.subplots(2, 1, figsize=(10, 10))\n\n    #Taking each OTU and fourier transforming its signal through time\n    for i in range(input_array.shape[1]):\n        ax[0].plot(input_array[:,i])\n\n        #Calculate the FFT\n        #calculate fourier transform by using np.fft.fft to calculate fft of each column (each OTU count through time)\n        #calculate the fourier sample frequencies by using np.fft.fftfreq\n        #Use np.fft.fftshift to shift the zero-frequency component to the center of the spectrum.\n\n        fft = np.fft.fftshift(np.fft.fft(input_array[:,i]))\n        fft_freq = np.fft.fftshift(np.fft.fftfreq(len(fft)))\n\n        fft = np.abs(fft[fft_freq &gt; 0])\n        fft_freq = fft_freq[fft_freq &gt; 0]\n\n        ax[1].plot(fft_freq, fft)\n\n    ax[0].set_title('Input signal')\n    ax[0].set_xlabel('Time')\n    ax[0].set_ylabel('Amplitude')\n\n    ax[1].set_title('FFT of the signal')\n    ax[1].set_xlabel('Frequency')\n    ax[1].set_ylabel('Amplitude')\n\n    plt.show()\n\nFFT(a.copy())"
   },
   {
+    "objectID": "introduction.html",
+    "href": "introduction.html",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "Welcome! Here you can find various ways to explore our wastewater data:"
+  },
+  {
+    "objectID": "introduction.html#welcome",
+    "href": "introduction.html#welcome",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "Welcome! Here you can find various ways to explore our wastewater data:"
+  },
+  {
     "objectID": "correlation_matrix.html",
     "href": "correlation_matrix.html",
     "title": "Correlations",
