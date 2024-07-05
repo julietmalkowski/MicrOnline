@@ -1,0 +1,230 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Decomposition of Trends\n",
+        "\n",
+        "# What dependencies to install\n"
+      ],
+      "id": "2569c5c0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "from scipy import interpolate\n",
+        "import numpy as np\n",
+        "import seaborn as sns\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from random import gauss\n",
+        "from pandas.plotting import autocorrelation_plot\n",
+        "import statsmodels.formula.api as smf\n",
+        "import statsmodels.api as sm\n",
+        "from statsmodels.graphics.tsaplots import plot_acf, plot_pacf\n",
+        "from statsmodels.tsa.ar_model import AR\n",
+        "from statsmodels.tsa.seasonal import seasonal_decompose\n",
+        "from statsmodels.tsa.stattools import adfuller\n",
+        "import matplotlib.pyplot as plt\n",
+        "plt.style.use('fivethirtyeight')"
+      ],
+      "id": "65bfcc62",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Loading data\n"
+      ],
+      "id": "4cdf46f2"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "abundance_table = pd.read_excel(\"abundance_table.xlsx\")\n",
+        "as_outliers_removed = pd.read_excel(\"as_outliers_removed_june16.xlsx\")"
+      ],
+      "id": "239cbd68",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Creating Dataframes\n"
+      ],
+      "id": "11c7917d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#data- Shannon Index AS system data\n",
+        "abundance_table = pd.read_excel(\"abundance_table.xlsx\")\n",
+        "#remove first 4 characters in every column name\n",
+        "abundance_table.columns = abundance_table.columns.str[4:] \n",
+        "#split string in column to get date and process\n",
+        "abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\n",
+        "abundance_table = abundance_table.drop(columns=['le'])\n",
+        "#keep only AS-1 and AS-2 data\n",
+        "processes = ['AS-1', 'AS-2']\n",
+        "as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\n",
+        "as_abundance_table = as_abundance_table.drop(columns=['Process'])\n",
+        "#group by date and find the mean of all values\n",
+        "as_abundance_table = as_abundance_table.groupby(['Date']).mean()\n",
+        "as_abundance_table['sum'] = as_abundance_table.sum(axis=1)\n",
+        "as_abundance_table = as_abundance_table.reset_index()\n",
+        "as_abundance = as_abundance_table.set_index('Date')\n",
+        "#find percentage each column by dividing by sum\n",
+        "as_abundance = as_abundance.div(as_abundance['sum'], axis=0)\n",
+        "as_abundance = as_abundance.drop(columns=['sum'])\n",
+        "#pivot dataframe from wide to long format\n",
+        "as_abundance = as_abundance.reset_index()\n",
+        "as_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')\n",
+        "#remove all rows with an abundance less than 0.01\n",
+        "#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] >= 0.0005] \n",
+        "as_abundance = as_abundance[as_abundance['Abundance'] >= 0.01] \n",
+        "\n",
+        "def shannon_index(x):\n",
+        "    return -1 * np.sum(x*np.log(x))\n",
+        "\n",
+        "Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()\n",
+        "\n",
+        "as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')\n",
+        "as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})\n",
+        "\n",
+        "as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')\n",
+        "\n",
+        "#merging with as_abundance\n",
+        "unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])\n",
+        "\n",
+        "unfiltered_data['Date'] = pd.to_datetime(unfiltered_data['Date'])\n",
+        "unfiltered_data = unfiltered_data.set_index('Date')\n",
+        "unfiltered_data = unfiltered_data.sort_values(by='Date')"
+      ],
+      "id": "844e219f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Seasonal Decomposition\n"
+      ],
+      "id": "5632d5a6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "unfiltered_data = unfiltered_data\n",
+        "decomposition = sm.tsa.seasonal_decompose(unfiltered_data['Shannon Index'], period = 4) \n",
+        "figure = decomposition.plot()\n",
+        "plt.show()"
+      ],
+      "id": "d1512807",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## STL Decomposition\n"
+      ],
+      "id": "e3750c51"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from statsmodels.tsa.seasonal import STL\n",
+        "stl = STL(unfiltered_data['Shannon Index'])\n",
+        "res = stl.fit()\n",
+        "fig = res.plot()"
+      ],
+      "id": "e84c0251",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Shannon Index over time\n"
+      ],
+      "id": "4bdf380c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#plot Shannon Index over time with angle = 90 on x-axis labels\n",
+        "plt.xticks(rotation=90, size = 5)\n",
+        "sns.lineplot(x='Date', y='Shannon Index', data=unfiltered_data)\n",
+        "plt.title('Shannon Index Over Time')\n",
+        "#add x-axis label\n",
+        "plt.xlabel('Date')\n",
+        "plt.xticks(size = 10)"
+      ],
+      "id": "1fd7fb1b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#top 10 most abundant species\n",
+        "def get_top_n(group, n=10):\n",
+        "    return group.nlargest(n, columns='Abundance')\n",
+        "\n",
+        "# Apply the function to each group\n",
+        "top_n_per_group = unfiltered_data.groupby('Date').apply(get_top_n).reset_index()\n",
+        "top_n_per_group = top_n_per_group.reset_index()\n",
+        "# Extract the values into a list for each group\n",
+        "result = top_n_per_group.groupby('Date')['OTU'].apply(list).to_dict()\n",
+        "\n",
+        "#OTU 1 is very common/highly abundant\n",
+        "#filter unfiltered_data by OTU 1\n",
+        "f, ax = plt.subplots(1, 1)\n",
+        "otu_1 = unfiltered_data[unfiltered_data['OTU'] == '1']\n",
+        "sns.lineplot(x='Date', y='Counts', data=otu_1, label=\"1\",)\n",
+        "otu_4 = unfiltered_data[unfiltered_data['OTU'] == '4']\n",
+        "sns.lineplot(x='Date', y='Counts', data=otu_4, label=\"4\",)\n",
+        "otu_2 = unfiltered_data[unfiltered_data['OTU'] == '2']\n",
+        "sns.lineplot(x='Date', y='Counts', data=otu_2, label=\"2\",)\n",
+        "otu_6 = unfiltered_data[unfiltered_data['OTU'] == '6']\n",
+        "sns.lineplot(x='Date', y='Counts', data=otu_6, label=\"6\",)\n",
+        "#add a legend for each lineplot\n",
+        "ax.legend()\n",
+        "#add title\n",
+        "plt.title('Abundance Counts of Top Growing OTUs Over Time')\n",
+        "#add x-axis label\n",
+        "plt.xlabel('Date')\n",
+        "plt.xticks(size = 10)"
+      ],
+      "id": "87785438",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/julietmalkowski/Desktop/Research/Micro/env/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

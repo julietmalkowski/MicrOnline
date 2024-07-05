@@ -8,7 +8,7 @@ import pandas as pd
 
 ## Creating Count Data
 ```{python}
-abundance_table = pd.read_excel("abundance_table.xlsx")
+abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
 #remove first 4 characters in every column name
 abundance_table.columns = abundance_table.columns.str[4:] 
 #split string in column to get date and process

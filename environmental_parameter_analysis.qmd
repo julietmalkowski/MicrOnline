@@ -1,0 +1,210 @@
+# Environmental Parameter Analysis
+
+```{r}
+#| echo: false
+library(phyloseq)
+library(vegan)
+library(picante)
+library(ggplot2)
+library(ggbiplot)
+library(tibble)
+library(readxl)
+library(dplyr)
+library(microbiome)
+library(ape)
+library(tidyr)
+library(tidyverse)
+library(RColorBrewer)
+library(reshape2)
+library(lubridate)
+library(ggpubr)
+#For reproducibility
+set.seed(123)
+```
+
+## Loading Metadata
+
+```{r}
+otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
+#remove first 4 characters in every column name
+colnames(otu_mat)<- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))
+otu_mat = as.data.frame(otu_mat)
+#split first column by character '_' into two seperate columns
+otu_mat[c('Process', 'Date')] <- str_split_fixed(otu_mat$le, '_', 2)
+#drop le column
+otu_mat = otu_mat[,-1]
+#move last two columns to the front
+otu_mat <- otu_mat %>%
+  select(Process, everything())
+otu_mat <- otu_mat %>%
+  select(Date, everything())
+#filter otu_mat to only contain AS-1 and AS-2 in process column
+otu_mat <- otu_mat %>%
+  filter(Process == "AS-1" | Process == "AS-2")
+#remove Process column
+otu_mat = otu_mat[,-2]
+#groupby date and find the mean of each column
+otu_counts <- otu_mat %>%
+  group_by(Date) %>%
+  summarise_all(mean)
+otu_p = otu_counts
+#find the sum of each row
+otu_p$sum <- rowSums(otu_p[,-1])
+#divide each row by the sum
+otu_p[,-1] <- otu_p[,-1] / otu_p$sum
+#remove sum column
+otu_p = otu_p[,-ncol(otu_p)]
+#make otu_p from wide form to long form
+otu_p <- otu_p %>%
+  pivot_longer(cols = -Date, names_to = "OTU", values_to = "Abundance")
+#filter out rows with an Abundance less than 0.01
+otu_p <- otu_p %>%
+  filter(Abundance >= 0.01)
+#calculate Shannon Index and add it to otu_p column
+shannon = function(x) {
+  -sum(x * log(x))
+}
+otu_shannon = otu_p
+s = otu_shannon %>% group_by(Date) %>%
+  summarize(Shannon = shannon(Abundance))
+otu_shannon = merge(otu_shannon, s, by = "Date")
+
+output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
+output_metadata = as.data.frame(output_metadata)
+
+#input parameters
+input_metadata = output_metadata
+input_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]
+input_data = input_metadata
+input_data = merge(otu_shannon, input_metadata, by = "Date")
+
+#output parameters
+output_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]
+output_data = merge(otu_shannon, output_metadata, by = "Date")
+#change column 6 name
+colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
+#remove column in output_data
+input_data_ = input_data[,-c(2:4)]
+input_data_ = as.data.frame(input_data_)
+#remove duplicates
+input_data_ = input_data_[!duplicated(input_data_[,1]),]
+#make first column rownames in output_data_
+rownames(input_data_) <- input_data_[,1]
+#remove first column
+input_data_ = input_data_[,-1]
+#move rowcols to first column
+input_data_ = cbind(Date = rownames(input_data_), input_data_)
+input_data_$Date <- mdy(input_data_$Date)
+#remove rownames
+rownames(input_data_) <- NULL
+
+#remove column in output_data
+output_data_ = output_data[,-c(2:5)]
+output_data_ = as.data.frame(output_data_)
+#remove duplicates
+output_data_ = output_data_[!duplicated(output_data_[,1]),]
+#make first column rownames in output_data_
+rownames(output_data_) <- output_data_[,1]
+#remove first column
+output_data_ = output_data_[,-1]
+#move rowcols to first column
+output_data_ = cbind(Date = rownames(output_data_), output_data_)
+#remove rownames
+rownames(output_data_) <- NULL
+#make date column numeric
+output_data_$Date <- mdy(output_data_$Date)
+```
+
+## Input Visualization
+
+#RDA selected values only
+
+```{r}
+
+e = ggplot() + 
+  geom_line(data=input_data_,aes(x = Date,y = temp_RSS, color = "temp_RSS"),group = 1) +
+  ggtitle("RSS Temp Over Time") + xlab("Month") + ylab("temp (deg.C)") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+f = ggplot() + 
+  geom_line(data=input_data_,aes(x = Date,y = SCT_Detention_Time, color = "SCT_Detention_Time"),group = 1) + 
+  ggtitle("SCT_Detention_Time Over Time") + xlab("Month") + ylab("time (hr)") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+g = ggplot() + 
+  geom_line(data=input_data_,aes(x = Date,y = P_Load_PE, color = "P_Load_PE"),group = 1) + 
+  ggtitle("P_Load_PE Over Time") + xlab("Month") + ylab("mg/L") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+h = ggplot() + 
+  geom_line(data=input_data_,aes(x = Date,y = TKN_Load_RAW, color = "TKN_Load_RAW"),group = 1) + 
+  ggtitle("TKN_Load_RAW Over Time") + xlab("Month") + ylab("mg/L") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+i = ggplot() + 
+  geom_line(data=input_data_,aes(x = Date,y = Ammonia_Load_RAW, color = "Ammonia_Load_RAW"),group = 1) + 
+  ggtitle("Ammonia_Load_RAW") + xlab("Month") + ylab("mg/L") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+ggarrange(e, f, g, h, i + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E"),
+          ncol = 2, nrow = 3)
+
+```
+
+## Output Visualization
+
+```{r}
+a = ggplot() + 
+  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = "BOD_CBOD_Load_Removed"),group = 1) + 
+  geom_line(data=output_data_,aes(x = Date, y = COD_Load_Removed,color = "COD_Load_Removed"),group = 1) +
+  ggtitle("Output Parameters Over Time") + xlab("Month") + ylab("tonnes/day") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+b = ggplot() + 
+  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = "P_Removed"),group = 1) + 
+  ggtitle("P_Removed Over Time") + xlab("Month") + ylab("tonnes/day") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+c = ggplot() + 
+  geom_line(data=output_data_,aes(x = Date,y = TKN_Removed, color = "TKN_Removed"),group = 1) + 
+  ggtitle("TKN_Removed Over Time") + xlab("Month") + ylab("tonnes/day") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+d = ggplot() + 
+  geom_line(data=output_data_,aes(x = Date,y = Ammonia_Removed, color = "Ammonia_Removed"),group = 1) + 
+  ggtitle("Ammonia_Removed Over Time") + xlab("Month") + ylab("tonnes/day") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%m") + theme(legend.position="top")
+
+ggarrange(a, b, c, d + rremove("x.text"), 
+          labels = c("A", "B", "C", "D"),
+          ncol = 2, nrow = 2)
+
+```
+
+## Shannon Index Visualization
+
+```{r}
+ggplot() + 
+  geom_line(data=s,aes(x = Date,y = Shannon, color = "Shannon"),group = 1) + 
+  ggtitle("Shannon Index Over Time") + xlab("Date") + ylab("Shannon Index") + theme(legend.position="top") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## OTU 1,4,2,6 Visualization
+
+```{r}
+#put character z in front of all columns
+colnames(otu_counts) <- paste0("z", colnames(otu_counts))
+#select only columns named '1' in otu_counts
+otus <- select(otu_counts,z1,z4,z2,z6,zDate)
+
+#plot the data
+ggplot() + 
+  geom_line(data=otus,aes(x = zDate, y = z1, color = "1"),group = 1) + 
+  geom_line(data=otus,aes(x = zDate, y = z4,color = "4"),group = 1) +
+  geom_line(data=otus,aes(x = zDate, y = z2,color = "2"),group = 1) +
+  geom_line(data=otus,aes(x = zDate, y = z6 ,color = "6"),group = 1) +
+  ggtitle("OTU 1,4,2,6 Over Time") + xlab("Date") + ylab("Abundance") + theme(legend.position="top") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```

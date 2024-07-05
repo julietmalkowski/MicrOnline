@@ -10,8 +10,10 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - environmental_parameter_analysis.qmd
       - correlation_matrix.qmd
       - fourier_transform.qmd
+      - trend_decomposition.qmd
         
 
 format:

@@ -1,0 +1,93 @@
+# Decomposition of Trends
+
+# What dependencies to install
+```{python}
+import pandas as pd
+from scipy import interpolate
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import numpy as np
+from random import gauss
+from pandas.plotting import autocorrelation_plot
+import statsmodels.formula.api as smf
+import statsmodels.api as sm
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.ar_model import AR
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller
+import matplotlib.pyplot as plt
+plt.style.use('fivethirtyeight')
+```
+
+# Loading data
+```{python}
+abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
+as_outliers_removed = pd.read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/as_outliers_removed_june16.xlsx")
+```
+
+# Creating Dataframes
+```{python}
+#remove first 4 characters in every column name
+abundance_table.columns = abundance_table.columns.str[4:] 
+#split string in column to get date and process
+abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)
+abundance_table = abundance_table.drop(columns=['le'])
+#keep only AS-1 and AS-2 data
+processes = ['AS-1', 'AS-2']
+as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
+as_abundance_table = as_abundance_table.drop(columns=['Process'])
+#group by date and find the mean of all values
+as_abundance_table = as_abundance_table.groupby(['Date']).mean()
+as_abundance_table['sum'] = as_abundance_table.sum(axis=1)
+as_abundance_table = as_abundance_table.reset_index()
+as_abundance = as_abundance_table.set_index('Date')
+#find percentage each column by dividing by sum
+as_abundance = as_abundance.div(as_abundance['sum'], axis=0)
+as_abundance = as_abundance.drop(columns=['sum'])
+#pivot dataframe from wide to long format
+as_abundance = as_abundance.reset_index()
+as_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')
+#remove all rows with an abundance less than 0.01
+#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] >= 0.0005] 
+as_abundance = as_abundance[as_abundance['Abundance'] >= 0.01] 
+
+def shannon_index(x):
+    return -1 * np.sum(x*np.log(x))
+
+Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()
+
+as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')
+as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})
+
+as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')
+
+#merging with as_abundance
+unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])
+
+unfiltered_data['Date'] = pd.to_datetime(unfiltered_data['Date'])
+unfiltered_data = unfiltered_data.set_index('Date')
+unfiltered_data = unfiltered_data.sort_values(by='Date')
+
+```
+
+
+## Seasonal Decomposition
+```{python}
+unfiltered_data = unfiltered_data
+decomposition = sm.tsa.seasonal_decompose(unfiltered_data['Shannon Index'], period = 4) 
+figure = decomposition.plot()
+plt.show()
+```
+
+
+## Shannon Index over time
+``` {python}
+#plot Shannon Index over time with angle = 90 on x-axis labels
+plt.xticks(rotation=90, size = 5)
+sns.lineplot(x='Date', y='Shannon Index', data=unfiltered_data)
+plt.title('Shannon Index Over Time')
+#add x-axis label
+plt.xlabel('Date')
+plt.xticks(size = 10)
+```
