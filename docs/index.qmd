@@ -2,7 +2,7 @@
 title: "Activated Sludge Model"
 ---
 
-Welcome! Here you can find various ways to explore our data
+Welcome! Here you can find various ways 
 Here are our Alpha Diverisities over time:
 
 

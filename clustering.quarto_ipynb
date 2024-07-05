@@ -1,0 +1,138 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Clustering for Relative Abundance and SRT Time\n"
+      ],
+      "id": "64318c32"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "import pandas as pd"
+      ],
+      "id": "493e2deb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "All of this data is filtered already for outliers"
+      ],
+      "id": "34c82614"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "srt_table = pd.read_excel(\"as_outliers_removed_july5.xlsx\")"
+      ],
+      "id": "1a02557f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "table = srt_table.iloc[:,[1,2,4]]\n",
+        "table = table.drop_duplicates()\n",
+        "table = table.groupby(['week','OTU'])['SRT'].agg('mean').reset_index()\n",
+        "table = table.pivot(index = 'week', columns = \"OTU\", values = 'SRT')\n",
+        "table = table.fillna(0)"
+      ],
+      "id": "a27b8ed9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "table = table.reset_index()\n",
+        "time = table.iloc[:,0]\n",
+        "time = time.to_numpy()\n",
+        "otus = table.iloc[:,1:]\n",
+        "otus = otus.to_numpy()"
+      ],
+      "id": "86d4af3f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "data = []\n",
+        "for i in range(otus.shape[1]):\n",
+        "    z = np.polyfit(time, otus[:,i], 10)\n",
+        "    data.append(z)"
+      ],
+      "id": "87d0f264",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Find number of clusters to use"
+      ],
+      "id": "0fb86704"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from sklearn.cluster import KMeans\n",
+        "inertias = []\n",
+        "\n",
+        "for i in range(1,50):\n",
+        "    kmeans = KMeans(n_clusters=i)\n",
+        "    kmeans.fit(data)\n",
+        "    inertias.append(kmeans.inertia_)\n",
+        "\n",
+        "plt.plot(range(1,11), inertias, marker='o')\n",
+        "plt.title('Elbow method')\n",
+        "plt.xlabel('Number of clusters')\n",
+        "plt.ylabel('Inertia')\n",
+        "plt.show()"
+      ],
+      "id": "0c3bb4a1",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Create a sample distribution \n",
+        "N = 100\n",
+        "X = np.concatenate((np.random.normal(0, 1, int(0.6 * N)),  \n",
+        "                    np.random.normal(10, 1, int(0.4 * N))) \n",
+        "                )[:, np.newaxis] \n",
+        "X_plot = np.linspace(-5, 15, 1000)[:, np.newaxis] "
+      ],
+      "id": "19bca2e8",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/julietmalkowski/Desktop/Research/Micro/env/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
