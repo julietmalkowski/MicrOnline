@@ -26,6 +26,7 @@ set.seed(123)
 ## Loading Data
 Note: All Abundances have been filtered out to only contain relative abundances > 0.01
 ```{r}
+#| output = FALSE
 otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
 #remove first 4 characters in every column name
 colnames(otu_mat)<- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))
@@ -88,6 +89,7 @@ colnames(output_data)[6] <- "BOD_CBOD_Load_Removed"
 ## Connecting Metadata and OTU Counts
 
 ```{r}
+#| output = FALSE
 output_metadata <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx")
 output_metadata = as.data.frame(output_metadata)
 
@@ -112,8 +114,8 @@ input_data_ = input_data_[!duplicated(input_data_[,1]),]
 rownames(input_data_) <- input_data_[,1]
 #remove first column
 input_data_ = input_data_[,-1]
-
 ```
+
 ## Effect of Input Parameters on Shannon Index
 Using a multiple linear regression
 I will briefly assume our variables have a normal distribution of residuals and are linear
