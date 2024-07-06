@@ -1,7 +1,7 @@
 # Environmental Parameter Analysis
 
 ```{r}
-#| echo: false
+#| include: false
 library(phyloseq)
 library(vegan)
 library(picante)
@@ -25,6 +25,7 @@ set.seed(123)
 ## Loading Metadata
 
 ```{r}
+#| include: false
 otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
 #remove first 4 characters in every column name
 colnames(otu_mat)<- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))

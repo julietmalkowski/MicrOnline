@@ -165,7 +165,6 @@ otu_p_wide = otu_p_wide[,-1]
 
 as_metadata_input.z <- decostand(input_data_, method = "standardize")
 as_metadata_input.rda <- rda(otu_p_wide  ~ ., data = as_metadata_input.z)
-summary(as_metadata_input.rda)
 
 fwd.sel <- ordiR2step(rda(otu_p_wide ~ 1, data = as_metadata_input.z), # lower model limit (simple!)
                       scope = formula(as_metadata_input.rda), # upper model limit (the "full" model)

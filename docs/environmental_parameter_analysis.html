@@ -209,6 +209,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">clustering.html</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Observable Patterns</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./correlation_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Correlations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./indicator_species.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">indicator_species.html</span></a>
   </div>
@@ -244,233 +267,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="environmental-parameter-analysis" class="level1">
 <h1>Environmental Parameter Analysis</h1>
-<div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: permute</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: lattice</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>This is vegan 2.6-4</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: ape</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: nlme</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:nlme':
-
-    collapse</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:ape':
-
-    where</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-microbiome R package (microbiome.github.com)
-    
-
-
- Copyright (C) 2011-2022 Leo Lahti, 
-    Sudarshan Shetty et al. &lt;microbiome.github.io&gt;</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'microbiome'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:ggplot2':
-
-    alpha</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:vegan':
-
-    diversity</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:base':
-
-    transform</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats   1.0.0     ✔ readr     2.1.5
-✔ lubridate 1.9.3     ✔ stringr   1.5.1
-✔ purrr     1.0.2     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ microbiome::alpha() masks ggplot2::alpha()
-✖ dplyr::collapse()   masks nlme::collapse()
-✖ dplyr::filter()     masks stats::filter()
-✖ dplyr::lag()        masks stats::lag()
-✖ dplyr::where()      masks ape::where()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
-
-Attaching package: 'reshape2'
-
-
-The following object is masked from 'package:tidyr':
-
-    smiths
-
-
-
-Attaching package: 'ggpubr'
-
-
-The following object is masked from 'package:ape':
-
-    rotate</code></pre>
-</div>
-</div>
 <section id="loading-metadata" class="level2">
 <h2 class="anchored" data-anchor-id="loading-metadata">Loading Metadata</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>otu_mat<span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(otu_mat)<span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">colnames</span>(otu_mat), <span class="dv">5</span>, <span class="fu">nchar</span>(<span class="fu">colnames</span>(otu_mat)))</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> <span class="fu">as.data.frame</span>(otu_mat)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#split first column by character '_' into two seperate columns</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>otu_mat[<span class="fu">c</span>(<span class="st">'Process'</span>, <span class="st">'Date'</span>)] <span class="ot">&lt;-</span> <span class="fu">str_split_fixed</span>(otu_mat<span class="sc">$</span>le, <span class="st">'_'</span>, <span class="dv">2</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#drop le column</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#move last two columns to the front</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Process, <span class="fu">everything</span>())</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Date, <span class="fu">everything</span>())</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#filter otu_mat to only contain AS-1 and AS-2 in process column</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Process <span class="sc">==</span> <span class="st">"AS-1"</span> <span class="sc">|</span> Process <span class="sc">==</span> <span class="st">"AS-2"</span>)</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">#remove Process column</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">#groupby date and find the mean of each column</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>otu_counts <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(mean)</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_counts</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">#find the sum of each row</span></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>otu_p<span class="sc">$</span>sum <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(otu_p[,<span class="sc">-</span><span class="dv">1</span>])</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co">#divide each row by the sum</span></span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">/</span> otu_p<span class="sc">$</span>sum</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co">#remove sum column</span></span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_p[,<span class="sc">-</span><span class="fu">ncol</span>(otu_p)]</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co">#make otu_p from wide form to long form</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Date, <span class="at">names_to =</span> <span class="st">"OTU"</span>, <span class="at">values_to =</span> <span class="st">"Abundance"</span>)</span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="co">#filter out rows with an Abundance less than 0.01</span></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Abundance <span class="sc">&gt;=</span> <span class="fl">0.01</span>)</span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate Shannon Index and add it to otu_p column</span></span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>shannon <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fu">sum</span>(x <span class="sc">*</span> <span class="fu">log</span>(x))</span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> otu_p</span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>s <span class="ot">=</span> otu_shannon <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">Shannon =</span> <span class="fu">shannon</span>(Abundance))</span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, s, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>New names:
-• `` -&gt; `...1`</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_metadata)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#input parameters</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> output_metadata</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> input_metadata[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>)]</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> input_metadata</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, input_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#output parameters</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> output_metadata[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span><span class="sc">:</span><span class="dv">20</span>)]</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>output_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, output_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#change column 6 name</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(output_data)[<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_Removed"</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#remove column in output_data</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)]</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> <span class="fu">as.data.frame</span>(input_data_)</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#remove duplicates</span></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[<span class="sc">!</span><span class="fu">duplicated</span>(input_data_[,<span class="dv">1</span>]),]</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(input_data_) <span class="ot">&lt;-</span> input_data_[,<span class="dv">1</span>]</span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co">#move rowcols to first column</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> <span class="fu">cbind</span>(<span class="at">Date =</span> <span class="fu">rownames</span>(input_data_), input_data_)</span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>input_data_<span class="sc">$</span>Date <span class="ot">&lt;-</span> <span class="fu">mdy</span>(input_data_<span class="sc">$</span>Date)</span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co">#remove rownames</span></span>
-<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(input_data_) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">#remove column in output_data</span></span>
-<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>output_data_ <span class="ot">=</span> output_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>)]</span>
-<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>output_data_ <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_data_)</span>
-<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#remove duplicates</span></span>
-<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>output_data_ <span class="ot">=</span> output_data_[<span class="sc">!</span><span class="fu">duplicated</span>(output_data_[,<span class="dv">1</span>]),]</span>
-<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
-<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(output_data_) <span class="ot">&lt;-</span> output_data_[,<span class="dv">1</span>]</span>
-<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
-<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>output_data_ <span class="ot">=</span> output_data_[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="co">#move rowcols to first column</span></span>
-<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>output_data_ <span class="ot">=</span> <span class="fu">cbind</span>(<span class="at">Date =</span> <span class="fu">rownames</span>(output_data_), output_data_)</span>
-<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="co">#remove rownames</span></span>
-<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(output_data_) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a><span class="co">#make date column numeric</span></span>
-<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>output_data_<span class="sc">$</span>Date <span class="ot">&lt;-</span> <span class="fu">mdy</span>(output_data_<span class="sc">$</span>Date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </section>
 <section id="input-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="input-visualization">Input Visualization</h2>
 <p>#RDA selected values only</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>e <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> temp_RSS, <span class="at">color =</span> <span class="st">"temp_RSS"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"RSS Temp Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"temp (deg.C)"</span>) <span class="sc">+</span> </span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> SCT_Detention_Time, <span class="at">color =</span> <span class="st">"SCT_Detention_Time"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"SCT_Detention_Time Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"time (hr)"</span>) <span class="sc">+</span> </span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>g <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> P_Load_PE, <span class="at">color =</span> <span class="st">"P_Load_PE"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"P_Load_PE Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>h <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> TKN_Load_RAW, <span class="at">color =</span> <span class="st">"TKN_Load_RAW"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"TKN_Load_RAW Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>i <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Ammonia_Load_RAW, <span class="at">color =</span> <span class="st">"Ammonia_Load_RAW"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Ammonia_Load_RAW"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(e, f, g, h, i <span class="sc">+</span> <span class="fu">rremove</span>(<span class="st">"x.text"</span>), </span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>),</span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>e <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> temp_RSS, <span class="at">color =</span> <span class="st">"temp_RSS"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"RSS Temp Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"temp (deg.C)"</span>) <span class="sc">+</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> SCT_Detention_Time, <span class="at">color =</span> <span class="st">"SCT_Detention_Time"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"SCT_Detention_Time Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"time (hr)"</span>) <span class="sc">+</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>g <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> P_Load_PE, <span class="at">color =</span> <span class="st">"P_Load_PE"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"P_Load_PE Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>h <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> TKN_Load_RAW, <span class="at">color =</span> <span class="st">"TKN_Load_RAW"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"TKN_Load_RAW Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>i <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Ammonia_Load_RAW, <span class="at">color =</span> <span class="st">"Ammonia_Load_RAW"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Ammonia_Load_RAW"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mg/L"</span>) <span class="sc">+</span> </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(e, f, g, h, i <span class="sc">+</span> <span class="fu">rremove</span>(<span class="st">"x.text"</span>), </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -483,30 +314,30 @@ The following object is masked from 'package:ape':
 <section id="output-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="output-visualization">Output Visualization</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> BOD_CBOD_Load_Removed, <span class="at">color =</span> <span class="st">"BOD_CBOD_Load_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date, <span class="at">y =</span> COD_Load_Removed,<span class="at">color =</span> <span class="st">"COD_Load_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Output Parameters Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>b <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> BOD_CBOD_Load_Removed, <span class="at">color =</span> <span class="st">"P_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"P_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>c <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> TKN_Removed, <span class="at">color =</span> <span class="st">"TKN_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"TKN_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>d <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Ammonia_Removed, <span class="at">color =</span> <span class="st">"Ammonia_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Ammonia_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(a, b, c, d <span class="sc">+</span> <span class="fu">rremove</span>(<span class="st">"x.text"</span>), </span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>),</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> BOD_CBOD_Load_Removed, <span class="at">color =</span> <span class="st">"BOD_CBOD_Load_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date, <span class="at">y =</span> COD_Load_Removed,<span class="at">color =</span> <span class="st">"COD_Load_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Output Parameters Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>b <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> BOD_CBOD_Load_Removed, <span class="at">color =</span> <span class="st">"P_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"P_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>c <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> TKN_Removed, <span class="at">color =</span> <span class="st">"TKN_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"TKN_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>d <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>output_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Ammonia_Removed, <span class="at">color =</span> <span class="st">"Ammonia_Removed"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Ammonia_Removed Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Month"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"tonnes/day"</span>) <span class="sc">+</span> </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 month"</span>, <span class="at">date_labels =</span> <span class="st">"%m"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(a, b, c, d <span class="sc">+</span> <span class="fu">rremove</span>(<span class="st">"x.text"</span>), </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -519,10 +350,10 @@ The following object is masked from 'package:ape':
 <section id="shannon-index-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="shannon-index-visualization">Shannon Index Visualization</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>s,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Shannon, <span class="at">color =</span> <span class="st">"Shannon"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Shannon Index Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Date"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Shannon Index"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>) <span class="sc">+</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>s,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> Shannon, <span class="at">color =</span> <span class="st">"Shannon"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Shannon Index Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Date"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Shannon Index"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -535,19 +366,19 @@ The following object is masked from 'package:ape':
 <section id="otu-1426-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="otu-1426-visualization">OTU 1,4,2,6 Visualization</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#put character z in front of all columns</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(otu_counts) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"z"</span>, <span class="fu">colnames</span>(otu_counts))</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#select only columns named '1' in otu_counts</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>otus <span class="ot">&lt;-</span> <span class="fu">select</span>(otu_counts,z1,z4,z2,z6,zDate)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#plot the data</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z1, <span class="at">color =</span> <span class="st">"1"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z4,<span class="at">color =</span> <span class="st">"4"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z2,<span class="at">color =</span> <span class="st">"2"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z6 ,<span class="at">color =</span> <span class="st">"6"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"OTU 1,4,2,6 Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Date"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Abundance"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>) <span class="sc">+</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#put character z in front of all columns</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(otu_counts) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"z"</span>, <span class="fu">colnames</span>(otu_counts))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#select only columns named '1' in otu_counts</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>otus <span class="ot">&lt;-</span> <span class="fu">select</span>(otu_counts,z1,z4,z2,z6,zDate)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#plot the data</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z1, <span class="at">color =</span> <span class="st">"1"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z4,<span class="at">color =</span> <span class="st">"4"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z2,<span class="at">color =</span> <span class="st">"2"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>otus,<span class="fu">aes</span>(<span class="at">x =</span> zDate, <span class="at">y =</span> z6 ,<span class="at">color =</span> <span class="st">"6"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"OTU 1,4,2,6 Over Time"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Date"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Abundance"</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"top"</span>) <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
