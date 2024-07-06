@@ -7,21 +7,14 @@ website:
   navbar:
     background: primary
     search: true
-    sidebar:
-      style: "docked"
-      search: true
-      collapse-level: 1
-      contents:
-        - href: index.qmd
-          text: Home
-        - href: exploring_parameters.qmd
-          text: Exploring Input and Output Parameters
-          contents:
-            - environmental_parameter_analysis.qmd
-            - correlation_matrix.qmd
-            - fourier_transform.qmd
-            - trend_decomposition.qmd
-            - linear_regressions.qmd
+    left:
+      - href: index.qmd
+        text: Home
+      - correlation_matrix.qmd
+      - fourier_transform.qmd
+      - trend_decomposition.qmd
+      - environmental_parameter_analysis.qmd
+        
 
 format:
   html:
