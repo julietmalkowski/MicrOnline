@@ -22,8 +22,6 @@ library(ggpubr)
 set.seed(123)
 ```
 
-## Loading Metadata
-
 ```{r}
 #| include: false
 otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
@@ -118,7 +116,7 @@ output_data_$Date <- mdy(output_data_$Date)
 
 ## Input Visualization
 
-#RDA selected values only
+Using values selected from RDA analysis
 
 ```{r}
 

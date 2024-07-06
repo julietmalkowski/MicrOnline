@@ -126,7 +126,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./exploring_parameters.html">Environmental Parameter Analysis</a></li><li class="breadcrumb-item"><a href="./environmental_parameter_analysis.html">Environmental Parameter Analysis</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./environmental_parameter_analysis.html">Environmental Parameter Analysis</a></li><li class="breadcrumb-item"><a href="./environmental_parameter_analysis.html">Environmental Parameter Analysis</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./exploring_parameters.html" class="sidebar-item-text sidebar-link">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
  <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -250,7 +250,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#environmental-parameter-analysis" id="toc-environmental-parameter-analysis" class="nav-link active" data-scroll-target="#environmental-parameter-analysis">Environmental Parameter Analysis</a>
   <ul class="collapse">
-  <li><a href="#loading-metadata" id="toc-loading-metadata" class="nav-link" data-scroll-target="#loading-metadata">Loading Metadata</a></li>
   <li><a href="#input-visualization" id="toc-input-visualization" class="nav-link" data-scroll-target="#input-visualization">Input Visualization</a></li>
   <li><a href="#output-visualization" id="toc-output-visualization" class="nav-link" data-scroll-target="#output-visualization">Output Visualization</a></li>
   <li><a href="#shannon-index-visualization" id="toc-shannon-index-visualization" class="nav-link" data-scroll-target="#shannon-index-visualization">Shannon Index Visualization</a></li>
@@ -267,12 +266,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="environmental-parameter-analysis" class="level1">
 <h1>Environmental Parameter Analysis</h1>
-<section id="loading-metadata" class="level2">
-<h2 class="anchored" data-anchor-id="loading-metadata">Loading Metadata</h2>
-</section>
 <section id="input-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="input-visualization">Input Visualization</h2>
-<p>#RDA selected values only</p>
+<p>Using values selected from RDA analysis</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>e <span class="ot">=</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data=</span>input_data_,<span class="fu">aes</span>(<span class="at">x =</span> Date,<span class="at">y =</span> temp_RSS, <span class="at">color =</span> <span class="st">"temp_RSS"</span>),<span class="at">group =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
