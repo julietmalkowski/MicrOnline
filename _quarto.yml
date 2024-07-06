@@ -7,13 +7,24 @@ website:
   navbar:
     background: primary
     search: true
-    left:
-      - href: index.qmd
-        text: Home
-      - correlation_matrix.qmd
-      - fourier_transform.qmd
-      - trend_decomposition.qmd
-      - environmental_parameter_analysis.qmd
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - text: "Introduction"
+        href: index.qmd
+      - section: "Environmental Parameter Analysis"
+        href: environmental_parameter_analysis.qmd
+        contents:
+          - exploring_parameters.qmd
+      - section: "Linear Regressions"
+        contents:
+          - linear_regressions.qmd
+      - section: "Exploratory Analysis"
+        contents:
+          - trend_decomposition.qmd
+          - fourier_transform.qmd
+          - indicator_species.qmd
         
 
 format:
