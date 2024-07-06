@@ -4,8 +4,8 @@
 
 Note: All Abundances have been filtered out to only contain relative abundances \> 0.01
 
-```{r}
-#| echo: false
+```{r include=FALSE}
+
 library(phyloseq)
 library(vegan)
 library(picante)
@@ -126,7 +126,7 @@ otu_1_count = as.vector(t(otu_1_count))
 ## Seasonal Decomposition
 
 For Shannon Index
-```{r warning=FALSE, message=FALSE, error=FALSE}
+```{r warning=TRUE, error=TRUE}
 tryCatch({
   otu_1_shannon %>% decompose(type = "additive") %>% 
     autoplot()
@@ -137,7 +137,7 @@ tryCatch({
 
 Result: Error in `decompose()`: ! time series has no or less than 2 periods
 
-```{r warning=FALSE, message=FALSE, error=FALSE}
+```{r warning=TRUE, error=TRUE}
 tryCatch({
     otu_1_abundance %>% decompose(type="additive") %>%
     autoplot()
@@ -159,7 +159,7 @@ Result: Error in `decompose()`: ! time series has no or less than 2 periods
 ## STL Decomposition
 
 For Shannon Index
-```{r warning=FALSE, message=FALSE, error=FALSE}
+```{r warning=TRUE, error=TRUE}
 tryCatch({
     otu_1_shannon  %>%
     stl(s.window="periodic", robust=TRUE) %>%
