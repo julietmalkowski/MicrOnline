@@ -1,7 +1,7 @@
 ## Linear Regressions on Input and Output Parameters
 
 ```{r}
-#| echo: false
+#| include: false
 library(phyloseq)
 library(vegan)
 library(picante)

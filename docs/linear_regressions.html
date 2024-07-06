@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
+            <a href="./exploring_parameters.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -163,8 +163,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exploring_parameters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Here we see information about our input and output parameters</span></a>
+  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
   </div>
 </li>
       </ul>
@@ -245,203 +245,105 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="linear-regressions-on-input-and-output-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="linear-regressions-on-input-and-output-parameters">Linear Regressions on Input and Output Parameters</h2>
-<div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: permute</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: lattice</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>This is vegan 2.6-4</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: ape</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: nlme</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:nlme':
-
-    collapse</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:ape':
-
-    where</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-microbiome R package (microbiome.github.com)
-    
-
-
- Copyright (C) 2011-2022 Leo Lahti, 
-    Sudarshan Shetty et al. &lt;microbiome.github.io&gt;</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'microbiome'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:ggplot2':
-
-    alpha</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:vegan':
-
-    diversity</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:base':
-
-    transform</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats   1.0.0     ✔ readr     2.1.5
-✔ lubridate 1.9.3     ✔ stringr   1.5.1
-✔ purrr     1.0.2     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ microbiome::alpha() masks ggplot2::alpha()
-✖ dplyr::collapse()   masks nlme::collapse()
-✖ dplyr::filter()     masks stats::filter()
-✖ dplyr::lag()        masks stats::lag()
-✖ dplyr::where()      masks ape::where()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
-
-Attaching package: 'reshape2'
-
-
-The following object is masked from 'package:tidyr':
-
-    smiths
-
-
-
-Attaching package: 'ggpubr'
-
-
-The following object is masked from 'package:ape':
-
-    rotate</code></pre>
-</div>
-</div>
 </section>
 <section id="loading-data" class="level2">
 <h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
 <p>Note: All Abundances have been filtered out to only contain relative abundances &gt; 0.01</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>otu_mat<span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(otu_mat)<span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">colnames</span>(otu_mat), <span class="dv">5</span>, <span class="fu">nchar</span>(<span class="fu">colnames</span>(otu_mat)))</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> <span class="fu">as.data.frame</span>(otu_mat)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#split first column by character '_' into two seperate columns</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>otu_mat[<span class="fu">c</span>(<span class="st">'Process'</span>, <span class="st">'Date'</span>)] <span class="ot">&lt;-</span> <span class="fu">str_split_fixed</span>(otu_mat<span class="sc">$</span>le, <span class="st">'_'</span>, <span class="dv">2</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#drop le column</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#move last two columns to the front</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Process, <span class="fu">everything</span>())</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Date, <span class="fu">everything</span>())</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#filter otu_mat to only contain AS-1 and AS-2 in process column</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Process <span class="sc">==</span> <span class="st">"AS-1"</span> <span class="sc">|</span> Process <span class="sc">==</span> <span class="st">"AS-2"</span>)</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">#remove Process column</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">#groupby date and find the mean of each column</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>otu_counts <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(mean)</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_counts</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">#find the sum of each row</span></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>otu_p<span class="sc">$</span>sum <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(otu_p[,<span class="sc">-</span><span class="dv">1</span>])</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co">#divide each row by the sum</span></span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">/</span> otu_p<span class="sc">$</span>sum</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co">#remove sum column</span></span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_p[,<span class="sc">-</span><span class="fu">ncol</span>(otu_p)]</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co">#make otu_p from wide form to long form</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Date, <span class="at">names_to =</span> <span class="st">"OTU"</span>, <span class="at">values_to =</span> <span class="st">"Abundance"</span>)</span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="co">#filter out rows with an Abundance less than 0.01</span></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Abundance <span class="sc">&gt;=</span> <span class="fl">0.01</span>)</span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate Shannon Index and add it to otu_p column</span></span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>shannon <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fu">sum</span>(x <span class="sc">*</span> <span class="fu">log</span>(x))</span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> otu_p</span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>s <span class="ot">=</span> otu_shannon <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">Shannon =</span> <span class="fu">shannon</span>(Abundance))</span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, s, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>otu_mat<span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(otu_mat)<span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">colnames</span>(otu_mat), <span class="dv">5</span>, <span class="fu">nchar</span>(<span class="fu">colnames</span>(otu_mat)))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> <span class="fu">as.data.frame</span>(otu_mat)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#split first column by character '_' into two seperate columns</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>otu_mat[<span class="fu">c</span>(<span class="st">'Process'</span>, <span class="st">'Date'</span>)] <span class="ot">&lt;-</span> <span class="fu">str_split_fixed</span>(otu_mat<span class="sc">$</span>le, <span class="st">'_'</span>, <span class="dv">2</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#drop le column</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#move last two columns to the front</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Process, <span class="fu">everything</span>())</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Date, <span class="fu">everything</span>())</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#filter otu_mat to only contain AS-1 and AS-2 in process column</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Process <span class="sc">==</span> <span class="st">"AS-1"</span> <span class="sc">|</span> Process <span class="sc">==</span> <span class="st">"AS-2"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#remove Process column</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>otu_mat <span class="ot">=</span> otu_mat[,<span class="sc">-</span><span class="dv">2</span>]</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">#groupby date and find the mean of each column</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>otu_counts <span class="ot">&lt;-</span> otu_mat <span class="sc">%&gt;%</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(mean)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_counts</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#find the sum of each row</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>otu_p<span class="sc">$</span>sum <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(otu_p[,<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">#divide each row by the sum</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> otu_p[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">/</span> otu_p<span class="sc">$</span>sum</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co">#remove sum column</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">=</span> otu_p[,<span class="sc">-</span><span class="fu">ncol</span>(otu_p)]</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">#make otu_p from wide form to long form</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Date, <span class="at">names_to =</span> <span class="st">"OTU"</span>, <span class="at">values_to =</span> <span class="st">"Abundance"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co">#filter out rows with an Abundance less than 0.01</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>otu_p <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Abundance <span class="sc">&gt;=</span> <span class="fl">0.01</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate Shannon Index and add it to otu_p column</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>shannon <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fu">sum</span>(x <span class="sc">*</span> <span class="fu">log</span>(x))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> otu_p</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>s <span class="ot">=</span> otu_shannon <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Date) <span class="sc">%&gt;%</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">Shannon =</span> <span class="fu">shannon</span>(Abundance))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>otu_shannon <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, s, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>New names:
 • `` -&gt; `...1`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_metadata)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#input parameters</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> output_metadata</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> input_metadata[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>)]</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> input_metadata</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, input_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#output parameters</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> output_metadata[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span><span class="sc">:</span><span class="dv">20</span>)]</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>output_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, output_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#change column 6 name</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(output_data)[<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_Removed"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_metadata)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#input parameters</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> output_metadata</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> input_metadata[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>)]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> input_metadata</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, input_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#output parameters</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> output_metadata[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span><span class="sc">:</span><span class="dv">20</span>)]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>output_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, output_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#change column 6 name</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(output_data)[<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_Removed"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="connecting-metadata-and-otu-counts" class="level2">
 <h2 class="anchored" data-anchor-id="connecting-metadata-and-otu-counts">Connecting Metadata and OTU Counts</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>New names:
 • `` -&gt; `...1`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_metadata)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#input parameters</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> output_metadata</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> input_metadata[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>)]</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> input_metadata</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, input_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(input_data)[<span class="dv">8</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_PE"</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">#output parameters</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> output_metadata[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span><span class="sc">:</span><span class="dv">20</span>)]</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>output_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, output_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">#change column 6 name</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(output_data)[<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_Removed"</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">#remove column in output_data</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)]</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> <span class="fu">as.data.frame</span>(input_data_)</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">#remove duplicates</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[<span class="sc">!</span><span class="fu">duplicated</span>(input_data_[,<span class="dv">1</span>]),]</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(input_data_) <span class="ot">&lt;-</span> input_data_[,<span class="dv">1</span>]</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[,<span class="sc">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> <span class="fu">as.data.frame</span>(output_metadata)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#input parameters</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> output_metadata</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>input_metadata <span class="ot">=</span> input_metadata[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>)]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> input_metadata</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, input_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(input_data)[<span class="dv">8</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_PE"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#output parameters</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>output_metadata <span class="ot">=</span> output_metadata[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span><span class="sc">:</span><span class="dv">20</span>)]</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>output_data <span class="ot">=</span> <span class="fu">merge</span>(otu_shannon, output_metadata, <span class="at">by =</span> <span class="st">"Date"</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#change column 6 name</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(output_data)[<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="st">"BOD_CBOD_Load_Removed"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#remove column in output_data</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)]</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> <span class="fu">as.data.frame</span>(input_data_)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#remove duplicates</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[<span class="sc">!</span><span class="fu">duplicated</span>(input_data_[,<span class="dv">1</span>]),]</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(input_data_) <span class="ot">&lt;-</span> input_data_[,<span class="dv">1</span>]</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>input_data_ <span class="ot">=</span> input_data_[,<span class="sc">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="effect-of-input-parameters-on-shannon-index" class="level2">
@@ -453,9 +355,9 @@ The following object is masked from 'package:ape':
 <p>Plot 3- this plot shows the distribution of residuals in a quantile- quantile plot which evaluated the normality of the residuals. This plot compares the probability distribution of normal data and standardized residuals can be seen near the 1:1 line</p>
 <p>Plot 4- shows the residuals and their influence- the location of points with strong influence can influence the interpretation of the data. If one or more observations are outliers then the model may be misfitted because of their exaggerated influence. A distance greater than 0.5 is problematic</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create multiple linear regression</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>lm.mult <span class="ot">&lt;-</span> <span class="fu">lm</span>(Shannon <span class="sc">~</span> pH_RSS <span class="sc">+</span> temp_RSS <span class="sc">+</span> BOD_CBOD_Load_PE <span class="sc">+</span> COD_Load_PE <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> P_Load_PE <span class="sc">+</span> SCT_Detention_Time, <span class="at">data =</span> input_data)</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create multiple linear regression</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>lm.mult <span class="ot">&lt;-</span> <span class="fu">lm</span>(Shannon <span class="sc">~</span> pH_RSS <span class="sc">+</span> temp_RSS <span class="sc">+</span> BOD_CBOD_Load_PE <span class="sc">+</span> COD_Load_PE <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> P_Load_PE <span class="sc">+</span> SCT_Detention_Time, <span class="at">data =</span> input_data)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -485,9 +387,9 @@ Residual standard error: 0.13 on 743 degrees of freedom
 Multiple R-squared:  0.5613,    Adjusted R-squared:  0.5566 
 F-statistic: 118.8 on 8 and 743 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">3.9</span>, <span class="dv">4</span>, <span class="fl">1.2</span>, <span class="fl">1.1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>                                                        <span class="dv">0</span>, <span class="dv">0</span>))</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm.mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">3.9</span>, <span class="dv">4</span>, <span class="fl">1.2</span>, <span class="fl">1.1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                                        <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm.mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -499,8 +401,8 @@ F-statistic: 118.8 on 8 and 743 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>As can be seen above, the results from each plot do not meet the assumptions of linear regression. The residuals are not homoscedastic, the residuals are not normally distributed, and there are outliers that are influencing the model.</p>
 <p>Significant values include pH_RSS, BOD_CBOD_Load_PE,Ammonia_Load_RAW, P_Load_PE, and SCT_Detention_Time. To fix this data run now with only significant values</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lm.mult2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Shannon <span class="sc">~</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> P_Load_PE <span class="sc">+</span> SCT_Detention_Time, <span class="at">data =</span> input_data)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.mult2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lm.mult2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Shannon <span class="sc">~</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> P_Load_PE <span class="sc">+</span> SCT_Detention_Time, <span class="at">data =</span> input_data)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.mult2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -526,9 +428,9 @@ Residual standard error: 0.1304 on 746 degrees of freedom
 Multiple R-squared:  0.5566,    Adjusted R-squared:  0.5536 
 F-statistic: 187.3 on 5 and 746 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">3.9</span>, <span class="dv">4</span>, <span class="fl">1.2</span>, <span class="fl">1.1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                                                        <span class="dv">0</span>, <span class="dv">0</span>))</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm.mult2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">3.9</span>, <span class="dv">4</span>, <span class="fl">1.2</span>, <span class="fl">1.1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                                                        <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm.mult2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -543,18 +445,18 @@ F-statistic: 187.3 on 5 and 746 DF,  p-value: &lt; 2.2e-16</code></pre>
 <h2 class="anchored" data-anchor-id="determine-most-important-input-parameters-based-on-relative-abundances">Determine Most Important Input Parameters based on Relative Abundances</h2>
 <p>Using Redundancy Analysis</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> OTU, <span class="at">values_from =</span> Abundance) <span class="sc">%&gt;%</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace</span>(<span class="fu">is.na</span>(.), <span class="dv">0</span>)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">=</span> <span class="fu">as.data.frame</span>(otu_p_wide)</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(otu_p_wide) <span class="ot">&lt;-</span> otu_p_wide[,<span class="dv">1</span>]</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">=</span> otu_p_wide[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>as_metadata_input.z <span class="ot">&lt;-</span> <span class="fu">decostand</span>(input_data_, <span class="at">method =</span> <span class="st">"standardize"</span>)</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>as_metadata_input.rda <span class="ot">&lt;-</span> <span class="fu">rda</span>(otu_p_wide  <span class="sc">~</span> ., <span class="at">data =</span> as_metadata_input.z)</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(as_metadata_input.rda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">&lt;-</span> otu_p <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> OTU, <span class="at">values_from =</span> Abundance) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace</span>(<span class="fu">is.na</span>(.), <span class="dv">0</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">=</span> <span class="fu">as.data.frame</span>(otu_p_wide)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#make first column rownames in output_data_</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(otu_p_wide) <span class="ot">&lt;-</span> otu_p_wide[,<span class="dv">1</span>]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>otu_p_wide <span class="ot">=</span> otu_p_wide[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>as_metadata_input.z <span class="ot">&lt;-</span> <span class="fu">decostand</span>(input_data_, <span class="at">method =</span> <span class="st">"standardize"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>as_metadata_input.rda <span class="ot">&lt;-</span> <span class="fu">rda</span>(otu_p_wide  <span class="sc">~</span> ., <span class="at">data =</span> as_metadata_input.z)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(as_metadata_input.rda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -893,14 +795,14 @@ TKN_Load_RAW       -0.1468  0.07033 -0.51009  0.68080 -0.31199  0.33744
 P_Load_PE           0.1077  0.56569 -0.51426 -0.42355 -0.07886  0.23050
 SCT_Detention_Time -0.7976 -0.16547 -0.45886 -0.25403  0.11556  0.08034</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fwd.sel <span class="ot">&lt;-</span> <span class="fu">ordiR2step</span>(<span class="fu">rda</span>(otu_p_wide <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> as_metadata_input.z), <span class="co"># lower model limit (simple!)</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">scope =</span> <span class="fu">formula</span>(as_metadata_input.rda), <span class="co"># upper model limit (the "full" model)</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">direction =</span> <span class="st">"forward"</span>,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">R2scope =</span> <span class="cn">TRUE</span>, <span class="co"># can't surpass the "full" model's R2</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">pstep =</span> <span class="dv">1000</span>,</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trace =</span> <span class="cn">FALSE</span>) <span class="co"># change to TRUE to see the selection process</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">#see which variables were selected</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>fwd.sel<span class="sc">$</span>call</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fwd.sel <span class="ot">&lt;-</span> <span class="fu">ordiR2step</span>(<span class="fu">rda</span>(otu_p_wide <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> as_metadata_input.z), <span class="co"># lower model limit (simple!)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">scope =</span> <span class="fu">formula</span>(as_metadata_input.rda), <span class="co"># upper model limit (the "full" model)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">direction =</span> <span class="st">"forward"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">R2scope =</span> <span class="cn">TRUE</span>, <span class="co"># can't surpass the "full" model's R2</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">pstep =</span> <span class="dv">1000</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trace =</span> <span class="cn">FALSE</span>) <span class="co"># change to TRUE to see the selection process</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#see which variables were selected</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>fwd.sel<span class="sc">$</span>call</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>rda(formula = otu_p_wide ~ temp_RSS + SCT_Detention_Time + P_Load_PE + 
     TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)</code></pre>
@@ -911,10 +813,10 @@ SCT_Detention_Time -0.7976 -0.16547 -0.45886 -0.25403  0.11556  0.08034</code></
 <section id="effect-of-shannon-index-on-output-parameters-using-linear-regression" class="level2">
 <h2 class="anchored" data-anchor-id="effect-of-shannon-index-on-output-parameters-using-linear-regression">Effect of Shannon Index on Output Parameters using Linear Regression</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(COD_Load_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm1)</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for COD_Load_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(COD_Load_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm1)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for COD_Load_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -922,7 +824,7 @@ SCT_Detention_Time -0.7976 -0.16547 -0.45886 -0.25403  0.11556  0.08034</code></
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -943,10 +845,10 @@ Residual standard error: 14.6 on 750 degrees of freedom
 Multiple R-squared:  0.01773,   Adjusted R-squared:  0.01642 
 F-statistic: 13.54 on 1 and 750 DF,  p-value: 0.0002502</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(P_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm2)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for P_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(P_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm2)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for P_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -954,7 +856,7 @@ F-statistic: 13.54 on 1 and 750 DF,  p-value: 0.0002502</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -975,10 +877,10 @@ Residual standard error: 0.3254 on 750 degrees of freedom
 Multiple R-squared:  0.229, Adjusted R-squared:  0.228 
 F-statistic: 222.8 on 1 and 750 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>lm3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(TKN_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm3)</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for TKN_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>lm3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(TKN_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm3)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for TKN_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -986,7 +888,7 @@ F-statistic: 222.8 on 1 and 750 DF,  p-value: &lt; 2.2e-16</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1007,10 +909,10 @@ Residual standard error: 0.904 on 750 degrees of freedom
 Multiple R-squared:  0.09257,   Adjusted R-squared:  0.09136 
 F-statistic: 76.51 on 1 and 750 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>lm4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ammonia_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm4)</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for Ammonia_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lm4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ammonia_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm4)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for Ammonia_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1018,7 +920,7 @@ F-statistic: 76.51 on 1 and 750 DF,  p-value: &lt; 2.2e-16</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1039,10 +941,10 @@ Residual standard error: 1.167 on 750 degrees of freedom
 Multiple R-squared:  0.02304,   Adjusted R-squared:  0.02173 
 F-statistic: 17.69 on 1 and 750 DF,  p-value: 2.921e-05</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>lm5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BOD_CBOD_Load_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm5)</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for BOD_CBOD_Load_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>lm5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BOD_CBOD_Load_Removed <span class="sc">~</span> Shannon, <span class="at">data =</span> output_data)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm5)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model for BOD_CBOD_Load_Removed ~ Shannon"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1050,7 +952,7 @@ F-statistic: 17.69 on 1 and 750 DF,  p-value: 2.921e-05</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1082,14 +984,14 @@ F-statistic: 5.113 on 1 and 750 DF,  p-value: 0.02404</code></pre>
 <section id="comparing-a-general-linear-model-vs.-linear-model-for-input-parameters-on-otu-1" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-a-general-linear-model-vs.-linear-model-for-input-parameters-on-otu-1">Comparing a General Linear Model vs.&nbsp;Linear Model for Input Parameters on OTU 1</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#filter out for OTU 1</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>otu_1 <span class="ot">&lt;-</span> input_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(OTU <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Abundance <span class="sc">~</span> temp_RSS <span class="sc">+</span> SCT_Detention_Time <span class="sc">+</span> P_Load_PE <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE, <span class="at">family =</span> binomial,</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> otu_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#filter out for OTU 1</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>otu_1 <span class="ot">&lt;-</span> input_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(OTU <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Abundance <span class="sc">~</span> temp_RSS <span class="sc">+</span> SCT_Detention_Time <span class="sc">+</span> P_Load_PE <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE, <span class="at">family =</span> binomial,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> otu_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in eval(family$initialize): non-integer #successes in a binomial glm!</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1116,9 +1018,9 @@ AIC: 21.189
 
 Number of Fisher Scoring iterations: 7</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model1)</span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"General Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model1)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"General Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1126,10 +1028,10 @@ Number of Fisher Scoring iterations: 7</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">#normal linear model</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Abundance <span class="sc">~</span>  temp_RSS <span class="sc">+</span> SCT_Detention_Time <span class="sc">+</span> P_Load_PE <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE,</span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> otu_1)</span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">#normal linear model</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Abundance <span class="sc">~</span>  temp_RSS <span class="sc">+</span> SCT_Detention_Time <span class="sc">+</span> P_Load_PE <span class="sc">+</span> TKN_Load_RAW <span class="sc">+</span> Ammonia_Load_RAW <span class="sc">+</span> pH_RSS <span class="sc">+</span> BOD_CBOD_Load_PE,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> otu_1)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1158,9 +1060,9 @@ Residual standard error: 0.01673 on 73 degrees of freedom
 Multiple R-squared:  0.2346,    Adjusted R-squared:  0.1612 
 F-statistic: 3.196 on 7 and 73 DF,  p-value: 0.005231</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model2)</span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model2)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time"</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

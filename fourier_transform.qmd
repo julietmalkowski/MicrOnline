@@ -1,6 +1,7 @@
 # Fourier Discrete Transform of Count Data
 
 ```{python}
+#| include: false
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,6 +9,7 @@ import pandas as pd
 
 ## Creating Count Data
 ```{python}
+#| include: false
 abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
 #remove first 4 characters in every column name
 abundance_table.columns = abundance_table.columns.str[4:] 

@@ -14,9 +14,9 @@ website:
       - text: "Introduction"
         href: index.qmd
       - section: "Environmental Parameter Analysis"
-        href: environmental_parameter_analysis.qmd
+        href: exploring_parameters.qmd 
         contents:
-          - exploring_parameters.qmd
+          - environmental_parameter_analysis.qmd
       - section: "Linear Regressions"
         contents:
           - linear_regressions.qmd

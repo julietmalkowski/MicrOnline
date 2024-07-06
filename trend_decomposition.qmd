@@ -126,20 +126,32 @@ otu_1_count = as.vector(t(otu_1_count))
 ## Seasonal Decomposition
 
 For Shannon Index
-
-```{r}
-# otu_1_shannon %>% decompose(type="additive") %>%
-#   autoplot()
+```{r warning=FALSE, message=FALSE, error=FALSE}
+tryCatch({
+  otu_1_shannon %>% decompose(type = "additive") %>% 
+    autoplot()
+}, error = function(e) {
+  message("An error occurred: ", e$message)
+})
 ```
 
 Result: Error in `decompose()`: ! time series has no or less than 2 periods
 
-```{r}
-# otu_1_abundance %>% decompose(type="additive") %>%
-#   autoplot()
+```{r warning=FALSE, message=FALSE, error=FALSE}
+tryCatch({
+    otu_1_abundance %>% decompose(type="additive") %>%
+    autoplot()
+}, error = function(e) {
+  message("An error occurred: ", e$message)
+})
 
-# otu_1_count%>% decompose(type="additive") %>%
-#   autoplot()
+tryCatch({
+    otu_1_count%>% decompose(type="additive") %>%
+    autoplot()
+}, error = function(e) {
+  message("An error occurred: ", e$message)
+})
+
 ```
 
 Result: Error in `decompose()`: ! time series has no or less than 2 periods
@@ -147,17 +159,24 @@ Result: Error in `decompose()`: ! time series has no or less than 2 periods
 ## STL Decomposition
 
 For Shannon Index
+```{r warning=FALSE, message=FALSE, error=FALSE}
+tryCatch({
+    otu_1_shannon  %>%
+    stl(s.window="periodic", robust=TRUE) %>%
+    autoplot()
+}, error = function(e) {
+  message("An error occurred: ", e$message)
+})
 
-```{r}
-# otu_1_shannon  %>%
-#   stl(s.window="periodic", robust=TRUE) %>%
-#   autoplot()
-
-# otu_1_abundance  %>%
-#   stl(s.window="periodic", robust=TRUE) %>%
-#   autoplot()
-
+tryCatch({
+    otu_1_abundance  %>%
+    stl(s.window="periodic", robust=TRUE) %>%
+    autoplot()
+}, error = function(e) {
+  message("An error occurred: ", e$message)
+})
 ```
+
 
 Result: Error in `decompose()`: ! time series has no or less than 2 periods
 
