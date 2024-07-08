@@ -155,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+ <span class="menu-text">Linear Regressions</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -163,8 +163,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
   </div>
 </li>
       </ul>
@@ -172,7 +172,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Linear Regressions</span></a>
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -180,8 +180,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
+  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
   </div>
 </li>
       </ul>
@@ -205,12 +205,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./fourier_transform.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fourier Discrete Transform of Count Data</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./clustering.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">clustering.html</span></a>
   </div>
 </li>
       </ul>
@@ -248,9 +242,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#loading-dependencies" id="toc-loading-dependencies" class="nav-link active" data-scroll-target="#loading-dependencies">Loading Dependencies</a></li>
-  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading Data</a></li>
-  <li><a href="#correlation-between-count-data" id="toc-correlation-between-count-data" class="nav-link" data-scroll-target="#correlation-between-count-data">Correlation between count data</a></li>
+  <li><a href="#correlation-between-count-data-with-pearson-correlation-coefficient" id="toc-correlation-between-count-data-with-pearson-correlation-coefficient" class="nav-link active" data-scroll-target="#correlation-between-count-data-with-pearson-correlation-coefficient">Correlation between count data with Pearson Correlation Coefficient</a></li>
+  <li><a href="#correlation-with-spearman-correlation-coefficient" id="toc-correlation-with-spearman-correlation-coefficient" class="nav-link" data-scroll-target="#correlation-with-spearman-correlation-coefficient">Correlation with Spearman Correlation Coefficient</a></li>
+  <li><a href="#cointegration-between-species" id="toc-cointegration-between-species" class="nav-link" data-scroll-target="#cointegration-between-species">Cointegration between species</a></li>
   </ul>
 </nav>
     </div>
@@ -276,43 +270,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="loading-dependencies" class="level3">
-<h3 class="anchored" data-anchor-id="loading-dependencies">Loading Dependencies</h3>
-<div id="a9b153e5" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Correlations describe the strength of association between two variables. By understanding if specific species have any relevant associations, it could be possible to determine a larger microbial community composition from just a few individual species.</p>
+<section id="correlation-between-count-data-with-pearson-correlation-coefficient" class="level2">
+<h2 class="anchored" data-anchor-id="correlation-between-count-data-with-pearson-correlation-coefficient">Correlation between count data with Pearson Correlation Coefficient</h2>
+<p>Pearson’s Product - Moment Correlation Coefficient is a statistical measure of the strength of a linear relationship between paired data. It assumes that the data is: - interval or ratio level - linearly related - bivariate normally distributed</p>
+<p>This graph shows correlations higher than 75%</p>
+<div id="974da84f" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(a.T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]</code></pre>
 </div>
-</section>
-<section id="loading-data" class="level2">
-<h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
-<div id="6270d26e" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> pd.read_excel(<span class="st">"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>abundance_table.columns <span class="op">=</span> abundance_table.columns.<span class="bu">str</span>[<span class="dv">4</span>:] </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#split string in column to get date and process</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>abundance_table[[<span class="st">'Process'</span>,<span class="st">'Date'</span>]] <span class="op">=</span> abundance_table[<span class="st">'le'</span>].<span class="bu">str</span>.split(<span class="st">'_'</span>,expand<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> abundance_table.drop(columns<span class="op">=</span>[<span class="st">'le'</span>])</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>processes <span class="op">=</span> [<span class="st">'AS-1'</span>, <span class="st">'AS-2'</span>]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> abundance_table[abundance_table[<span class="st">'Process'</span>].isin(processes)]</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.drop(columns<span class="op">=</span>[<span class="st">'Process'</span>])</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#group by date and find the mean of all values</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.groupby([<span class="st">'Date'</span>]).mean()</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#remove last two rows of as_abundance_table</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> as_abundance_table.iloc[:,:<span class="op">-</span><span class="dv">2</span>]</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.reset_index()</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column in a</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.iloc[:,<span class="dv">1</span>:]</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.to_numpy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="correlation-between-count-data" class="level2">
-<h2 class="anchored" data-anchor-id="correlation-between-count-data">Correlation between count data</h2>
-<div id="b9415010" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(a.T)</span>
+<div id="0fa4bf81" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> ((correlation <span class="op">&gt;</span> <span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&lt;</span> <span class="fl">0.99</span>)) <span class="op">|</span> ((correlation <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&gt;</span> <span class="op">-</span><span class="fl">0.99</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> ((correlation <span class="op">&gt;</span> <span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&lt;</span> <span class="fl">0.99</span>)) <span class="op">|</span> (correlation <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&gt;</span> <span class="op">-</span><span class="fl">0.99</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>triangle_mask <span class="op">=</span> np.tri(correlation.shape[<span class="dv">0</span>], k<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
@@ -322,24 +297,89 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the mask to display the significant correlations</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>masked_correlation <span class="op">=</span> np.ma.masked_where(<span class="op">~</span>mask, correlation)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>cax <span class="op">=</span> ax.matshow(masked_correlation, cmap<span class="op">=</span><span class="st">'coolwarm'</span>, vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>fig.colorbar(cax)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide
-  c /= stddev[:, None]
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide
-  c /= stddev[None, :]</code></pre>
-</div>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>triangle_mask[triangle_mask <span class="op">==</span> <span class="dv">0</span>] <span class="op">=</span> np.nan</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>cax <span class="op">=</span> ax.matshow(masked_correlation, cmap<span class="op">=</span><span class="st">'coolwarm'</span>, vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>ax.imshow(triangle_mask, cmap<span class="op">=</span><span class="st">'twilight'</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>fig.colorbar(cax)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="correlation_matrix_files/figure-html/cell-4-output-2.png" width="535" height="445" class="figure-img"></p>
+<p><img src="correlation_matrix_files/figure-html/cell-4-output-1.png" width="535" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
+</section>
+<section id="correlation-with-spearman-correlation-coefficient" class="level2">
+<h2 class="anchored" data-anchor-id="correlation-with-spearman-correlation-coefficient">Correlation with Spearman Correlation Coefficient</h2>
+<p>Before learning about Spearman’s correllation it is important to understand Spearman’s Correlation Coefficient assumes a monotonic relationship- where the value of one variable increases then the other never does A monotonic relationship is a relationship that does one of the following: (1) as the value of one variable increases, so does the value of the other variable; or (2) as the value of one variable increases, the other variable value decreases</p>
+<div id="c4604adc" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>as_abundance_table[<span class="st">'sum'</span>] <span class="op">=</span> as_abundance_table.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.reset_index()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance_table.set_index(<span class="st">'Date'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#find percentage each column by dividing by sum</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.div(as_abundance[<span class="st">'sum'</span>], axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.drop(columns<span class="op">=</span>[<span class="st">'sum'</span>])</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#pivot dataframe from wide to long format</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.reset_index()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Abundance'</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#remove all rows with an abundance less than 0.01</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] &gt;= 0.0005] </span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance[as_abundance[<span class="st">'Abundance'</span>] <span class="op">&gt;=</span> <span class="fl">0.005</span>] </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shannon_index(x):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span> <span class="op">*</span> np.<span class="bu">sum</span>(x<span class="op">*</span>np.log(x))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>Shannon_Diversity <span class="op">=</span> as_abundance.groupby(<span class="st">'Date'</span>)[<span class="st">'Abundance'</span>].agg(shannon_index).reset_index()</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.merge(Shannon_Diversity, on<span class="op">=</span><span class="st">'Date'</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.rename(columns<span class="op">=</span>{<span class="st">'Abundance_x'</span>:<span class="st">'Abundance'</span>, <span class="st">'Abundance_y'</span>:<span class="st">'Shannon Index'</span>})</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>as_abundance_table_moved <span class="op">=</span> as_abundance_table.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Counts'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#merging with as_abundance</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> as_abundance.merge(as_abundance_table_moved, on<span class="op">=</span>[<span class="st">'Date'</span>,<span class="st">'OTU'</span>])</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> unfiltered_data.iloc[:,<span class="dv">0</span>:<span class="dv">3</span>]</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> pd.pivot(data <span class="op">=</span> unfiltered_abundnace, index <span class="op">=</span> <span class="st">'Date'</span>, columns <span class="op">=</span> <span class="st">'OTU'</span> , values <span class="op">=</span> <span class="st">'Abundance'</span>) </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#replace NAN values with 0</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> unfiltered_abundnace.fillna(<span class="dv">0</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace =unfiltered_abundnace.reset_index()</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace = unfiltered_abundnace.to_numpy()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="9781ebc7" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>corr_matrix, p_matrix <span class="op">=</span> scipy.stats.spearmanr(unfiltered_abundnace, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#statistical significance level of 0.05</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>corr_matrix[p_matrix<span class="op">&gt;</span><span class="fl">0.05</span>] <span class="op">=</span> np.nan</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>corr_matrix[corr_matrix<span class="op">&gt;</span><span class="fl">0.99</span>] <span class="op">=</span> np.nan</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>triangle_mask <span class="op">=</span> np.tri(corr_matrix.shape[<span class="dv">0</span>], k<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'P-value Matrix of OTU Counts Over Time Using Spearman'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>masked_correlation <span class="op">=</span> np.ma.masked_where(triangle_mask, corr_matrix)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>triangle_mask[triangle_mask <span class="op">==</span> <span class="dv">0</span>] <span class="op">=</span> np.nan</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>cax <span class="op">=</span> ax.pcolormesh(corr_matrix,cmap<span class="op">=</span><span class="st">'coolwarm'</span>, vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ax.imshow(triangle_mask, cmap<span class="op">=</span><span class="st">'twilight'</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>fig.colorbar(cax)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="correlation_matrix_files/figure-html/cell-6-output-1.png" width="518" height="459" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cointegration-between-species" class="level2">
+<h2 class="anchored" data-anchor-id="cointegration-between-species">Cointegration between species</h2>
+<p>Steps: 1. check for stationarity for all species by running a unit root test 2. check for stationarity in difference between all species</p>
 
 
 </section>

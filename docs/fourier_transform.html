@@ -155,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+ <span class="menu-text">Linear Regressions</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -163,8 +163,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
   </div>
 </li>
       </ul>
@@ -172,7 +172,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Linear Regressions</span></a>
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -180,8 +180,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
+  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
   </div>
 </li>
       </ul>
@@ -205,12 +205,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./fourier_transform.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Fourier Discrete Transform of Count Data</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./clustering.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">clustering.html</span></a>
   </div>
 </li>
       </ul>
@@ -248,10 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#creating-count-data" id="toc-creating-count-data" class="nav-link active" data-scroll-target="#creating-count-data">Creating Count Data</a>
-  <ul class="collapse">
-  <li><a href="#show-count-data" id="toc-show-count-data" class="nav-link" data-scroll-target="#show-count-data">Show Count Data</a></li>
-  </ul></li>
+  <li><a href="#show-count-data" id="toc-show-count-data" class="nav-link active" data-scroll-target="#show-count-data">Show Count Data</a></li>
   <li><a href="#fourier-transform-of-count-data" id="toc-fourier-transform-of-count-data" class="nav-link" data-scroll-target="#fourier-transform-of-count-data">Fourier Transform of Count Data</a></li>
   </ul>
 </nav>
@@ -278,11 +269,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="creating-count-data" class="level2">
-<h2 class="anchored" data-anchor-id="creating-count-data">Creating Count Data</h2>
+<p>The Fourier transform is a method commonly used to break down complex signals occuring over time into a sum of periodic components. This analysis was performed after no trends were discovered under the Seasonal and STL decomposition for Shannon Index and OTU 1, in order to see if any individual species were exhibiting periodic behavior.</p>
 <section id="show-count-data" class="level3">
 <h3 class="anchored" data-anchor-id="show-count-data">Show Count Data</h3>
-<div id="a32f6441" class="cell" data-execution_count="3">
+<div id="1e60ea29" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove last two rows of as_abundance_table</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> as_abundance_table.iloc[:,:<span class="op">-</span><span class="dv">2</span>]</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.reset_index()</span>
@@ -310,10 +300,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-</section>
 <section id="fourier-transform-of-count-data" class="level2">
 <h2 class="anchored" data-anchor-id="fourier-transform-of-count-data">Fourier Transform of Count Data</h2>
-<div id="10ae43ac" class="cell" data-execution_count="4">
+<div id="b01b106b" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> FFT(input_array):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span>
@@ -349,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="fourier_transform_files/figure-html/cell-5-output-1.png" width="833" height="819" class="figure-img"></p>
+<p><img src="fourier_transform_files/figure-html/cell-4-output-1.png" width="833" height="819" class="figure-img"></p>
 </figure>
 </div>
 </div>

@@ -1,4 +1,39 @@
 # Environmental Parameter Analysis
+Annacis WWTP monitors many parameters flowing into the treatment plant (Primary Effluent) as well as leaving the treatment plant (Final Effluent)
+
+Influent Parameters that were examined:
+
+- pH of RSS
+
+- temp of RSS
+
+- BOD/CBOD Load
+
+- COD Load
+
+- Ammonia Load
+
+- TKN Load
+
+- P Load
+
+- SCT Detention Time
+
+Effluent Parameters that were examined:
+
+- BOD/CBOD Load Removed
+
+- COD Load Removed
+  
+- P Removed
+  
+- TKN Removed
+  
+- Ammonia Removed
+
+
+This analysis was run after linear regressions were run
+
 
 ```{r}
 #| include: false

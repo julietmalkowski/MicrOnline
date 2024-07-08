@@ -121,7 +121,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+ <span class="menu-text">Linear Regressions</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -129,8 +129,8 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
   </div>
 </li>
       </ul>
@@ -138,7 +138,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Linear Regressions</span></a>
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -146,8 +146,8 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
+  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
   </div>
 </li>
       </ul>
@@ -171,12 +171,6 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./fourier_transform.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fourier Discrete Transform of Count Data</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./clustering.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">clustering.html</span></a>
   </div>
 </li>
       </ul>
@@ -218,6 +212,14 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+<p>Finding indicator species is useful to determine if an abundance of certain indicator species can predict the rest of the microbial community structure.</p>
+<p>Plan: Here we use the ‘indicspecies’ function in R to determine the indicator species for our data classified into 3 groups: 1- Relative Abundance 2- Active vs.&nbsp;Inactive Microbes 3- High vs.&nbsp;Medium vs.&nbsp;Low SRT time</p>
+<p>How to make this method work for time series?</p>
+<p>For these groups we will be using our calculated weekly SRT Time Data pre filtered for outliers loaded here:</p>
+<p>Package being used: indicspecies in R</p>
+<p>The function multipatt() creates lists of species that are associated with particular groups of sites (or combinations of those). When the alpha is set to 0.05 it hides all species association that are not significant</p>
+<p>Background Info: You can inspect (2) of the indicator value components when displaying results labeled as (A) and (B): A- sample estimate of the probability that the surveyed site belongs to the target site group given the fact that the species has been found. This conditional probability is called the specificity or positive predictive value of the species as indicator of the site group. B- sample estimate of the probability of finding the species in sites belonging to the site group. This second conditional probability is called the fidelity or sensitivity of the species as indicator of the target site group.</p>
+<p>All the missing species from these groups occur because those species occur in sites belonging to all groups.</p>
 
 
 

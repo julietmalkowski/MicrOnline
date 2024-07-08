@@ -4,4 +4,6 @@ title: "Activated Sludge Model"
 
 ## Welcome! Here you can find various ways to explore our data
 
+Here is a schematic of 7 locations where samples were collected from both weekly and bi-weekly from the MetroVancouver Annacis WWTP.
 
+![wwtp_annacis](wwtp_annacis.png.png)

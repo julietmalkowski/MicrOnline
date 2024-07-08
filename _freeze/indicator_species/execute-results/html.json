@@ -1,0 +1,17 @@
+{
+  "hash": "7c3937c9306ac06abd697ab29e430277",
+  "result": {
+    "engine": "knitr",
+    "markdown": "Finding indicator species is useful to determine if an abundance of certain indicator species can predict the rest of the microbial community structure. \n\nPlan:\nHere we use the 'indicspecies' function in R to determine the indicator species for our data classified into 3 groups:\n1- Relative Abundance\n2- Active vs. Inactive Microbes\n3- High vs. Medium vs. Low SRT time\n\nHow to make this method work for time series?\n\nFor these groups we will be using our calculated weekly SRT Time Data pre filtered for outliers loaded here:\n\n\n\n::: {.cell}\n\n:::\n\n\n\n\n\nPackage being used: indicspecies in R \n\nThe function multipatt() creates lists of species that are associated with particular groups of sites (or combinations of those).\nWhen the alpha is set to 0.05 it hides all species association that are not significant\n\n\n\n::: {.cell}\n\n:::\n\n\n\n\nBackground Info:\nYou can inspect (2) of the indicator value components when displaying results labeled as (A) and (B):\nA- sample estimate of the probability that the surveyed site belongs to the target site group given the fact that the species has been found. This conditional probability is called the specificity or positive predictive value of the species as indicator of the site group.\nB- sample estimate of the probability of finding the species in sites belonging to the site group. This second conditional probability is called the fidelity or sensitivity of the species as indicator of the target site group.\n\n\n\n\n::: {.cell}\n\n:::\n\n\n\n\nAll the missing species from these groups occur because those species occur in sites belonging to all groups.",
+    "supporting": [
+      "indicator_species_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -155,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+ <span class="menu-text">Linear Regressions</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -163,8 +163,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Environmental Parameter Analysis</span></a>
+  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
   </div>
 </li>
       </ul>
@@ -172,7 +172,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Linear Regressions</span></a>
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -180,8 +180,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./linear_regressions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regressions on Input and Output Parameters</span></a>
+  <a href="./environmental_parameter_analysis.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Environmental Parameter Analysis</span></a>
   </div>
 </li>
       </ul>
@@ -205,12 +205,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./fourier_transform.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fourier Discrete Transform of Count Data</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./clustering.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">clustering.html</span></a>
   </div>
 </li>
       </ul>
@@ -266,6 +260,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="environmental-parameter-analysis" class="level1">
 <h1>Environmental Parameter Analysis</h1>
+<p>Annacis WWTP monitors many parameters flowing into the treatment plant (Primary Effluent) as well as leaving the treatment plant (Final Effluent)</p>
+<p>Influent Parameters that were examined:</p>
+<ul>
+<li><p>pH of RSS</p></li>
+<li><p>temp of RSS</p></li>
+<li><p>BOD/CBOD Load</p></li>
+<li><p>COD Load</p></li>
+<li><p>Ammonia Load</p></li>
+<li><p>TKN Load</p></li>
+<li><p>P Load</p></li>
+<li><p>SCT Detention Time</p></li>
+</ul>
+<p>Effluent Parameters that were examined:</p>
+<ul>
+<li><p>BOD/CBOD Load Removed</p></li>
+<li><p>COD Load Removed</p></li>
+<li><p>P Removed</p></li>
+<li><p>TKN Removed</p></li>
+<li><p>Ammonia Removed</p></li>
+</ul>
+<p>This analysis was run after linear regressions</p>
 <section id="input-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="input-visualization">Input Visualization</h2>
 <p>Using values selected from RDA analysis</p>

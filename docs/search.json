@@ -1,237 +1,10 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "welcome!!!"
-  },
-  {
-    "objectID": "linear_regressions.html#loading-data",
-    "href": "linear_regressions.html#loading-data",
-    "title": "Activated Sludge Model",
-    "section": "Loading Data",
-    "text": "Loading Data\nNote: All Abundances have been filtered out to only contain relative abundances &gt; 0.01\n\notu_mat&lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx\")\n#remove first 4 characters in every column name\ncolnames(otu_mat)&lt;- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))\notu_mat = as.data.frame(otu_mat)\n#split first column by character '_' into two seperate columns\notu_mat[c('Process', 'Date')] &lt;- str_split_fixed(otu_mat$le, '_', 2)\n#drop le column\notu_mat = otu_mat[,-1]\n#move last two columns to the front\notu_mat &lt;- otu_mat %&gt;%\n  select(Process, everything())\notu_mat &lt;- otu_mat %&gt;%\n  select(Date, everything())\n#filter otu_mat to only contain AS-1 and AS-2 in process column\notu_mat &lt;- otu_mat %&gt;%\n  filter(Process == \"AS-1\" | Process == \"AS-2\")\n#remove Process column\notu_mat = otu_mat[,-2]\n#groupby date and find the mean of each column\notu_counts &lt;- otu_mat %&gt;%\n  group_by(Date) %&gt;%\n  summarise_all(mean)\notu_p = otu_counts\n#find the sum of each row\notu_p$sum &lt;- rowSums(otu_p[,-1])\n#divide each row by the sum\notu_p[,-1] &lt;- otu_p[,-1] / otu_p$sum\n#remove sum column\notu_p = otu_p[,-ncol(otu_p)]\n#make otu_p from wide form to long form\notu_p &lt;- otu_p %&gt;%\n  pivot_longer(cols = -Date, names_to = \"OTU\", values_to = \"Abundance\")\n#filter out rows with an Abundance less than 0.01\notu_p &lt;- otu_p %&gt;%\n  filter(Abundance &gt;= 0.01)\n#calculate Shannon Index and add it to otu_p column\nshannon = function(x) {\n  -sum(x * log(x))\n}\notu_shannon = otu_p\ns = otu_shannon %&gt;% group_by(Date) %&gt;%\n  summarize(Shannon = shannon(Abundance))\notu_shannon = merge(otu_shannon, s, by = \"Date\")\noutput_metadata &lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx\")\noutput_metadata = as.data.frame(output_metadata)\n\n#input parameters\ninput_metadata = output_metadata\ninput_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]\ninput_data = input_metadata\ninput_data = merge(otu_shannon, input_metadata, by = \"Date\")\n\n#output parameters\noutput_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]\noutput_data = merge(otu_shannon, output_metadata, by = \"Date\")\n#change column 6 name\ncolnames(output_data)[6] &lt;- \"BOD_CBOD_Load_Removed\"",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#connecting-metadata-and-otu-counts",
-    "href": "linear_regressions.html#connecting-metadata-and-otu-counts",
-    "title": "Activated Sludge Model",
-    "section": "Connecting Metadata and OTU Counts",
-    "text": "Connecting Metadata and OTU Counts\n\noutput_metadata &lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx\")\noutput_metadata = as.data.frame(output_metadata)\n\n#input parameters\ninput_metadata = output_metadata\ninput_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]\ninput_data = input_metadata\ninput_data = merge(otu_shannon, input_metadata, by = \"Date\")\ncolnames(input_data)[8] &lt;- \"BOD_CBOD_Load_PE\"\n\n#output parameters\noutput_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]\noutput_data = merge(otu_shannon, output_metadata, by = \"Date\")\n#change column 6 name\ncolnames(output_data)[6] &lt;- \"BOD_CBOD_Load_Removed\"\n#remove column in output_data\ninput_data_ = input_data[,-c(2:4)]\ninput_data_ = as.data.frame(input_data_)\n#remove duplicates\ninput_data_ = input_data_[!duplicated(input_data_[,1]),]\n#make first column rownames in output_data_\nrownames(input_data_) &lt;- input_data_[,1]\n#remove first column\ninput_data_ = input_data_[,-1]",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#effect-of-input-parameters-on-shannon-index",
-    "href": "linear_regressions.html#effect-of-input-parameters-on-shannon-index",
-    "title": "Activated Sludge Model",
-    "section": "Effect of Input Parameters on Shannon Index",
-    "text": "Effect of Input Parameters on Shannon Index\nUsing a multiple linear regression I will briefly assume our variables have a normal distribution of residuals and are linear\nNotation for plots:\nPlot 1- distribution of residuals according to values predicted by linear regression model- each point represents the distance between the response variable and the model prediction- we need a uniform distribution of the residual. For this plot we need a uniform distribution of the residuals- the homoscedasticity condition. This condition states that if the residuals form an approximate horizontal band around the 0 line, the variance of the residuals is homogeneous.\nPlot 2- checks if the dispersion of residuals is caused by the explanatory variable- if the dispersion increases then it means the variances in each group are different\nPlot 3- this plot shows the distribution of residuals in a quantile- quantile plot which evaluated the normality of the residuals. This plot compares the probability distribution of normal data and standardized residuals can be seen near the 1:1 line\nPlot 4- shows the residuals and their influence- the location of points with strong influence can influence the interpretation of the data. If one or more observations are outliers then the model may be misfitted because of their exaggerated influence. A distance greater than 0.5 is problematic\n\n#create multiple linear regression\nlm.mult &lt;- lm(Shannon ~ pH_RSS + temp_RSS + BOD_CBOD_Load_PE + COD_Load_PE + Ammonia_Load_RAW + TKN_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)\nsummary(lm.mult)\n\n\nCall:\nlm(formula = Shannon ~ pH_RSS + temp_RSS + BOD_CBOD_Load_PE + \n    COD_Load_PE + Ammonia_Load_RAW + TKN_Load_RAW + P_Load_PE + \n    SCT_Detention_Time, data = input_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.34785 -0.09712 -0.01016  0.09621  0.24081 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)         7.029e+00  7.191e-01   9.774  &lt; 2e-16 ***\npH_RSS             -7.538e-01  9.354e-02  -8.059 3.07e-15 ***\ntemp_RSS            5.310e-03  2.843e-03   1.868   0.0622 .  \nBOD_CBOD_Load_PE   -3.662e-03  7.574e-04  -4.835 1.62e-06 ***\nCOD_Load_PE        -8.535e-05  5.977e-04  -0.143   0.8865    \nAmmonia_Load_RAW    1.744e-02  8.422e-03   2.071   0.0387 *  \nTKN_Load_RAW        5.030e-03  5.600e-03   0.898   0.3694    \nP_Load_PE          -6.895e-01  6.578e-02 -10.482  &lt; 2e-16 ***\nSCT_Detention_Time  4.037e-01  2.272e-02  17.768  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.13 on 743 degrees of freedom\nMultiple R-squared:  0.5613,    Adjusted R-squared:  0.5566 \nF-statistic: 118.8 on 8 and 743 DF,  p-value: &lt; 2.2e-16\n\npar(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,\n                                                        0, 0))\nplot(lm.mult)\n\n\n\n\n\n\n\n\nAs can be seen above, the results from each plot do not meet the assumptions of linear regression. The residuals are not homoscedastic, the residuals are not normally distributed, and there are outliers that are influencing the model.\nSignificant values include pH_RSS, BOD_CBOD_Load_PE,Ammonia_Load_RAW, P_Load_PE, and SCT_Detention_Time. To fix this data run now with only significant values\n\nlm.mult2 &lt;- lm(Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)\nsummary(lm.mult2)\n\n\nCall:\nlm(formula = Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + \n    P_Load_PE + SCT_Detention_Time, data = input_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.32219 -0.09688 -0.01303  0.08360  0.23466 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)         7.0131513  0.6862416  10.220  &lt; 2e-16 ***\npH_RSS             -0.7265873  0.0904217  -8.036 3.64e-15 ***\nBOD_CBOD_Load_PE   -0.0036932  0.0007406  -4.987 7.65e-07 ***\nAmmonia_Load_RAW    0.0124405  0.0081474   1.527    0.127    \nP_Load_PE          -0.6479527  0.0629724 -10.289  &lt; 2e-16 ***\nSCT_Detention_Time  0.3780273  0.0191689  19.721  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.1304 on 746 degrees of freedom\nMultiple R-squared:  0.5566,    Adjusted R-squared:  0.5536 \nF-statistic: 187.3 on 5 and 746 DF,  p-value: &lt; 2.2e-16\n\npar(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,\n                                                        0, 0))\nplot(lm.mult2)\n\n\n\n\n\n\n\n\nNow we see slightly better results with Ammonia Loading no longer being relevant",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#determine-most-important-input-parameters-based-on-relative-abundances",
-    "href": "linear_regressions.html#determine-most-important-input-parameters-based-on-relative-abundances",
-    "title": "Activated Sludge Model",
-    "section": "Determine Most Important Input Parameters based on Relative Abundances",
-    "text": "Determine Most Important Input Parameters based on Relative Abundances\nUsing Redundancy Analysis\n\notu_p_wide &lt;- otu_p %&gt;%\n  pivot_wider(names_from = OTU, values_from = Abundance) %&gt;%\n  replace(is.na(.), 0)\notu_p_wide = as.data.frame(otu_p_wide)\n#make first column rownames in output_data_\nrownames(otu_p_wide) &lt;- otu_p_wide[,1]\n#remove first column\notu_p_wide = otu_p_wide[,-1]\n\nas_metadata_input.z &lt;- decostand(input_data_, method = \"standardize\")\nas_metadata_input.rda &lt;- rda(otu_p_wide  ~ ., data = as_metadata_input.z)\n\nfwd.sel &lt;- ordiR2step(rda(otu_p_wide ~ 1, data = as_metadata_input.z), # lower model limit (simple!)\n                      scope = formula(as_metadata_input.rda), # upper model limit (the \"full\" model)\n                      direction = \"forward\",\n                      R2scope = TRUE, # can't surpass the \"full\" model's R2\n                      pstep = 1000,\n                      trace = FALSE) # change to TRUE to see the selection process\n#see which variables were selected\nfwd.sel$call\n\nrda(formula = otu_p_wide ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)\n\n\n#result RDA is: rda(formula = otu_p_wide ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#effect-of-shannon-index-on-output-parameters-using-linear-regression",
-    "href": "linear_regressions.html#effect-of-shannon-index-on-output-parameters-using-linear-regression",
-    "title": "Activated Sludge Model",
-    "section": "Effect of Shannon Index on Output Parameters using Linear Regression",
-    "text": "Effect of Shannon Index on Output Parameters using Linear Regression\n\nlm1 &lt;- lm(COD_Load_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm1)\ntitle(\"Linear Model for COD_Load_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm1)\n\n\nCall:\nlm(formula = COD_Load_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-50.154  -7.706   1.259   8.229  44.484 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   85.394      1.966   43.42  &lt; 2e-16 ***\nShannon       10.044      2.729    3.68  0.00025 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 14.6 on 750 degrees of freedom\nMultiple R-squared:  0.01773,   Adjusted R-squared:  0.01642 \nF-statistic: 13.54 on 1 and 750 DF,  p-value: 0.0002502\n\nlm2 &lt;- lm(P_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm2)\ntitle(\"Linear Model for P_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm2)\n\n\nCall:\nlm(formula = P_Removed ~ Shannon, data = output_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.91548 -0.20519  0.06134  0.24145  0.54031 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  0.34889    0.04382   7.961  6.3e-15 ***\nShannon      0.90793    0.06083  14.927  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.3254 on 750 degrees of freedom\nMultiple R-squared:  0.229, Adjusted R-squared:  0.228 \nF-statistic: 222.8 on 1 and 750 DF,  p-value: &lt; 2.2e-16\n\nlm3 &lt;- lm(TKN_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm3)\ntitle(\"Linear Model for TKN_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm3)\n\n\nCall:\nlm(formula = TKN_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-2.5674 -0.1711  0.2739  0.5188  1.3956 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   2.3620     0.1218  19.399   &lt;2e-16 ***\nShannon      -1.4782     0.1690  -8.747   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.904 on 750 degrees of freedom\nMultiple R-squared:  0.09257,   Adjusted R-squared:  0.09136 \nF-statistic: 76.51 on 1 and 750 DF,  p-value: &lt; 2.2e-16\n\nlm4 &lt;- lm(Ammonia_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm4)\ntitle(\"Linear Model for Ammonia_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm4)\n\n\nCall:\nlm(formula = Ammonia_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-4.1028 -0.6071  0.1175  0.7188  2.7766 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  -5.6568     0.1572 -35.978  &lt; 2e-16 ***\nShannon       0.9177     0.2182   4.205 2.92e-05 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 1.167 on 750 degrees of freedom\nMultiple R-squared:  0.02304,   Adjusted R-squared:  0.02173 \nF-statistic: 17.69 on 1 and 750 DF,  p-value: 2.921e-05\n\nlm5 &lt;- lm(BOD_CBOD_Load_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm5)\ntitle(\"Linear Model for BOD_CBOD_Load_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm5)\n\n\nCall:\nlm(formula = BOD_CBOD_Load_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-44.966  -4.542   0.553   4.702  14.932 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    40.41       1.16  34.839   &lt;2e-16 ***\nShannon         3.64       1.61   2.261    0.024 *  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 8.612 on 750 degrees of freedom\nMultiple R-squared:  0.006771,  Adjusted R-squared:  0.005446 \nF-statistic: 5.113 on 1 and 750 DF,  p-value: 0.02404\n\n\nResulting p-values are all significant: In order: COD_Load_Removed:0.00025 P_Removed: 2e-16 TKN_Removed: 2e-16 Ammonia_Removed: 2.92e-05 BOD_CBOD_Load_Removed: 0.024",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#otu-1-analysis",
-    "href": "linear_regressions.html#otu-1-analysis",
-    "title": "Activated Sludge Model",
-    "section": "OTU 1 Analysis",
-    "text": "OTU 1 Analysis\nThe generalized linear model used a binomial distribution for the relative abundance data (between 0-1) so the changes of the inputs on this distribution can be specifically calculated. This model also does not assume a linear relationship.\nThe poisson relationship would be used for count data",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#comparing-a-general-linear-model-vs.-linear-model-for-input-parameters-on-otu-1",
-    "href": "linear_regressions.html#comparing-a-general-linear-model-vs.-linear-model-for-input-parameters-on-otu-1",
-    "title": "Activated Sludge Model",
-    "section": "Comparing a General Linear Model vs. Linear Model for Input Parameters on OTU 1",
-    "text": "Comparing a General Linear Model vs. Linear Model for Input Parameters on OTU 1\n\n#filter out for OTU 1\notu_1 &lt;- input_data %&gt;% filter(OTU == 1)\nmodel1 &lt;- glm(Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, family = binomial,\n              data = otu_1)\n\nWarning in eval(family$initialize): non-integer #successes in a binomial glm!\n\nsummary(model1)\n\n\nCall:\nglm(formula = Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, \n    family = binomial, data = otu_1)\n\nCoefficients:\n                     Estimate Std. Error z value Pr(&gt;|z|)\n(Intercept)         3.2559247 96.5997353   0.034    0.973\ntemp_RSS           -0.0101602  0.3028600  -0.034    0.973\nSCT_Detention_Time  0.9027379  3.1992126   0.282    0.778\nP_Load_PE          -2.8495646  9.9857297  -0.285    0.775\nTKN_Load_RAW       -0.0008063  0.7355789  -0.001    0.999\nAmmonia_Load_RAW   -0.1687601  1.1657600  -0.145    0.885\npH_RSS              0.2028448 12.5584428   0.016    0.987\nBOD_CBOD_Load_PE    0.0031766  0.0969474   0.033    0.974\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 0.77079  on 80  degrees of freedom\nResidual deviance: 0.55062  on 73  degrees of freedom\nAIC: 21.189\n\nNumber of Fisher Scoring iterations: 7\n\npar(mfrow = c(2, 2))\nplot(model1)\ntitle(\"General Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\n#normal linear model\nmodel2 &lt;- lm(Abundance ~  temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE,\n              data = otu_1)\nsummary(model2)\n\n\nCall:\nlm(formula = Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, \n    data = otu_1)\n\nResiduals:\n      Min        1Q    Median        3Q       Max \n-0.021875 -0.010883 -0.002686  0.006813  0.094619 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)   \n(Intercept)         0.1644549  0.2869814   0.573  0.56837   \ntemp_RSS           -0.0004897  0.0008712  -0.562  0.57577   \nSCT_Detention_Time  0.0231091  0.0084472   2.736  0.00781 **\nP_Load_PE          -0.0684792  0.0243500  -2.812  0.00631 **\nTKN_Load_RAW        0.0010703  0.0022119   0.484  0.62992   \nAmmonia_Load_RAW   -0.0044773  0.0033803  -1.325  0.18946   \npH_RSS              0.0067213  0.0381149   0.176  0.86051   \nBOD_CBOD_Load_PE    0.0001117  0.0002840   0.393  0.69518   \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.01673 on 73 degrees of freedom\nMultiple R-squared:  0.2346,    Adjusted R-squared:  0.1612 \nF-statistic: 3.196 on 7 and 73 DF,  p-value: 0.005231\n\npar(mfrow = c(2, 2))\nplot(model2)\ntitle(\"Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\n\nHere we see the generalized linear model predict no significant values, while the linear model predicts significant values.",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "linear_regressions.html#conclusions",
-    "href": "linear_regressions.html#conclusions",
-    "title": "Activated Sludge Model",
-    "section": "Conclusions",
-    "text": "Conclusions\nRelevant Input Parameters that explain 36% of variance in the data:\n\ntemp_RSS\nSCT_Detention_Time\nP_Load_PE\nTKN_Load_RAW\nAmmonia_Load_RAW\n\nFrom multiple linear regression on shannon index:\n\npH_RSS\nBOD_CBOD_Load_PE\nAmmonia_Load_RAW\nP_Load_PE\nSCT_Detention_Time\n\nFrom generalized linear model on OTU 1: - none\nRelevant Output Parameters:\n\nCOD_Load_Removed\nP_Removed\nTKN_Removed\nAmmonia_Removed\nBOD_CBOD_Load_Removed",
-    "crumbs": [
-      "Linear Regressions",
-      "Linear Regressions on Input and Output Parameters"
-    ]
-  },
-  {
-    "objectID": "environmental_parameter_analysis.html",
-    "href": "environmental_parameter_analysis.html",
-    "title": "Environmental Parameter Analysis",
-    "section": "",
-    "text": "Using values selected from RDA analysis\n\ne = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = temp_RSS, color = \"temp_RSS\"),group = 1) +\n  ggtitle(\"RSS Temp Over Time\") + xlab(\"Month\") + ylab(\"temp (deg.C)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nf = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = SCT_Detention_Time, color = \"SCT_Detention_Time\"),group = 1) + \n  ggtitle(\"SCT_Detention_Time Over Time\") + xlab(\"Month\") + ylab(\"time (hr)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ng = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = P_Load_PE, color = \"P_Load_PE\"),group = 1) + \n  ggtitle(\"P_Load_PE Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nh = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = TKN_Load_RAW, color = \"TKN_Load_RAW\"),group = 1) + \n  ggtitle(\"TKN_Load_RAW Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ni = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = Ammonia_Load_RAW, color = \"Ammonia_Load_RAW\"),group = 1) + \n  ggtitle(\"Ammonia_Load_RAW\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(e, f, g, h, i + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\", \"E\"),\n          ncol = 2, nrow = 3)\n\n\n\n\n\n\n\n\n\n\n\n\na = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"BOD_CBOD_Load_Removed\"),group = 1) + \n  geom_line(data=output_data_,aes(x = Date, y = COD_Load_Removed,color = \"COD_Load_Removed\"),group = 1) +\n  ggtitle(\"Output Parameters Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nb = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"P_Removed\"),group = 1) + \n  ggtitle(\"P_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nc = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = TKN_Removed, color = \"TKN_Removed\"),group = 1) + \n  ggtitle(\"TKN_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nd = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = Ammonia_Removed, color = \"Ammonia_Removed\"),group = 1) + \n  ggtitle(\"Ammonia_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(a, b, c, d + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\"),\n          ncol = 2, nrow = 2)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot() + \n  geom_line(data=s,aes(x = Date,y = Shannon, color = \"Shannon\"),group = 1) + \n  ggtitle(\"Shannon Index Over Time\") + xlab(\"Date\") + ylab(\"Shannon Index\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))\n\n\n\n\n\n\n\n\n\n\n\n\n#put character z in front of all columns\ncolnames(otu_counts) &lt;- paste0(\"z\", colnames(otu_counts))\n#select only columns named '1' in otu_counts\notus &lt;- select(otu_counts,z1,z4,z2,z6,zDate)\n\n#plot the data\nggplot() + \n  geom_line(data=otus,aes(x = zDate, y = z1, color = \"1\"),group = 1) + \n  geom_line(data=otus,aes(x = zDate, y = z4,color = \"4\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z2,color = \"2\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z6 ,color = \"6\"),group = 1) +\n  ggtitle(\"OTU 1,4,2,6 Over Time\") + xlab(\"Date\") + ylab(\"Abundance\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
-    "crumbs": [
-      "Environmental Parameter Analysis",
-      "Environmental Parameter Analysis"
-    ]
-  },
-  {
-    "objectID": "environmental_parameter_analysis.html#input-visualization",
-    "href": "environmental_parameter_analysis.html#input-visualization",
-    "title": "Environmental Parameter Analysis",
-    "section": "",
-    "text": "Using values selected from RDA analysis\n\ne = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = temp_RSS, color = \"temp_RSS\"),group = 1) +\n  ggtitle(\"RSS Temp Over Time\") + xlab(\"Month\") + ylab(\"temp (deg.C)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nf = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = SCT_Detention_Time, color = \"SCT_Detention_Time\"),group = 1) + \n  ggtitle(\"SCT_Detention_Time Over Time\") + xlab(\"Month\") + ylab(\"time (hr)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ng = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = P_Load_PE, color = \"P_Load_PE\"),group = 1) + \n  ggtitle(\"P_Load_PE Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nh = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = TKN_Load_RAW, color = \"TKN_Load_RAW\"),group = 1) + \n  ggtitle(\"TKN_Load_RAW Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ni = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = Ammonia_Load_RAW, color = \"Ammonia_Load_RAW\"),group = 1) + \n  ggtitle(\"Ammonia_Load_RAW\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(e, f, g, h, i + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\", \"E\"),\n          ncol = 2, nrow = 3)",
-    "crumbs": [
-      "Environmental Parameter Analysis",
-      "Environmental Parameter Analysis"
-    ]
-  },
-  {
-    "objectID": "environmental_parameter_analysis.html#output-visualization",
-    "href": "environmental_parameter_analysis.html#output-visualization",
-    "title": "Environmental Parameter Analysis",
-    "section": "",
-    "text": "a = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"BOD_CBOD_Load_Removed\"),group = 1) + \n  geom_line(data=output_data_,aes(x = Date, y = COD_Load_Removed,color = \"COD_Load_Removed\"),group = 1) +\n  ggtitle(\"Output Parameters Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nb = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"P_Removed\"),group = 1) + \n  ggtitle(\"P_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nc = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = TKN_Removed, color = \"TKN_Removed\"),group = 1) + \n  ggtitle(\"TKN_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nd = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = Ammonia_Removed, color = \"Ammonia_Removed\"),group = 1) + \n  ggtitle(\"Ammonia_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(a, b, c, d + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\"),\n          ncol = 2, nrow = 2)",
-    "crumbs": [
-      "Environmental Parameter Analysis",
-      "Environmental Parameter Analysis"
-    ]
-  },
-  {
-    "objectID": "environmental_parameter_analysis.html#shannon-index-visualization",
-    "href": "environmental_parameter_analysis.html#shannon-index-visualization",
-    "title": "Environmental Parameter Analysis",
-    "section": "",
-    "text": "ggplot() + \n  geom_line(data=s,aes(x = Date,y = Shannon, color = \"Shannon\"),group = 1) + \n  ggtitle(\"Shannon Index Over Time\") + xlab(\"Date\") + ylab(\"Shannon Index\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
-    "crumbs": [
-      "Environmental Parameter Analysis",
-      "Environmental Parameter Analysis"
-    ]
-  },
-  {
-    "objectID": "environmental_parameter_analysis.html#otu-1426-visualization",
-    "href": "environmental_parameter_analysis.html#otu-1426-visualization",
-    "title": "Environmental Parameter Analysis",
-    "section": "",
-    "text": "#put character z in front of all columns\ncolnames(otu_counts) &lt;- paste0(\"z\", colnames(otu_counts))\n#select only columns named '1' in otu_counts\notus &lt;- select(otu_counts,z1,z4,z2,z6,zDate)\n\n#plot the data\nggplot() + \n  geom_line(data=otus,aes(x = zDate, y = z1, color = \"1\"),group = 1) + \n  geom_line(data=otus,aes(x = zDate, y = z4,color = \"4\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z2,color = \"2\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z6 ,color = \"6\"),group = 1) +\n  ggtitle(\"OTU 1,4,2,6 Over Time\") + xlab(\"Date\") + ylab(\"Abundance\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
-    "crumbs": [
-      "Environmental Parameter Analysis",
-      "Environmental Parameter Analysis"
-    ]
-  },
-  {
-    "objectID": "fourier_transform.html",
-    "href": "fourier_transform.html",
-    "title": "Fourier Discrete Transform of Count Data",
-    "section": "",
-    "text": "#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\nprint(a.head())\n#remove first column in a\na = a.iloc[:,1:]\n#tranform to numpy array\na = a.to_numpy()\n\n         Date   121   22       4    61  9124   190    33   70  1716  ...  \\\n0  01/05/2023  66.5  0.0   267.5  27.0   0.0  17.0  34.0  0.5   0.0  ...   \n1  01/10/2023  86.0  0.0  1260.0  35.0   0.0  32.0  43.0  0.0   0.0  ...   \n2  01/12/2023  38.5  0.0   374.5  10.0   0.0  12.0  38.5  0.5   0.0  ...   \n3  01/17/2023  41.0  0.0   738.0  10.0   0.0  28.5  45.0  0.0   1.0  ...   \n4  01/19/2023  39.0  0.0   616.5  16.0   0.0  29.0  98.0  0.0   0.0  ...   \n\n   9558  12913  10999  13677  17024  11155  10242  6130  15569  17515  \n0   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n1   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n2   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n3   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n4   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n\n[5 rows x 16033 columns]",
-    "crumbs": [
-      "Exploratory Analysis",
-      "Fourier Discrete Transform of Count Data"
-    ]
-  },
-  {
-    "objectID": "fourier_transform.html#creating-count-data",
-    "href": "fourier_transform.html#creating-count-data",
-    "title": "Fourier Discrete Transform of Count Data",
-    "section": "",
-    "text": "#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\nprint(a.head())\n#remove first column in a\na = a.iloc[:,1:]\n#tranform to numpy array\na = a.to_numpy()\n\n         Date   121   22       4    61  9124   190    33   70  1716  ...  \\\n0  01/05/2023  66.5  0.0   267.5  27.0   0.0  17.0  34.0  0.5   0.0  ...   \n1  01/10/2023  86.0  0.0  1260.0  35.0   0.0  32.0  43.0  0.0   0.0  ...   \n2  01/12/2023  38.5  0.0   374.5  10.0   0.0  12.0  38.5  0.5   0.0  ...   \n3  01/17/2023  41.0  0.0   738.0  10.0   0.0  28.5  45.0  0.0   1.0  ...   \n4  01/19/2023  39.0  0.0   616.5  16.0   0.0  29.0  98.0  0.0   0.0  ...   \n\n   9558  12913  10999  13677  17024  11155  10242  6130  15569  17515  \n0   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n1   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n2   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n3   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n4   0.0    0.0    0.0    0.0    0.0    0.0    0.0   0.0    0.0    0.0  \n\n[5 rows x 16033 columns]",
-    "crumbs": [
-      "Exploratory Analysis",
-      "Fourier Discrete Transform of Count Data"
-    ]
-  },
-  {
-    "objectID": "fourier_transform.html#fourier-transform-of-count-data",
-    "href": "fourier_transform.html#fourier-transform-of-count-data",
-    "title": "Fourier Discrete Transform of Count Data",
-    "section": "Fourier Transform of Count Data",
-    "text": "Fourier Transform of Count Data\n\ndef FFT(input_array):\n\n    fig, ax = plt.subplots(2, 1, figsize=(10, 10))\n\n    #Taking each OTU and fourier transforming its signal through time\n    for i in range(input_array.shape[1]):\n        ax[0].plot(input_array[:,i])\n\n        #Calculate the FFT\n        #calculate fourier transform by using np.fft.fft to calculate fft of each column (each OTU count through time)\n        #calculate the fourier sample frequencies by using np.fft.fftfreq\n        #Use np.fft.fftshift to shift the zero-frequency component to the center of the spectrum.\n\n        fft = np.fft.fftshift(np.fft.fft(input_array[:,i]))\n        fft_freq = np.fft.fftshift(np.fft.fftfreq(len(fft)))\n\n        fft = np.abs(fft[fft_freq &gt; 0])\n        fft_freq = fft_freq[fft_freq &gt; 0]\n\n        ax[1].plot(fft_freq, fft)\n\n    ax[0].set_title('Input signal')\n    ax[0].set_xlabel('Time')\n    ax[0].set_ylabel('Amplitude')\n\n    ax[1].set_title('FFT of the signal')\n    ax[1].set_xlabel('Frequency')\n    ax[1].set_ylabel('Amplitude')\n\n    plt.show()\n\nFFT(a.copy())",
-    "crumbs": [
-      "Exploratory Analysis",
-      "Fourier Discrete Transform of Count Data"
-    ]
-  },
-  {
-    "objectID": "correlation_matrix.html",
-    "href": "correlation_matrix.html",
-    "title": "Correlations",
-    "section": "",
-    "text": "import numpy as np\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport scipy.stats",
-    "crumbs": [
-      "Observable Patterns",
-      "Correlations"
-    ]
-  },
-  {
-    "objectID": "correlation_matrix.html#loading-data",
-    "href": "correlation_matrix.html#loading-data",
-    "title": "Correlations",
-    "section": "Loading Data",
-    "text": "Loading Data\n\nabundance_table = pd.read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx\")\n#remove first 4 characters in every column name\nabundance_table.columns = abundance_table.columns.str[4:] \n#split string in column to get date and process\nabundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)\nabundance_table = abundance_table.drop(columns=['le'])\nprocesses = ['AS-1', 'AS-2']\nas_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]\nas_abundance_table = as_abundance_table.drop(columns=['Process'])\n#group by date and find the mean of all values\nas_abundance_table = as_abundance_table.groupby(['Date']).mean()\n#remove last two rows of as_abundance_table\na = as_abundance_table.iloc[:,:-2]\na = a.reset_index()\n#remove first column in a\na = a.iloc[:,1:]\na = a.to_numpy()",
-    "crumbs": [
-      "Observable Patterns",
-      "Correlations"
-    ]
-  },
-  {
-    "objectID": "correlation_matrix.html#correlation-between-count-data",
-    "href": "correlation_matrix.html#correlation-between-count-data",
-    "title": "Correlations",
-    "section": "Correlation between count data",
-    "text": "Correlation between count data\n\ncorrelation = np.corrcoef(a.T)\n\nmask = ((correlation &gt; 0.75) & (correlation &lt; 0.99)) | (correlation &lt; -0.75) & (correlation &gt; -0.99)\n\n# Plotting\nfig = plt.figure()\n# Put in title and axis labels\nfig.suptitle('Correlation Matrix of OTU Counts Over Time')\nax = fig.add_subplot(111)\n\n# Use the mask to display the significant correlations\nmasked_correlation = np.ma.masked_where(~mask, correlation)\ncax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)\nfig.colorbar(cax)\n\nplt.show()\n\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[:, None]\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[None, :]",
-    "crumbs": [
-      "Observable Patterns",
-      "Correlations"
-    ]
-  },
-  {
     "objectID": "trend_decomposition.html",
     "href": "trend_decomposition.html",
     "title": "Decomposition of Trends",
     "section": "",
-    "text": "Note: All Abundances have been filtered out to only contain relative abundances &gt; 0.01\n\n\n\nFor Shannon Index\n\ntryCatch({\n  otu_1_shannon %&gt;% decompose(type = \"additive\") %&gt;% \n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\ntryCatch({\n    otu_1_abundance %&gt;% decompose(type=\"additive\") %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\ntryCatch({\n    otu_1_count%&gt;% decompose(type=\"additive\") %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\n\n\nFor Shannon Index\n\ntryCatch({\n    otu_1_shannon  %&gt;%\n    stl(s.window=\"periodic\", robust=TRUE) %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: series is not periodic or has less than two periods\n\ntryCatch({\n    otu_1_abundance  %&gt;%\n    stl(s.window=\"periodic\", robust=TRUE) %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: series is not periodic or has less than two periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\n\n\nAugmented Dickey-Fuller Test: This is a statistical test that checks for the presence of a unit root in the time series. If the test indicates that there is no unit root, then the time series is likely stationary.\nFor Shannon Index\n\nadf_test_shannon &lt;- adf.test(otu_1_shannon)\nprint(adf_test_shannon)\n\n\n    Augmented Dickey-Fuller Test\n\ndata:  otu_1_shannon\nDickey-Fuller = -1.9299, Lag order = 4, p-value = 0.6044\nalternative hypothesis: stationary\n\n\nResult: Not Stationary\nFor OTU 1 Counts\n\nadf_test_otu &lt;- adf.test(otu_1_abundance)\nprint(adf_test_otu)\n\n\n    Augmented Dickey-Fuller Test\n\ndata:  otu_1_abundance\nDickey-Fuller = -2.6805, Lag order = 4, p-value = 0.2971\nalternative hypothesis: stationary\n\n#adf.test(otu_1_count) \n\nResult: Not Stationary\nKwiatkowski-Phillips-Schmidt-Shin Test: his test checks for the presence of a trend or structural break in the time series. If the test indicates that there is no trend or structural break, then the time series may be considered stationary.\nFor Shannon Index\n\nkpss.test(otu_1_shannon)\n\nWarning in kpss.test(otu_1_shannon): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_shannon\nKPSS Level = 0.89563, Truncation lag parameter = 3, p-value = 0.01\n\n\nResult: Not Stationary\nFor OTU 1\n\n#on relative abudance\nkpss.test(otu_1_abundance)\n\nWarning in kpss.test(otu_1_abundance): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_abundance\nKPSS Level = 0.92455, Truncation lag parameter = 3, p-value = 0.01\n\nkpss.test(otu_1_count)\n\nWarning in kpss.test(otu_1_count): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_count\nKPSS Level = 0.89444, Truncation lag parameter = 3, p-value = 0.01\n\n\nResult: Not Stationary\n\n\n\nThere are no cyclical trends in either our shannon index or in our otu_1 abundance Our data is considered non-stationary which would make it not possible to model a time series based on previous time values\n\n\n\nThere does seem to be a correlation between different groups of OTU’s- lets examine this:\n\n#Counts\n# cor_mat = otu_counts[,-1]\n# #cor() computes the correlation coefficient\n# c_m = cor( cor_mat, method = \"pearson\")\n\n#Relative Abundance\notu_p_wide &lt;- otu_p %&gt;%\n  pivot_wider(names_from = OTU, values_from = Abundance) %&gt;%\n  replace(is.na(.), 0)\n#remove date column\notu_p_wide = otu_p_wide[,-1]\nc_m_a = cor(otu_p_wide, method = \"pearson\")\n\n#heatmap(c_m)\n\nResults show: - When calculating correlation coefficient between counts- little to no correlation between OTU’s - When calculating correlation coefficient between relative abundance- high correlations can be seen",
-    "crumbs": [
-      "Exploratory Analysis",
-      "Decomposition of Trends"
-    ]
-  },
-  {
-    "objectID": "trend_decomposition.html#loading-data",
-    "href": "trend_decomposition.html#loading-data",
-    "title": "Decomposition of Trends",
-    "section": "",
-    "text": "Note: All Abundances have been filtered out to only contain relative abundances &gt; 0.01",
+    "text": "Note: All Abundances have been filtered out to only contain relative abundances &gt; 0.01\n\n\nFor Shannon Index\n\ntryCatch({\n  otu_1_shannon %&gt;% decompose(type = \"additive\") %&gt;% \n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\ntryCatch({\n    otu_1_abundance %&gt;% decompose(type=\"additive\") %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\ntryCatch({\n    otu_1_count%&gt;% decompose(type=\"additive\") %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: time series has no or less than 2 periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\n\n\nFor Shannon Index\n\ntryCatch({\n    otu_1_shannon  %&gt;%\n    stl(s.window=\"periodic\", robust=TRUE) %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: series is not periodic or has less than two periods\n\ntryCatch({\n    otu_1_abundance  %&gt;%\n    stl(s.window=\"periodic\", robust=TRUE) %&gt;%\n    autoplot()\n}, error = function(e) {\n  message(\"An error occurred: \", e$message)\n})\n\nAn error occurred: series is not periodic or has less than two periods\n\n\nResult: Error in decompose(): ! time series has no or less than 2 periods\n\n\n\nAugmented Dickey-Fuller Test: This is a statistical test that checks for the presence of a unit root in the time series. If the test indicates that there is no unit root, then the time series is likely stationary.\nFor Shannon Index\n\nadf_test_shannon &lt;- adf.test(otu_1_shannon)\nprint(adf_test_shannon)\n\n\n    Augmented Dickey-Fuller Test\n\ndata:  otu_1_shannon\nDickey-Fuller = -1.9299, Lag order = 4, p-value = 0.6044\nalternative hypothesis: stationary\n\n\nResult: Not Stationary\nFor OTU 1 Counts\n\nadf_test_otu &lt;- adf.test(otu_1_abundance)\nprint(adf_test_otu)\n\n\n    Augmented Dickey-Fuller Test\n\ndata:  otu_1_abundance\nDickey-Fuller = -2.6805, Lag order = 4, p-value = 0.2971\nalternative hypothesis: stationary\n\n#adf.test(otu_1_count) \n\nResult: Not Stationary\nKwiatkowski-Phillips-Schmidt-Shin Test: his test checks for the presence of a trend or structural break in the time series. If the test indicates that there is no trend or structural break, then the time series may be considered stationary.\nFor Shannon Index\n\nkpss.test(otu_1_shannon)\n\nWarning in kpss.test(otu_1_shannon): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_shannon\nKPSS Level = 0.89563, Truncation lag parameter = 3, p-value = 0.01\n\n\nResult: Not Stationary\nFor OTU 1\n\n#on relative abudance\nkpss.test(otu_1_abundance)\n\nWarning in kpss.test(otu_1_abundance): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_abundance\nKPSS Level = 0.92455, Truncation lag parameter = 3, p-value = 0.01\n\nkpss.test(otu_1_count)\n\nWarning in kpss.test(otu_1_count): p-value smaller than printed p-value\n\n\n\n    KPSS Test for Level Stationarity\n\ndata:  otu_1_count\nKPSS Level = 0.89444, Truncation lag parameter = 3, p-value = 0.01\n\n\nResult: Not Stationary\n\n\n\nThere are no cyclical trends in either our shannon index or in our otu_1 abundance Our data is considered non-stationary which would make it not possible to model a time series based on previous time values\n\n\n\nThere does seem to be a correlation between different groups of OTU’s- lets examine this:\n\n#Counts\n# cor_mat = otu_counts[,-1]\n# #cor() computes the correlation coefficient\n# c_m = cor( cor_mat, method = \"pearson\")\n\n#Relative Abundance\notu_p_wide &lt;- otu_p %&gt;%\n  pivot_wider(names_from = OTU, values_from = Abundance) %&gt;%\n  replace(is.na(.), 0)\n#remove date column\notu_p_wide = otu_p_wide[,-1]\nc_m_a = cor(otu_p_wide, method = \"pearson\")\n\n#heatmap(c_m)\n\nResults show: - When calculating correlation coefficient between counts- little to no correlation between OTU’s - When calculating correlation coefficient between relative abundance- high correlations can be seen",
     "crumbs": [
       "Exploratory Analysis",
       "Decomposition of Trends"
@@ -290,6 +63,264 @@
     "crumbs": [
       "Exploratory Analysis",
       "Decomposition of Trends"
+    ]
+  },
+  {
+    "objectID": "correlation_matrix.html",
+    "href": "correlation_matrix.html",
+    "title": "Correlations",
+    "section": "",
+    "text": "Correlations describe the strength of association between two variables. By understanding if specific species have any relevant associations, it could be possible to determine a larger microbial community composition from just a few individual species.",
+    "crumbs": [
+      "Observable Patterns",
+      "Correlations"
+    ]
+  },
+  {
+    "objectID": "correlation_matrix.html#correlation-between-count-data-with-pearson-correlation-coefficient",
+    "href": "correlation_matrix.html#correlation-between-count-data-with-pearson-correlation-coefficient",
+    "title": "Correlations",
+    "section": "Correlation between count data with Pearson Correlation Coefficient",
+    "text": "Correlation between count data with Pearson Correlation Coefficient\nPearson’s Product - Moment Correlation Coefficient is a statistical measure of the strength of a linear relationship between paired data. It assumes that the data is: - interval or ratio level - linearly related - bivariate normally distributed\nThis graph shows correlations higher than 75%\n\ncorrelation = np.corrcoef(a.T)\n\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[:, None]\n/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2923: RuntimeWarning: invalid value encountered in divide\n  c /= stddev[None, :]\n\n\n\nmask = ((correlation &gt; 0.75) & (correlation &lt; 0.99)) | ((correlation &lt; -0.75) & (correlation &gt; -0.99))\n\ntriangle_mask = np.tri(correlation.shape[0], k=0)\n\n# Plotting\nfig = plt.figure()\n# Put in title and axis labels\nfig.suptitle('Correlation Matrix of OTU Counts Over Time')\nax = fig.add_subplot(111)\n\n# Use the mask to display the significant correlations\nmasked_correlation = np.ma.masked_where(~mask, correlation)\ntriangle_mask[triangle_mask == 0] = np.nan\n\ncax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)\nax.imshow(triangle_mask, cmap='twilight')\nfig.colorbar(cax)\n\nplt.show()",
+    "crumbs": [
+      "Observable Patterns",
+      "Correlations"
+    ]
+  },
+  {
+    "objectID": "correlation_matrix.html#correlation-with-spearman-correlation-coefficient",
+    "href": "correlation_matrix.html#correlation-with-spearman-correlation-coefficient",
+    "title": "Correlations",
+    "section": "Correlation with Spearman Correlation Coefficient",
+    "text": "Correlation with Spearman Correlation Coefficient\nBefore learning about Spearman’s correllation it is important to understand Spearman’s Correlation Coefficient assumes a monotonic relationship- where the value of one variable increases then the other never does A monotonic relationship is a relationship that does one of the following: (1) as the value of one variable increases, so does the value of the other variable; or (2) as the value of one variable increases, the other variable value decreases\n\nas_abundance_table['sum'] = as_abundance_table.sum(axis=1)\nas_abundance_table = as_abundance_table.reset_index()\nas_abundance = as_abundance_table.set_index('Date')\n#find percentage each column by dividing by sum\nas_abundance = as_abundance.div(as_abundance['sum'], axis=0)\nas_abundance = as_abundance.drop(columns=['sum'])\n#pivot dataframe from wide to long format\nas_abundance = as_abundance.reset_index()\nas_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')\n#remove all rows with an abundance less than 0.01\n#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] &gt;= 0.0005] \nas_abundance = as_abundance[as_abundance['Abundance'] &gt;= 0.005] \n\ndef shannon_index(x):\n    return -1 * np.sum(x*np.log(x))\n\nShannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()\n\nas_abundance = as_abundance.merge(Shannon_Diversity, on='Date')\nas_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})\n\nas_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')\n\n#merging with as_abundance\nunfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])\nunfiltered_abundnace = unfiltered_data.iloc[:,0:3]\nunfiltered_abundnace = pd.pivot(data = unfiltered_abundnace, index = 'Date', columns = 'OTU' , values = 'Abundance') \n#replace NAN values with 0\nunfiltered_abundnace = unfiltered_abundnace.fillna(0)\n#unfiltered_abundnace =unfiltered_abundnace.reset_index()\n#remove first column\n#unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]\n#unfiltered_abundnace = unfiltered_abundnace.to_numpy()\n\n\ncorr_matrix, p_matrix = scipy.stats.spearmanr(unfiltered_abundnace, axis=0)\n#statistical significance level of 0.05\ncorr_matrix[p_matrix&gt;0.05] = np.nan\ncorr_matrix[corr_matrix&gt;0.99] = np.nan\ntriangle_mask = np.tri(corr_matrix.shape[0], k=0)\n\nfig = plt.figure()\nfig.suptitle('P-value Matrix of OTU Counts Over Time Using Spearman')\nax = fig.add_subplot(111)\nmasked_correlation = np.ma.masked_where(triangle_mask, corr_matrix)\ntriangle_mask[triangle_mask == 0] = np.nan\n\ncax = ax.pcolormesh(corr_matrix,cmap='coolwarm', vmin=-1, vmax=1)\nax.imshow(triangle_mask, cmap='twilight')\nfig.colorbar(cax)\nplt.show()",
+    "crumbs": [
+      "Observable Patterns",
+      "Correlations"
+    ]
+  },
+  {
+    "objectID": "correlation_matrix.html#cointegration-between-species",
+    "href": "correlation_matrix.html#cointegration-between-species",
+    "title": "Correlations",
+    "section": "Cointegration between species",
+    "text": "Cointegration between species\nSteps: 1. check for stationarity for all species by running a unit root test 2. check for stationarity in difference between all species",
+    "crumbs": [
+      "Observable Patterns",
+      "Correlations"
+    ]
+  },
+  {
+    "objectID": "fourier_transform.html",
+    "href": "fourier_transform.html",
+    "title": "Fourier Discrete Transform of Count Data",
+    "section": "",
+    "text": "The Fourier transform is a method commonly used to break down complex signals occuring over time into a sum of periodic components. This analysis was performed after no trends were discovered under the Seasonal and STL decomposition for Shannon Index and OTU 1, in order to see if any individual species were exhibiting periodic behavior.",
+    "crumbs": [
+      "Exploratory Analysis",
+      "Fourier Discrete Transform of Count Data"
+    ]
+  },
+  {
+    "objectID": "fourier_transform.html#fourier-transform-of-count-data",
+    "href": "fourier_transform.html#fourier-transform-of-count-data",
+    "title": "Fourier Discrete Transform of Count Data",
+    "section": "Fourier Transform of Count Data",
+    "text": "Fourier Transform of Count Data\n\ndef FFT(input_array):\n\n    fig, ax = plt.subplots(2, 1, figsize=(10, 10))\n\n    #Taking each OTU and fourier transforming its signal through time\n    for i in range(input_array.shape[1]):\n        ax[0].plot(input_array[:,i])\n\n        #Calculate the FFT\n        #calculate fourier transform by using np.fft.fft to calculate fft of each column (each OTU count through time)\n        #calculate the fourier sample frequencies by using np.fft.fftfreq\n        #Use np.fft.fftshift to shift the zero-frequency component to the center of the spectrum.\n\n        fft = np.fft.fftshift(np.fft.fft(input_array[:,i]))\n        fft_freq = np.fft.fftshift(np.fft.fftfreq(len(fft)))\n\n        fft = np.abs(fft[fft_freq &gt; 0])\n        fft_freq = fft_freq[fft_freq &gt; 0]\n\n        ax[1].plot(fft_freq, fft)\n\n    ax[0].set_title('Input signal')\n    ax[0].set_xlabel('Time')\n    ax[0].set_ylabel('Amplitude')\n\n    ax[1].set_title('FFT of the signal')\n    ax[1].set_xlabel('Frequency')\n    ax[1].set_ylabel('Amplitude')\n\n    plt.show()\n\nFFT(a.copy())",
+    "crumbs": [
+      "Exploratory Analysis",
+      "Fourier Discrete Transform of Count Data"
+    ]
+  },
+  {
+    "objectID": "environmental_parameter_analysis.html",
+    "href": "environmental_parameter_analysis.html",
+    "title": "Environmental Parameter Analysis",
+    "section": "",
+    "text": "Annacis WWTP monitors many parameters flowing into the treatment plant (Primary Effluent) as well as leaving the treatment plant (Final Effluent)\nInfluent Parameters that were examined:\n\npH of RSS\ntemp of RSS\nBOD/CBOD Load\nCOD Load\nAmmonia Load\nTKN Load\nP Load\nSCT Detention Time\n\nEffluent Parameters that were examined:\n\nBOD/CBOD Load Removed\nCOD Load Removed\nP Removed\nTKN Removed\nAmmonia Removed\n\nThis analysis was run after linear regressions\n\n\nUsing values selected from RDA analysis\n\ne = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = temp_RSS, color = \"temp_RSS\"),group = 1) +\n  ggtitle(\"RSS Temp Over Time\") + xlab(\"Month\") + ylab(\"temp (deg.C)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nf = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = SCT_Detention_Time, color = \"SCT_Detention_Time\"),group = 1) + \n  ggtitle(\"SCT_Detention_Time Over Time\") + xlab(\"Month\") + ylab(\"time (hr)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ng = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = P_Load_PE, color = \"P_Load_PE\"),group = 1) + \n  ggtitle(\"P_Load_PE Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nh = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = TKN_Load_RAW, color = \"TKN_Load_RAW\"),group = 1) + \n  ggtitle(\"TKN_Load_RAW Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ni = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = Ammonia_Load_RAW, color = \"Ammonia_Load_RAW\"),group = 1) + \n  ggtitle(\"Ammonia_Load_RAW\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(e, f, g, h, i + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\", \"E\"),\n          ncol = 2, nrow = 3)\n\n\n\n\n\n\n\n\n\n\n\n\na = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"BOD_CBOD_Load_Removed\"),group = 1) + \n  geom_line(data=output_data_,aes(x = Date, y = COD_Load_Removed,color = \"COD_Load_Removed\"),group = 1) +\n  ggtitle(\"Output Parameters Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nb = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"P_Removed\"),group = 1) + \n  ggtitle(\"P_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nc = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = TKN_Removed, color = \"TKN_Removed\"),group = 1) + \n  ggtitle(\"TKN_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nd = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = Ammonia_Removed, color = \"Ammonia_Removed\"),group = 1) + \n  ggtitle(\"Ammonia_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(a, b, c, d + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\"),\n          ncol = 2, nrow = 2)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot() + \n  geom_line(data=s,aes(x = Date,y = Shannon, color = \"Shannon\"),group = 1) + \n  ggtitle(\"Shannon Index Over Time\") + xlab(\"Date\") + ylab(\"Shannon Index\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))\n\n\n\n\n\n\n\n\n\n\n\n\n#put character z in front of all columns\ncolnames(otu_counts) &lt;- paste0(\"z\", colnames(otu_counts))\n#select only columns named '1' in otu_counts\notus &lt;- select(otu_counts,z1,z4,z2,z6,zDate)\n\n#plot the data\nggplot() + \n  geom_line(data=otus,aes(x = zDate, y = z1, color = \"1\"),group = 1) + \n  geom_line(data=otus,aes(x = zDate, y = z4,color = \"4\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z2,color = \"2\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z6 ,color = \"6\"),group = 1) +\n  ggtitle(\"OTU 1,4,2,6 Over Time\") + xlab(\"Date\") + ylab(\"Abundance\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
+    "crumbs": [
+      "Environmental Parameter Analysis",
+      "Environmental Parameter Analysis"
+    ]
+  },
+  {
+    "objectID": "environmental_parameter_analysis.html#input-visualization",
+    "href": "environmental_parameter_analysis.html#input-visualization",
+    "title": "Environmental Parameter Analysis",
+    "section": "",
+    "text": "Using values selected from RDA analysis\n\ne = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = temp_RSS, color = \"temp_RSS\"),group = 1) +\n  ggtitle(\"RSS Temp Over Time\") + xlab(\"Month\") + ylab(\"temp (deg.C)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nf = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = SCT_Detention_Time, color = \"SCT_Detention_Time\"),group = 1) + \n  ggtitle(\"SCT_Detention_Time Over Time\") + xlab(\"Month\") + ylab(\"time (hr)\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ng = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = P_Load_PE, color = \"P_Load_PE\"),group = 1) + \n  ggtitle(\"P_Load_PE Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nh = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = TKN_Load_RAW, color = \"TKN_Load_RAW\"),group = 1) + \n  ggtitle(\"TKN_Load_RAW Over Time\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\ni = ggplot() + \n  geom_line(data=input_data_,aes(x = Date,y = Ammonia_Load_RAW, color = \"Ammonia_Load_RAW\"),group = 1) + \n  ggtitle(\"Ammonia_Load_RAW\") + xlab(\"Month\") + ylab(\"mg/L\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(e, f, g, h, i + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\", \"E\"),\n          ncol = 2, nrow = 3)",
+    "crumbs": [
+      "Environmental Parameter Analysis",
+      "Environmental Parameter Analysis"
+    ]
+  },
+  {
+    "objectID": "environmental_parameter_analysis.html#output-visualization",
+    "href": "environmental_parameter_analysis.html#output-visualization",
+    "title": "Environmental Parameter Analysis",
+    "section": "",
+    "text": "a = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"BOD_CBOD_Load_Removed\"),group = 1) + \n  geom_line(data=output_data_,aes(x = Date, y = COD_Load_Removed,color = \"COD_Load_Removed\"),group = 1) +\n  ggtitle(\"Output Parameters Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nb = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = BOD_CBOD_Load_Removed, color = \"P_Removed\"),group = 1) + \n  ggtitle(\"P_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nc = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = TKN_Removed, color = \"TKN_Removed\"),group = 1) + \n  ggtitle(\"TKN_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nd = ggplot() + \n  geom_line(data=output_data_,aes(x = Date,y = Ammonia_Removed, color = \"Ammonia_Removed\"),group = 1) + \n  ggtitle(\"Ammonia_Removed Over Time\") + xlab(\"Month\") + ylab(\"tonnes/day\") + \n  scale_x_date(date_breaks = \"1 month\", date_labels = \"%m\") + theme(legend.position=\"top\")\n\nggarrange(a, b, c, d + rremove(\"x.text\"), \n          labels = c(\"A\", \"B\", \"C\", \"D\"),\n          ncol = 2, nrow = 2)",
+    "crumbs": [
+      "Environmental Parameter Analysis",
+      "Environmental Parameter Analysis"
+    ]
+  },
+  {
+    "objectID": "environmental_parameter_analysis.html#shannon-index-visualization",
+    "href": "environmental_parameter_analysis.html#shannon-index-visualization",
+    "title": "Environmental Parameter Analysis",
+    "section": "",
+    "text": "ggplot() + \n  geom_line(data=s,aes(x = Date,y = Shannon, color = \"Shannon\"),group = 1) + \n  ggtitle(\"Shannon Index Over Time\") + xlab(\"Date\") + ylab(\"Shannon Index\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
+    "crumbs": [
+      "Environmental Parameter Analysis",
+      "Environmental Parameter Analysis"
+    ]
+  },
+  {
+    "objectID": "environmental_parameter_analysis.html#otu-1426-visualization",
+    "href": "environmental_parameter_analysis.html#otu-1426-visualization",
+    "title": "Environmental Parameter Analysis",
+    "section": "",
+    "text": "#put character z in front of all columns\ncolnames(otu_counts) &lt;- paste0(\"z\", colnames(otu_counts))\n#select only columns named '1' in otu_counts\notus &lt;- select(otu_counts,z1,z4,z2,z6,zDate)\n\n#plot the data\nggplot() + \n  geom_line(data=otus,aes(x = zDate, y = z1, color = \"1\"),group = 1) + \n  geom_line(data=otus,aes(x = zDate, y = z4,color = \"4\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z2,color = \"2\"),group = 1) +\n  geom_line(data=otus,aes(x = zDate, y = z6 ,color = \"6\"),group = 1) +\n  ggtitle(\"OTU 1,4,2,6 Over Time\") + xlab(\"Date\") + ylab(\"Abundance\") + theme(legend.position=\"top\") +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1))",
+    "crumbs": [
+      "Environmental Parameter Analysis",
+      "Environmental Parameter Analysis"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html",
+    "href": "linear_regressions.html",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "One of the primary methods for exploring data is through linear regressions. Linear regressions work under the assumption that the x and y variables is linear and that it follows a normal distribution. To check if the data is actually linear, four diagnostic plots are created to check whether the assumptions made by the linear model are met.\nLinear Regressions were run for both Shannon Index and OTU 1 Relative Abundance, which has been shown to be highly prevelant in almost all AS samples.\nShannon Index was calculated after filtering out relative abunadnces above 1%\n\n\n\notu_mat&lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx\")\n#remove first 4 characters in every column name\ncolnames(otu_mat)&lt;- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))\notu_mat = as.data.frame(otu_mat)\n#split first column by character '_' into two seperate columns\notu_mat[c('Process', 'Date')] &lt;- str_split_fixed(otu_mat$le, '_', 2)\n#drop le column\notu_mat = otu_mat[,-1]\n#move last two columns to the front\notu_mat &lt;- otu_mat %&gt;%\n  select(Process, everything())\notu_mat &lt;- otu_mat %&gt;%\n  select(Date, everything())\n#filter otu_mat to only contain AS-1 and AS-2 in process column\notu_mat &lt;- otu_mat %&gt;%\n  filter(Process == \"AS-1\" | Process == \"AS-2\")\n#remove Process column\notu_mat = otu_mat[,-2]\n#groupby date and find the mean of each column\notu_counts &lt;- otu_mat %&gt;%\n  group_by(Date) %&gt;%\n  summarise_all(mean)\notu_p = otu_counts\n#find the sum of each row\notu_p$sum &lt;- rowSums(otu_p[,-1])\n#divide each row by the sum\notu_p[,-1] &lt;- otu_p[,-1] / otu_p$sum\n#remove sum column\notu_p = otu_p[,-ncol(otu_p)]\n#make otu_p from wide form to long form\notu_p &lt;- otu_p %&gt;%\n  pivot_longer(cols = -Date, names_to = \"OTU\", values_to = \"Abundance\")\n#filter out rows with an Abundance less than 0.01\notu_p &lt;- otu_p %&gt;%\n  filter(Abundance &gt;= 0.01)\n#calculate Shannon Index and add it to otu_p column\nshannon = function(x) {\n  -sum(x * log(x))\n}\notu_shannon = otu_p\ns = otu_shannon %&gt;% group_by(Date) %&gt;%\n  summarize(Shannon = shannon(Abundance))\notu_shannon = merge(otu_shannon, s, by = \"Date\")\noutput_metadata &lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx\")\noutput_metadata = as.data.frame(output_metadata)\n\n#input parameters\ninput_metadata = output_metadata\ninput_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]\ninput_data = input_metadata\ninput_data = merge(otu_shannon, input_metadata, by = \"Date\")\n\n#output parameters\noutput_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]\noutput_data = merge(otu_shannon, output_metadata, by = \"Date\")\n#change column 6 name\ncolnames(output_data)[6] &lt;- \"BOD_CBOD_Load_Removed\"",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#linear-regressions-on-input-and-output-parameters",
+    "href": "linear_regressions.html#linear-regressions-on-input-and-output-parameters",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "One of the primary methods for exploring data is through linear regressions. Linear regressions work under the assumption that the x and y variables is linear and that it follows a normal distribution. To check if the data is actually linear, four diagnostic plots are created to check whether the assumptions made by the linear model are met.\nLinear Regressions were run for both Shannon Index and OTU 1 Relative Abundance, which has been shown to be highly prevelant in almost all AS samples.\nShannon Index was calculated after filtering out relative abunadnces above 1%\n\n\n\notu_mat&lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx\")\n#remove first 4 characters in every column name\ncolnames(otu_mat)&lt;- substr(colnames(otu_mat), 5, nchar(colnames(otu_mat)))\notu_mat = as.data.frame(otu_mat)\n#split first column by character '_' into two seperate columns\notu_mat[c('Process', 'Date')] &lt;- str_split_fixed(otu_mat$le, '_', 2)\n#drop le column\notu_mat = otu_mat[,-1]\n#move last two columns to the front\notu_mat &lt;- otu_mat %&gt;%\n  select(Process, everything())\notu_mat &lt;- otu_mat %&gt;%\n  select(Date, everything())\n#filter otu_mat to only contain AS-1 and AS-2 in process column\notu_mat &lt;- otu_mat %&gt;%\n  filter(Process == \"AS-1\" | Process == \"AS-2\")\n#remove Process column\notu_mat = otu_mat[,-2]\n#groupby date and find the mean of each column\notu_counts &lt;- otu_mat %&gt;%\n  group_by(Date) %&gt;%\n  summarise_all(mean)\notu_p = otu_counts\n#find the sum of each row\notu_p$sum &lt;- rowSums(otu_p[,-1])\n#divide each row by the sum\notu_p[,-1] &lt;- otu_p[,-1] / otu_p$sum\n#remove sum column\notu_p = otu_p[,-ncol(otu_p)]\n#make otu_p from wide form to long form\notu_p &lt;- otu_p %&gt;%\n  pivot_longer(cols = -Date, names_to = \"OTU\", values_to = \"Abundance\")\n#filter out rows with an Abundance less than 0.01\notu_p &lt;- otu_p %&gt;%\n  filter(Abundance &gt;= 0.01)\n#calculate Shannon Index and add it to otu_p column\nshannon = function(x) {\n  -sum(x * log(x))\n}\notu_shannon = otu_p\ns = otu_shannon %&gt;% group_by(Date) %&gt;%\n  summarize(Shannon = shannon(Abundance))\notu_shannon = merge(otu_shannon, s, by = \"Date\")\noutput_metadata &lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx\")\noutput_metadata = as.data.frame(output_metadata)\n\n#input parameters\ninput_metadata = output_metadata\ninput_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]\ninput_data = input_metadata\ninput_data = merge(otu_shannon, input_metadata, by = \"Date\")\n\n#output parameters\noutput_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]\noutput_data = merge(otu_shannon, output_metadata, by = \"Date\")\n#change column 6 name\ncolnames(output_data)[6] &lt;- \"BOD_CBOD_Load_Removed\"",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#connecting-metadata-and-otu-counts",
+    "href": "linear_regressions.html#connecting-metadata-and-otu-counts",
+    "title": "Activated Sludge Model",
+    "section": "Connecting Metadata and OTU Counts",
+    "text": "Connecting Metadata and OTU Counts\n\noutput_metadata &lt;- read_excel(\"/Users/julietmalkowski/Desktop/Research/Kinetic_Model/AS_metadata.xlsx\")\noutput_metadata = as.data.frame(output_metadata)\n\n#input parameters\ninput_metadata = output_metadata\ninput_metadata = input_metadata[,c(2,3,5,7,10,12,14,16,18,20)]\ninput_data = input_metadata\ninput_data = merge(otu_shannon, input_metadata, by = \"Date\")\ncolnames(input_data)[8] &lt;- \"BOD_CBOD_Load_PE\"\n\n#output parameters\noutput_metadata = output_metadata[,-c(1,3:8,10,12,14:20)]\noutput_data = merge(otu_shannon, output_metadata, by = \"Date\")\n#change column 6 name\ncolnames(output_data)[6] &lt;- \"BOD_CBOD_Load_Removed\"\n#remove column in output_data\ninput_data_ = input_data[,-c(2:4)]\ninput_data_ = as.data.frame(input_data_)\n#remove duplicates\ninput_data_ = input_data_[!duplicated(input_data_[,1]),]\n#make first column rownames in output_data_\nrownames(input_data_) &lt;- input_data_[,1]\n#remove first column\ninput_data_ = input_data_[,-1]",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#effect-of-input-parameters-on-shannon-index",
+    "href": "linear_regressions.html#effect-of-input-parameters-on-shannon-index",
+    "title": "Activated Sludge Model",
+    "section": "Effect of Input Parameters on Shannon Index",
+    "text": "Effect of Input Parameters on Shannon Index\nInterpretation for plots:\nPlot 1- distribution of residuals according to values predicted by linear regression model- each point represents the distance between the response variable and the model prediction- we need a uniform distribution of the residual. For this plot we need a uniform distribution of the residuals- the homoscedasticity condition. This condition states that if the residuals form an approximate horizontal band around the 0 line, the variance of the residuals is homogeneous.\nPlot 2- checks if the dispersion of residuals is caused by the explanatory variable- if the dispersion increases then it means the variances in each group are different\nPlot 3- this plot shows the distribution of residuals in a quantile- quantile plot which evaluated the normality of the residuals. This plot compares the probability distribution of normal data and standardized residuals can be seen near the 1:1 line\nPlot 4- shows the residuals and their influence- the location of points with strong influence can influence the interpretation of the data. If one or more observations are outliers then the model may be misfitted because of their exaggerated influence. A distance greater than 0.5 is problematic\n\n#create multiple linear regression\nlm.mult &lt;- lm(Shannon ~ pH_RSS + temp_RSS + BOD_CBOD_Load_PE + COD_Load_PE + Ammonia_Load_RAW + TKN_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)\nsummary(lm.mult)\n\n\nCall:\nlm(formula = Shannon ~ pH_RSS + temp_RSS + BOD_CBOD_Load_PE + \n    COD_Load_PE + Ammonia_Load_RAW + TKN_Load_RAW + P_Load_PE + \n    SCT_Detention_Time, data = input_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.34785 -0.09712 -0.01016  0.09621  0.24081 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)         7.029e+00  7.191e-01   9.774  &lt; 2e-16 ***\npH_RSS             -7.538e-01  9.354e-02  -8.059 3.07e-15 ***\ntemp_RSS            5.310e-03  2.843e-03   1.868   0.0622 .  \nBOD_CBOD_Load_PE   -3.662e-03  7.574e-04  -4.835 1.62e-06 ***\nCOD_Load_PE        -8.535e-05  5.977e-04  -0.143   0.8865    \nAmmonia_Load_RAW    1.744e-02  8.422e-03   2.071   0.0387 *  \nTKN_Load_RAW        5.030e-03  5.600e-03   0.898   0.3694    \nP_Load_PE          -6.895e-01  6.578e-02 -10.482  &lt; 2e-16 ***\nSCT_Detention_Time  4.037e-01  2.272e-02  17.768  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.13 on 743 degrees of freedom\nMultiple R-squared:  0.5613,    Adjusted R-squared:  0.5566 \nF-statistic: 118.8 on 8 and 743 DF,  p-value: &lt; 2.2e-16\n\npar(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,\n                                                        0, 0))\nplot(lm.mult)\n\n\n\n\n\n\n\n\nAs can be seen above, the results from each plot do not meet the assumptions of linear regression. The residuals are not homoscedastic, the residuals are not normally distributed, and there are outliers that are influencing the model.\nSignificant values include pH_RSS, BOD_CBOD_Load_PE,Ammonia_Load_RAW, P_Load_PE, and SCT_Detention_Time.\nTo fix this data run now with only significant values\n\nlm.mult2 &lt;- lm(Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)\nsummary(lm.mult2)\n\n\nCall:\nlm(formula = Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + \n    P_Load_PE + SCT_Detention_Time, data = input_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.32219 -0.09688 -0.01303  0.08360  0.23466 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)         7.0131513  0.6862416  10.220  &lt; 2e-16 ***\npH_RSS             -0.7265873  0.0904217  -8.036 3.64e-15 ***\nBOD_CBOD_Load_PE   -0.0036932  0.0007406  -4.987 7.65e-07 ***\nAmmonia_Load_RAW    0.0124405  0.0081474   1.527    0.127    \nP_Load_PE          -0.6479527  0.0629724 -10.289  &lt; 2e-16 ***\nSCT_Detention_Time  0.3780273  0.0191689  19.721  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.1304 on 746 degrees of freedom\nMultiple R-squared:  0.5566,    Adjusted R-squared:  0.5536 \nF-statistic: 187.3 on 5 and 746 DF,  p-value: &lt; 2.2e-16\n\npar(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,\n                                                        0, 0))\nplot(lm.mult2)\n\n\n\n\n\n\n\n\nNow we see slightly better results with Ammonia_Loading no longer being relevant",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#determine-most-important-input-parameters-based-on-relative-abundances",
+    "href": "linear_regressions.html#determine-most-important-input-parameters-based-on-relative-abundances",
+    "title": "Activated Sludge Model",
+    "section": "Determine Most Important Input Parameters based on Relative Abundances",
+    "text": "Determine Most Important Input Parameters based on Relative Abundances\nUsing Redundancy Analysis\n\notu_p_wide &lt;- otu_p %&gt;%\n  pivot_wider(names_from = OTU, values_from = Abundance) %&gt;%\n  replace(is.na(.), 0)\notu_p_wide = as.data.frame(otu_p_wide)\n#make first column rownames in output_data_\nrownames(otu_p_wide) &lt;- otu_p_wide[,1]\n#remove first column\notu_p_wide = otu_p_wide[,-1]\n\nas_metadata_input.z &lt;- decostand(input_data_, method = \"standardize\")\nas_metadata_input.rda &lt;- rda(otu_p_wide  ~ ., data = as_metadata_input.z)\n\nfwd.sel &lt;- ordiR2step(rda(otu_p_wide ~ 1, data = as_metadata_input.z), # lower model limit (simple!)\n                      scope = formula(as_metadata_input.rda), # upper model limit (the \"full\" model)\n                      direction = \"forward\",\n                      R2scope = TRUE, # can't surpass the \"full\" model's R2\n                      pstep = 1000,\n                      trace = FALSE) # change to TRUE to see the selection process\n#see which variables were selected\nfwd.sel$call\n\nrda(formula = otu_p_wide ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)\n\n\n#result RDA is: rda(formula = otu_p_wide ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW, data = as_metadata_input.z)",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#effect-of-shannon-index-on-output-parameters-using-linear-regression",
+    "href": "linear_regressions.html#effect-of-shannon-index-on-output-parameters-using-linear-regression",
+    "title": "Activated Sludge Model",
+    "section": "Effect of Shannon Index on Output Parameters using Linear Regression",
+    "text": "Effect of Shannon Index on Output Parameters using Linear Regression\n\nlm1 &lt;- lm(COD_Load_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm1)\ntitle(\"Linear Model for COD_Load_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm1)\n\n\nCall:\nlm(formula = COD_Load_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-50.154  -7.706   1.259   8.229  44.484 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   85.394      1.966   43.42  &lt; 2e-16 ***\nShannon       10.044      2.729    3.68  0.00025 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 14.6 on 750 degrees of freedom\nMultiple R-squared:  0.01773,   Adjusted R-squared:  0.01642 \nF-statistic: 13.54 on 1 and 750 DF,  p-value: 0.0002502\n\nlm2 &lt;- lm(P_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm2)\ntitle(\"Linear Model for P_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm2)\n\n\nCall:\nlm(formula = P_Removed ~ Shannon, data = output_data)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.91548 -0.20519  0.06134  0.24145  0.54031 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  0.34889    0.04382   7.961  6.3e-15 ***\nShannon      0.90793    0.06083  14.927  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.3254 on 750 degrees of freedom\nMultiple R-squared:  0.229, Adjusted R-squared:  0.228 \nF-statistic: 222.8 on 1 and 750 DF,  p-value: &lt; 2.2e-16\n\nlm3 &lt;- lm(TKN_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm3)\ntitle(\"Linear Model for TKN_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm3)\n\n\nCall:\nlm(formula = TKN_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-2.5674 -0.1711  0.2739  0.5188  1.3956 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   2.3620     0.1218  19.399   &lt;2e-16 ***\nShannon      -1.4782     0.1690  -8.747   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.904 on 750 degrees of freedom\nMultiple R-squared:  0.09257,   Adjusted R-squared:  0.09136 \nF-statistic: 76.51 on 1 and 750 DF,  p-value: &lt; 2.2e-16\n\nlm4 &lt;- lm(Ammonia_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm4)\ntitle(\"Linear Model for Ammonia_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm4)\n\n\nCall:\nlm(formula = Ammonia_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-4.1028 -0.6071  0.1175  0.7188  2.7766 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  -5.6568     0.1572 -35.978  &lt; 2e-16 ***\nShannon       0.9177     0.2182   4.205 2.92e-05 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 1.167 on 750 degrees of freedom\nMultiple R-squared:  0.02304,   Adjusted R-squared:  0.02173 \nF-statistic: 17.69 on 1 and 750 DF,  p-value: 2.921e-05\n\nlm5 &lt;- lm(BOD_CBOD_Load_Removed ~ Shannon, data = output_data)\npar(mfrow = c(2, 2))\nplot(lm5)\ntitle(\"Linear Model for BOD_CBOD_Load_Removed ~ Shannon\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\nsummary(lm5)\n\n\nCall:\nlm(formula = BOD_CBOD_Load_Removed ~ Shannon, data = output_data)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-44.966  -4.542   0.553   4.702  14.932 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    40.41       1.16  34.839   &lt;2e-16 ***\nShannon         3.64       1.61   2.261    0.024 *  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 8.612 on 750 degrees of freedom\nMultiple R-squared:  0.006771,  Adjusted R-squared:  0.005446 \nF-statistic: 5.113 on 1 and 750 DF,  p-value: 0.02404\n\n\nResulting p-values are all significant: In order: COD_Load_Removed:0.00025 P_Removed: 2e-16 TKN_Removed: 2e-16 Ammonia_Removed: 2.92e-05 BOD_CBOD_Load_Removed: 0.024",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#otu-1-analysis-comparing-glm-and-lm",
+    "href": "linear_regressions.html#otu-1-analysis-comparing-glm-and-lm",
+    "title": "Activated Sludge Model",
+    "section": "OTU 1 Analysis Comparing GLM and LM",
+    "text": "OTU 1 Analysis Comparing GLM and LM\nThe generalized linear model is able to use a specific binomial distribution (where input values range between 0-1) on the relative abundance data so the changes of the inputs on this distribution can be specifically calculated. This model also does not assume a linear relationship.",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#comparing-a-generalized-linear-model-vs.-linear-model-for-input-parameters-on-otu-1",
+    "href": "linear_regressions.html#comparing-a-generalized-linear-model-vs.-linear-model-for-input-parameters-on-otu-1",
+    "title": "Activated Sludge Model",
+    "section": "Comparing a Generalized Linear Model vs. Linear Model for Input Parameters on OTU 1",
+    "text": "Comparing a Generalized Linear Model vs. Linear Model for Input Parameters on OTU 1\n\n#generalized linear model\notu_1 &lt;- input_data %&gt;% filter(OTU == 1)\nmodel1 &lt;- glm(Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, family = binomial,\n              data = otu_1)\n\nWarning in eval(family$initialize): non-integer #successes in a binomial glm!\n\nsummary(model1)\n\n\nCall:\nglm(formula = Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, \n    family = binomial, data = otu_1)\n\nCoefficients:\n                     Estimate Std. Error z value Pr(&gt;|z|)\n(Intercept)         3.2559247 96.5997353   0.034    0.973\ntemp_RSS           -0.0101602  0.3028600  -0.034    0.973\nSCT_Detention_Time  0.9027379  3.1992126   0.282    0.778\nP_Load_PE          -2.8495646  9.9857297  -0.285    0.775\nTKN_Load_RAW       -0.0008063  0.7355789  -0.001    0.999\nAmmonia_Load_RAW   -0.1687601  1.1657600  -0.145    0.885\npH_RSS              0.2028448 12.5584428   0.016    0.987\nBOD_CBOD_Load_PE    0.0031766  0.0969474   0.033    0.974\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 0.77079  on 80  degrees of freedom\nResidual deviance: 0.55062  on 73  degrees of freedom\nAIC: 21.189\n\nNumber of Fisher Scoring iterations: 7\n\npar(mfrow = c(2, 2))\nplot(model1)\ntitle(\"General Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\n#normal linear model\nmodel2 &lt;- lm(Abundance ~  temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE,\n              data = otu_1)\nsummary(model2)\n\n\nCall:\nlm(formula = Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + \n    TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, \n    data = otu_1)\n\nResiduals:\n      Min        1Q    Median        3Q       Max \n-0.021875 -0.010883 -0.002686  0.006813  0.094619 \n\nCoefficients:\n                     Estimate Std. Error t value Pr(&gt;|t|)   \n(Intercept)         0.1644549  0.2869814   0.573  0.56837   \ntemp_RSS           -0.0004897  0.0008712  -0.562  0.57577   \nSCT_Detention_Time  0.0231091  0.0084472   2.736  0.00781 **\nP_Load_PE          -0.0684792  0.0243500  -2.812  0.00631 **\nTKN_Load_RAW        0.0010703  0.0022119   0.484  0.62992   \nAmmonia_Load_RAW   -0.0044773  0.0033803  -1.325  0.18946   \npH_RSS              0.0067213  0.0381149   0.176  0.86051   \nBOD_CBOD_Load_PE    0.0001117  0.0002840   0.393  0.69518   \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.01673 on 73 degrees of freedom\nMultiple R-squared:  0.2346,    Adjusted R-squared:  0.1612 \nF-statistic: 3.196 on 7 and 73 DF,  p-value: 0.005231\n\npar(mfrow = c(2, 2))\nplot(model2)\ntitle(\"Linear Model with OTU 1 Relative Abundance ~ SCT_Detention_Time\", line = -1, outer = TRUE)\n\n\n\n\n\n\n\n\nHere we see the generalized linear model predict no significant values, while the linear model predicts significant values.",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "linear_regressions.html#conclusions",
+    "href": "linear_regressions.html#conclusions",
+    "title": "Activated Sludge Model",
+    "section": "Conclusions",
+    "text": "Conclusions\nRelevant Input Parameters that explain 36% of variance in the data:\n\ntemp_RSS\nSCT_Detention_Time\nP_Load_PE\nTKN_Load_RAW\nAmmonia_Load_RAW\n\nRelevant Output Parameters from generalized linear model on OTU 1: - none",
+    "crumbs": [
+      "Linear Regressions",
+      "Linear Regressions on Input and Output Parameters"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "Here is a schematic of 7 locations where samples were collected from both weekly and bi-weekly from the MetroVancouver Annacis WWTP.\n\n\n\nwwtp_annacis",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "index.html#welcome-here-you-can-find-various-ways-to-explore-our-data",
+    "href": "index.html#welcome-here-you-can-find-various-ways-to-explore-our-data",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "Here is a schematic of 7 locations where samples were collected from both weekly and bi-weekly from the MetroVancouver Annacis WWTP.\n\n\n\nwwtp_annacis",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "welcome!!!"
+  },
+  {
+    "objectID": "indicator_species.html",
+    "href": "indicator_species.html",
+    "title": "Activated Sludge Model",
+    "section": "",
+    "text": "Finding indicator species is useful to determine if an abundance of certain indicator species can predict the rest of the microbial community structure.\nPlan: Here we use the ‘indicspecies’ function in R to determine the indicator species for our data classified into 3 groups: 1- Relative Abundance 2- Active vs. Inactive Microbes 3- High vs. Medium vs. Low SRT time\nHow to make this method work for time series?\nFor these groups we will be using our calculated weekly SRT Time Data pre filtered for outliers loaded here:\nPackage being used: indicspecies in R\nThe function multipatt() creates lists of species that are associated with particular groups of sites (or combinations of those). When the alpha is set to 0.05 it hides all species association that are not significant\nBackground Info: You can inspect (2) of the indicator value components when displaying results labeled as (A) and (B): A- sample estimate of the probability that the surveyed site belongs to the target site group given the fact that the species has been found. This conditional probability is called the specificity or positive predictive value of the species as indicator of the site group. B- sample estimate of the probability of finding the species in sites belonging to the site group. This second conditional probability is called the fidelity or sensitivity of the species as indicator of the target site group.\nAll the missing species from these groups occur because those species occur in sites belonging to all groups.",
+    "crumbs": [
+      "Observable Patterns",
+      "indicator_species.html"
     ]
   }
 ]

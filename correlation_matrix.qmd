@@ -1,15 +1,15 @@
 ## Correlations
 
-### Loading Dependencies
+Correlations describe the strength of association between two variables. By understanding if specific species have any relevant associations, it could be possible to determine a larger microbial community composition from just a few individual species.
+
+
 ```{python}
+#| include: false
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.stats
-```
-
-## Loading Data
-```{python}
+#loading data
 abundance_table = pd.read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
 #remove first 4 characters in every column name
 abundance_table.columns = abundance_table.columns.str[4:] 
@@ -29,11 +29,22 @@ a = a.iloc[:,1:]
 a = a.to_numpy()
 ```
 
-## Correlation between count data
+## Correlation between count data with Pearson Correlation Coefficient 
+Pearson’s Product - Moment Correlation Coefficient is a statistical measure of the strength of a linear relationship between paired data. It assumes that the data is:
+- interval or ratio level
+- linearly related
+- bivariate normally distributed
+
+This graph shows correlations higher than 75%
+
 ```{python}
 correlation = np.corrcoef(a.T)
+```
 
-mask = ((correlation > 0.75) & (correlation < 0.99)) | (correlation < -0.75) & (correlation > -0.99)
+```{python}
+mask = ((correlation > 0.75) & (correlation < 0.99)) | ((correlation < -0.75) & (correlation > -0.99))
+
+triangle_mask = np.tri(correlation.shape[0], k=0)
 
 # Plotting
 fig = plt.figure()
@@ -43,8 +54,78 @@ ax = fig.add_subplot(111)
 
 # Use the mask to display the significant correlations
 masked_correlation = np.ma.masked_where(~mask, correlation)
+triangle_mask[triangle_mask == 0] = np.nan
+
 cax = ax.matshow(masked_correlation, cmap='coolwarm', vmin=-1, vmax=1)
+ax.imshow(triangle_mask, cmap='twilight')
 fig.colorbar(cax)
 
 plt.show()
 ```
+
+## Correlation with Spearman Correlation Coefficient
+Before learning about Spearman’s correllation it is important to understand 
+Spearman's Correlation Coefficient assumes a monotonic relationship- where the value of one variable increases then the other never does
+A monotonic relationship is a relationship that does one of the following: (1) as the value of one variable increases, so does the value of the other variable; or (2) as the value of one variable increases, the other variable value decreases
+
+```{python}
+as_abundance_table['sum'] = as_abundance_table.sum(axis=1)
+as_abundance_table = as_abundance_table.reset_index()
+as_abundance = as_abundance_table.set_index('Date')
+#find percentage each column by dividing by sum
+as_abundance = as_abundance.div(as_abundance['sum'], axis=0)
+as_abundance = as_abundance.drop(columns=['sum'])
+#pivot dataframe from wide to long format
+as_abundance = as_abundance.reset_index()
+as_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')
+#remove all rows with an abundance less than 0.01
+#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] >= 0.0005] 
+as_abundance = as_abundance[as_abundance['Abundance'] >= 0.005] 
+
+def shannon_index(x):
+    return -1 * np.sum(x*np.log(x))
+
+Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()
+
+as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')
+as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})
+
+as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')
+
+#merging with as_abundance
+unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])
+unfiltered_abundnace = unfiltered_data.iloc[:,0:3]
+unfiltered_abundnace = pd.pivot(data = unfiltered_abundnace, index = 'Date', columns = 'OTU' , values = 'Abundance') 
+#replace NAN values with 0
+unfiltered_abundnace = unfiltered_abundnace.fillna(0)
+#unfiltered_abundnace =unfiltered_abundnace.reset_index()
+#remove first column
+#unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]
+#unfiltered_abundnace = unfiltered_abundnace.to_numpy()
+```
+
+
+```{python}
+corr_matrix, p_matrix = scipy.stats.spearmanr(unfiltered_abundnace, axis=0)
+#statistical significance level of 0.05
+corr_matrix[p_matrix>0.05] = np.nan
+corr_matrix[corr_matrix>0.99] = np.nan
+triangle_mask = np.tri(corr_matrix.shape[0], k=0)
+
+fig = plt.figure()
+fig.suptitle('P-value Matrix of OTU Counts Over Time Using Spearman')
+ax = fig.add_subplot(111)
+masked_correlation = np.ma.masked_where(triangle_mask, corr_matrix)
+triangle_mask[triangle_mask == 0] = np.nan
+
+cax = ax.pcolormesh(corr_matrix,cmap='coolwarm', vmin=-1, vmax=1)
+ax.imshow(triangle_mask, cmap='twilight')
+fig.colorbar(cax)
+plt.show()
+
+```
+
+## Cointegration between species
+Steps:
+1. check for stationarity for all species by running a unit root test
+2. check for stationarity in difference between all species

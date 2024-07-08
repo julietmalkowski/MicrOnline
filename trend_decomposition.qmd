@@ -1,8 +1,6 @@
 # Decomposition of Trends
 
-## Loading Data
-
-Note: All Abundances have been filtered out to only contain relative abundances \> 0.01
+Note: All Abundances have been filtered out to only contain relative abundances > 0.01
 
 ```{r include=FALSE}
 

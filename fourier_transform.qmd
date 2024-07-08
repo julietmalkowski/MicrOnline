@@ -1,15 +1,12 @@
 # Fourier Discrete Transform of Count Data
 
+The Fourier transform is a method commonly used to break down complex signals occuring over time into a sum of periodic components. This analysis was performed after no trends were discovered under the Seasonal and STL decomposition for Shannon Index and OTU 1, in order to see if any individual species were exhibiting periodic behavior.
+
 ```{python}
 #| include: false
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-```
-
-## Creating Count Data
-```{python}
-#| include: false
 abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
 #remove first 4 characters in every column name
 abundance_table.columns = abundance_table.columns.str[4:] 
@@ -38,6 +35,7 @@ a = a.to_numpy()
 
 
 ## Fourier Transform of Count Data
+
 ```{python}
 def FFT(input_array):
 

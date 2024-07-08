@@ -1,5 +1,11 @@
 ## Linear Regressions on Input and Output Parameters
 
+One of the primary methods for exploring data is through linear regressions. Linear regressions work under the assumption that the x and y variables is linear and that it follows a normal distribution. To check if the data is actually linear, four diagnostic plots are created to check whether the assumptions made by the linear model are met.
+
+Linear Regressions were run for both Shannon Index and OTU 1 Relative Abundance, which has been shown to be highly prevelant in almost all AS samples. 
+
+Shannon Index was calculated after filtering out relative abunadnces above 1%
+  
 ```{r}
 #| include: false
 library(phyloseq)
@@ -23,8 +29,7 @@ library(ggpubr)
 set.seed(123)
 ```
 
-## Loading Data
-Note: All Abundances have been filtered out to only contain relative abundances > 0.01
+### Loading Data
 ```{r}
 #| output = FALSE
 otu_mat<- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
@@ -117,10 +122,7 @@ input_data_ = input_data_[,-1]
 ```
 
 ## Effect of Input Parameters on Shannon Index
-Using a multiple linear regression
-I will briefly assume our variables have a normal distribution of residuals and are linear
-
-Notation for plots:
+Interpretation for plots:
 
 Plot 1- distribution of residuals according to values predicted by linear regression model- each point represents the distance between the response variable and the model prediction- we need a uniform distribution of the residual. For this plot we need a uniform distribution of the residuals- the homoscedasticity condition. This condition states that if the residuals form an approximate horizontal band around the 0 line, the variance of the residuals is homogeneous.
 
@@ -141,6 +143,7 @@ plot(lm.mult)
 As can be seen above, the results from each plot do not meet the assumptions of linear regression. The residuals are not homoscedastic, the residuals are not normally distributed, and there are outliers that are influencing the model.
 
 Significant values include pH_RSS, BOD_CBOD_Load_PE,Ammonia_Load_RAW, P_Load_PE, and SCT_Detention_Time.
+
 To fix this data run now with only significant values
 ```{r}
 lm.mult2 <- lm(Shannon ~ pH_RSS + BOD_CBOD_Load_PE + Ammonia_Load_RAW + P_Load_PE + SCT_Detention_Time, data = input_data)
@@ -149,7 +152,7 @@ par(mfrow = c(2, 2), mar = c(3.9, 4, 1.2, 1.1), oma = c(0, 0,
                                                         0, 0))
 plot(lm.mult2)
 ```
-Now we see slightly better results with Ammonia Loading no longer being relevant
+Now we see slightly better results with Ammonia_Loading no longer being relevant
 
 ## Determine Most Important Input Parameters based on Relative Abundances
 Using Redundancy Analysis
@@ -220,15 +223,14 @@ Ammonia_Removed: 2.92e-05
 BOD_CBOD_Load_Removed: 0.024
 
 
-## OTU 1 Analysis
-The generalized linear model used a binomial distribution for the relative abundance data (between 0-1) so the changes of the inputs on this distribution can be specifically calculated. This model also does not assume a linear relationship. 
+## OTU 1 Analysis Comparing GLM and LM
+The generalized linear model is able to use a specific binomial distribution (where input values range between 0-1) on the relative abundance data so the changes of the inputs on this distribution can be specifically calculated. 
+This model also does not assume a linear relationship. 
 
-The poisson relationship would be used for count data
-
-## Comparing a General Linear Model vs. Linear Model for Input Parameters on OTU 1
+## Comparing a Generalized Linear Model vs. Linear Model for Input Parameters on OTU 1
 
 ```{r}
-#filter out for OTU 1
+#generalized linear model
 otu_1 <- input_data %>% filter(OTU == 1)
 model1 <- glm(Abundance ~ temp_RSS + SCT_Detention_Time + P_Load_PE + TKN_Load_RAW + Ammonia_Load_RAW + pH_RSS + BOD_CBOD_Load_PE, family = binomial,
               data = otu_1)
@@ -261,32 +263,5 @@ Relevant Input Parameters that explain 36% of variance in the data:
   
 - Ammonia_Load_RAW
 
-
-
-From multiple linear regression on shannon index:
-  
-- pH_RSS
-
-- BOD_CBOD_Load_PE
-
-- Ammonia_Load_RAW
-
-- P_Load_PE
-
-- SCT_Detention_Time
-
-From generalized linear model on OTU 1:
+Relevant Output Parameters from generalized linear model on OTU 1:
 - none
-
-
-Relevant Output Parameters:
-
-- COD_Load_Removed
-  
-- P_Removed
-  
-- TKN_Removed
-  
-- Ammonia_Removed
-  
-- BOD_CBOD_Load_Removed
