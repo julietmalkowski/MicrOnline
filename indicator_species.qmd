@@ -120,6 +120,7 @@ A- sample estimate of the probability that the surveyed site belongs to the targ
 B- sample estimate of the probability of finding the species in sites belonging to the site group. This second conditional probability is called the fidelity or sensitivity of the species as indicator of the target site group.
 
 ```{r}
+#| cache: true
 #Species Analysis for all 28 groups- group combinations not considered
 #Running Indicator Species Analysis
 groupings = df$Group
@@ -134,7 +135,8 @@ summary(indval, indvalcomp=TRUE, alpha = 0.01)
 
 Now to determine which species are associated with all four seasons, or just between two, indicator species analysis can be ran for each wwtp process with duleg = FALSE
 
-
+```{r}
+#| cache: true
 #Individual Species Analysis
 #Species that contain 
 AD = c(1, 8, 15, 22)
@@ -202,4 +204,4 @@ indval_was <- multipatt(was_df[,c(2:ncol(was_df))], groupings,
 
 summary(indval_was, indvalcomp=TRUE, alpha = 0.001)
 
-
+```
