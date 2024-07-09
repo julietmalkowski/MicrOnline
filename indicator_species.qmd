@@ -1,26 +1,118 @@
 Finding indicator species is useful to determine if an abundance of certain indicator species can predict the rest of the microbial community structure. 
 
 Plan:
-Here we use the 'indicspecies' function in R to determine the indicator species for our data classified into 3 groups:
-1- Relative Abundance
-2- Active vs. Inactive Microbes
-3- High vs. Medium vs. Low SRT time
-
-How to make this method work for time series?
-
-For these groups we will be using our calculated weekly SRT Time Data pre filtered for outliers loaded here:
-```{r}
-
-```
-
+Here we use the 'indicspecies' function in R to determine the indicator species for abundance data for all four seasons
 
 Package being used: indicspecies in R 
 
-The function multipatt() creates lists of species that are associated with particular groups of sites (or combinations of those).
-When the alpha is set to 0.05 it hides all species association that are not significant
+
+Count data for all 7 WWTP processes grouped by process and season
+
+Loading libraries:
 ```{r}
+#| output = FALSE
+library(indicspecies)
+library(ggplot2)
+library(tibble)
+library(readxl)
+library(dplyr)
+library(ape)
+library(tidyr)
+library(tidyverse)
 
 ```
+
+Loading Count Data:
+
+```{r}
+#| output = FALSE
+abundance_table <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
+
+#remove first 4 characters in every column name
+colnames(abundance_table)<- substr(colnames(abundance_table), 5, nchar(colnames(abundance_table)))
+abundance_table = as.data.frame(abundance_table)
+#split first column by character '_' into two seperate columns
+abundance_table[c('Process', 'Date')] <- str_split_fixed(abundance_table$le, '_', 2)
+#drop le column
+abundance_table = abundance_table[,-1]
+#move last two columns to the front
+abundance_table <- abundance_table %>%
+  select(Process, everything())
+abundance_table <- abundance_table %>%
+  select(Date, everything())
+
+#split first column by character '_' into two separate columns
+abundance_table[c('Month', 'Year')] <- str_split_fixed(abundance_table$Date, '/', 2)
+abundance_table <- abundance_table %>%
+  select(Month, everything())
+#turn Month column into numeric
+abundance_table$Month <- as.numeric(abundance_table$Month)
+#Change AS-1 and AS-2 to AS
+abundance_table$Process <- gsub("AS-1", "AS", abundance_table$Process)
+abundance_table$Process <- gsub("AS-2", "AS", abundance_table$Process)
+
+# Function to assign seasons based on month
+assign_season <- function(Month) {
+  if (Month %in% c(12, 01, 02)) {
+    return("Winter")
+  } else if (Month %in% c(03, 04, 05)) {
+    return("Spring")
+  } else if (Month %in% c(06, 07, 08)) {
+    return("Summer")
+  } else if (Month %in% c(09, 10, 11)) {
+    return("Fall")
+  } else {
+    return(NA)
+  }
+}
+
+df <- abundance_table %>%
+  mutate(Season = sapply(Month, assign_season)) %>%
+  group_by(Season, Process) %>%
+  mutate(Group = cur_group_id()) %>%
+  ungroup()
+
+df <- df %>% select(Group,Process, Season, Month, everything())
+df <- df %>%
+  select(-Year, -Process, -Date, -Season, -Month)
+
+```
+
+Indicator Species Analysis will be run for each group, whose codes can be seen below:
+
+Codes for each group:
+AD-Fall = 1
+AS-Fall = 2
+Eff-Fall = 3
+Inf-Fall = 4
+TF-Fall = 5
+TSS_Fall = 6
+WAS-Fall = 7
+AD-Spring = 8
+AS-Spring = 9
+Eff-Spring = 10
+Inf-Spring = 11
+TF-Spring = 12
+TSS-Spring = 13
+WAS-Spring = 14
+AD-Summer = 15
+AS-Summer = 16
+Eff-Summer = 17
+Inf-Summer = 18
+TF-Summer = 19
+TSS-Summer = 20
+WAS-Summer = 21
+AD-Winter = 22
+AS-Winter = 23
+Eff-Winter = 24
+Inf-Winter = 25
+TF-Winter = 26
+TSS-Winter = 27
+WAS-Winter = 28
+
+Background Info:
+The function multipatt() creates lists of species that are associated with particular groups of sites (or combinations of those).
+When the alpha is set to 0.01 it hides all species association that are not significant
 
 Background Info:
 You can inspect (2) of the indicator value components when displaying results labeled as (A) and (B):
@@ -28,8 +120,86 @@ A- sample estimate of the probability that the surveyed site belongs to the targ
 B- sample estimate of the probability of finding the species in sites belonging to the site group. This second conditional probability is called the fidelity or sensitivity of the species as indicator of the target site group.
 
 ```{r}
+#Species Analysis for all 28 groups- group combinations not considered
+#Running Indicator Species Analysis
+groupings = df$Group
 
+#duleg = TRUE which means that site group combinations will not be considered
+indval <- multipatt(df[,c(2:ncol(df))], groupings, 
+                    control = how(nperm=999),duleg = TRUE) 
 
+summary(indval, indvalcomp=TRUE, alpha = 0.01)
 ```
 
-All the missing species from these groups occur because those species occur in sites belonging to all groups.
+
+Now to determine which species are associated with all four seasons, or just between two, indicator species analysis can be ran for each wwtp process with duleg = FALSE
+
+
+#Individual Species Analysis
+#Species that contain 
+AD = c(1, 8, 15, 22)
+AS = c(2, 9, 16, 23)
+Eff = c(3, 10, 17, 24)
+Inf_ = c(4, 11, 18, 25)
+TF = c(5, 12, 19, 26)
+TSS = c(6, 13, 20, 27)
+WAS = c(7, 14, 21, 28)
+
+ad_df = df %>% filter(Group %in% AD)
+as_df = df %>% filter(Group %in% AS)
+eff_df = df %>% filter(Group %in% Eff)
+inf_df = df %>% filter(Group %in% Inf_)
+tf_df = df %>% filter(Group %in% TF)
+tss_df = df %>% filter(Group %in% TSS)
+was_df = df %>% filter(Group %in% WAS)
+
+#AD
+groupings = ad_df$Group
+indval_ad <- multipatt(ad_df[,c(2:ncol(ad_df))], groupings, 
+                    control = how(nperm=999),duleg = FALSE) 
+
+summary(indval_ad, indvalcomp=TRUE, alpha = 0.001)
+
+#AS
+groupings = as_df$Group
+indval_as <- multipatt(as_df[,c(2:ncol(as_df))], groupings, 
+                       control = how(nperm=999),duleg = FALSE) 
+
+summary(indval_as, indvalcomp=TRUE, alpha = 0.001)
+
+#Eff
+groupings = eff_df$Group
+indval_eff <- multipatt(eff_df[,c(2:ncol(eff_df))], groupings, 
+                        control = how(nperm=999),duleg = FALSE)
+
+summary(indval_eff, indvalcomp=TRUE, alpha = 0.001)
+
+#Inf
+groupings = inf_df$Group
+indval_inf <- multipatt(inf_df[,c(2:ncol(inf_df))], groupings, 
+                        control = how(nperm=999),duleg = FALSE)
+
+summary(indval_inf, indvalcomp=TRUE, alpha = 0.001)
+
+#TF
+groupings = tf_df$Group
+indval_tf <- multipatt(tf_df[,c(2:ncol(tf_df))], groupings, 
+                       control = how(nperm=999),duleg = FALSE)
+
+summary(indval_tf, indvalcomp=TRUE, alpha = 0.001)
+
+#TSS
+groupings = tss_df$Group
+indval_tss <- multipatt(tss_df[,c(2:ncol(tss_df))], groupings, 
+                        control = how(nperm=999),duleg = FALSE)
+
+summary(indval_tss, indvalcomp=TRUE, alpha = 0.001)
+
+#WAS
+groupings = was_df$Group
+indval_was <- multipatt(was_df[,c(2:ncol(was_df))], groupings, 
+                        control = how(nperm=999),duleg = FALSE)
+
+summary(indval_was, indvalcomp=TRUE, alpha = 0.001)
+
+
