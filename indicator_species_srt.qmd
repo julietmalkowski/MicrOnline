@@ -1,6 +1,0 @@
-```{python}
-import pandas as pd
-
-as_outliers_removed = pd.read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/as_outliers_removed_june16.xlsx")
-
-```

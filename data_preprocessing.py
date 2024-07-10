@@ -18,3 +18,13 @@ a = a.reset_index()
 #remove first column in a
 a = a.iloc[:,1:]
 a = a.to_numpy()
+
+
+r = pd.read_csv('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/reads.sintax.csv', sep = ",", skiprows=0, header=0, engine = 'python').reset_index()
+r.drop(r.columns[[2, 3]], axis=1, inplace=True)
+r.columns = ['OTU','Classification']
+r[['domain','phylum','class','order','family','genus','species']] = r['Classification'].str.split(',', expand=True)
+r.drop(r.columns[[1]], axis=1, inplace=True)
+r = r.applymap(lambda x: x.split('(')[0])
+r = r.applymap(lambda x: x[x.find(':')+1:] if ':' in x else x)
+r.to_excel('tax.xlsx')
