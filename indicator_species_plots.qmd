@@ -1,4 +1,6 @@
 # Indicator Species
+
+Loading dependencies
 ```{r}
 #| output = FALSE
 library(indicspecies)
@@ -15,6 +17,7 @@ library(eulerr)
 library(plotly)
 ```
 
+## Analysis on the 7 wwtp processes:
 ```{r}
 #| cache: true
 abundance_table <- read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx")
@@ -65,15 +68,12 @@ abundance_table$Process <- gsub("W2", "7", abundance_table$Process)
 df1 <- abundance_table %>%
   select(-Year, -Date,-Month)
 
-#Species Analysis for all 28 groups- group combinations not considered
 #Running Indicator Species Analysis
 groupings = df1$Process
 
 #duleg = TRUE which means that site group combinations will not be considered
 indval <- multipatt(df1[,c(2:ncol(df1))], groupings, 
                     control = how(nperm=999),duleg = TRUE) 
-
-summary(indval, indvalcomp=TRUE, alpha = 0.01)
 
 sig.otus <- indval$sign %>% mutate(otu = rownames(.)) %>% filter(p.value < 0.01) %>% filter(stat > 0.5)
 
@@ -90,6 +90,11 @@ sig.otus <- sig.otus %>% mutate(otu = rownames(.)) %>%
   select(index, stat, p.value, otu) %>% 
   mutate(OTU = paste0("Zotu",otu)) 
 
+```
+
+### Attaching taxonomic informaiton to indicator species in each group
+Shown by variables: ad, as, eff, inf, tf, tss, and was
+```{r}
 taxa = read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/tax.xlsx")
 
 merged_df <- merge(sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
@@ -111,8 +116,7 @@ was <- unique(grouped_list$Values[grouped_list$index == "WAS"][[1]])
 ```
 
 
-### Looking at different seasons for each process
-# Function to assign seasons based on month
+## Looking at different seasons for each process
 ```{r}
 #| cache: true
 assign_season <- function(Month) {
@@ -189,12 +193,14 @@ tf_df = df %>% filter(Group %in% TF)
 tss_df = df %>% filter(Group %in% TSS)
 was_df = df %>% filter(Group %in% WAS)
 
+```
+
+### Anaerobic Digester
+```{r}
 #AD
 groupings = ad_df$Group
 indval_ad <- multipatt(ad_df[,c(2:ncol(ad_df))], groupings, 
                        control = how(nperm=999),duleg = FALSE) 
-
-summary(indval_ad, indvalcomp=TRUE, alpha = 0.001)
 
 #change index column values if index=1 then change to AD-Fall etc
 ad_sig.otus <- indval_ad$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -218,8 +224,6 @@ ad_sig.otus <- ad_sig.otus %>% mutate(otu = rownames(.)) %>%
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
   mutate(Value = paste0("Zotu",otu))
-
-#create a new dataframe for each unique index value
 
 grouped_list_ad <- ad_sig.otus %>%
   group_by(index) %>%
@@ -282,15 +286,13 @@ plot(fit, labels = list(fontfamily = "serif"),
 
 ```
 
-
+### Activated Sludge 
 ```{r}
 #| cache: true
 #AS
 groupings = as_df$Group
 indval_as <- multipatt(as_df[,c(2:ncol(as_df))], groupings, 
                        control = how(nperm=999),duleg = FALSE) 
-
-summary(indval_as, indvalcomp=TRUE, alpha = 0.001)
 
 #change index column values if index=1 then change to AD-Fall etc
 as_sig.otus <- indval_as$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -314,8 +316,6 @@ as_sig.otus <- as_sig.otus %>% mutate(otu = rownames(.)) %>%
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
   mutate(Value = paste0("Zotu",otu))
-
-#create a new dataframe for each unique index value
 
 grouped_list_as <- as_sig.otus %>%
   group_by(index) %>%
@@ -369,16 +369,13 @@ plot(fit_as, labels = list(fontfamily = "serif"),
 
 ```
 
-
+### Effluent
 ```{r}
 #| cache: true
 #Eff
 groupings = eff_df$Group
 indval_eff <- multipatt(eff_df[,c(2:ncol(eff_df))], groupings, 
                         control = how(nperm=999),duleg = FALSE)
-
-summary(indval_eff, indvalcomp=TRUE, alpha = 0.001)
-
 
 #change index column values if index=1 then change to AD-Fall etc
 eff_sig.otus <- indval_eff$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -457,15 +454,13 @@ plot(fit_eff, labels = list(fontfamily = "serif"),
 
 ```
 
+### Influent
 ```{r}
 #| cache: true
 #Inf
 groupings = inf_df$Group
 indval_inf <- multipatt(inf_df[,c(2:ncol(inf_df))], groupings, 
                         control = how(nperm=999),duleg = FALSE)
-
-summary(indval_inf, indvalcomp=TRUE, alpha = 0.001)
-
 
 #change index column values if index=1 then change to AD-Fall etc
 inf_sig.otus <- indval_inf$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -545,15 +540,13 @@ plot(fit_inf, labels = list(fontfamily = "serif"),
 
 ```
 
-
+### Trickling Filter
 ```{r}
 #| cache: true
 #TF
 groupings = tf_df$Group
 indval_tf <- multipatt(tf_df[,c(2:ncol(tf_df))], groupings, 
                        control = how(nperm=999),duleg = FALSE)
-
-summary(indval_tf, indvalcomp=TRUE, alpha = 0.001)
 
 #change index column values if index=1 then change to AD-Fall etc
 tf_sig.otus <- indval_tf$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -577,8 +570,6 @@ tf_sig.otus <- tf_sig.otus %>% mutate(otu = rownames(.)) %>%
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
   mutate(Value = paste0("Zotu",otu))
-
-#create a new dataframe for each unique index value
 
 grouped_list_tf <- tf_sig.otus %>%
   group_by(index) %>%
@@ -633,6 +624,7 @@ plot(fit_tf, labels = list(fontfamily = "serif"),
 
 ```
 
+### TSS
 ```{r}
 #| cache: true
 #TSS
@@ -664,8 +656,6 @@ tss_sig.otus <- tss_sig.otus %>% mutate(otu = rownames(.)) %>%
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
   mutate(Value = paste0("Zotu",otu))
-
-#create a new dataframe for each unique index value
 
 grouped_list_tss <- tss_sig.otus %>%
   group_by(index) %>%
@@ -718,16 +708,13 @@ plot(fit_tss, labels = list(fontfamily = "serif"),
      quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in TSS system")
 ```
 
-
+### WAS
 ```{r}
 #| cache: true
 #WAS
 groupings = was_df$Group
 indval_was <- multipatt(was_df[,c(2:ncol(was_df))], groupings, 
                         control = how(nperm=999),duleg = FALSE)
-
-summary(indval_was, indvalcomp=TRUE, alpha = 0.001)
-
 
 #change index column values if index=1 then change to AD-Fall etc
 was_sig.otus <- indval_was$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
