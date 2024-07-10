@@ -126,7 +126,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./correlation_matrix.html">Observable Patterns</a></li><li class="breadcrumb-item"><a href="./indicator_species_plots.html">Looking at each process</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./correlation_matrix.html">Observable Patterns</a></li><li class="breadcrumb-item"><a href="./indicator_species_plots.html">Indicator Species</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./indicator_species_plots.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Looking at each process</span></a>
+ <span class="menu-text">Indicator Species</span></a>
   </div>
 </li>
       </ul>
@@ -242,7 +242,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#looking-at-different-seasons-for-each-process" id="toc-looking-at-different-seasons-for-each-process" class="nav-link active" data-scroll-target="#looking-at-different-seasons-for-each-process">Looking at different seasons for each process</a></li>
+  <li><a href="#indicator-species" id="toc-indicator-species" class="nav-link active" data-scroll-target="#indicator-species">Indicator Species</a>
+  <ul class="collapse">
+  <li><a href="#looking-at-different-seasons-for-each-process" id="toc-looking-at-different-seasons-for-each-process" class="nav-link" data-scroll-target="#looking-at-different-seasons-for-each-process">Looking at different seasons for each process</a></li>
+  </ul></li>
   <li><a href="#function-to-assign-seasons-based-on-month" id="toc-function-to-assign-seasons-based-on-month" class="nav-link" data-scroll-target="#function-to-assign-seasons-based-on-month">Function to assign seasons based on month</a></li>
   </ul>
 </nav>
@@ -253,7 +256,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<p>#Here the goal is to classify species based on high or low SRT times and see if there are any highly growing species</p>
+<section id="indicator-species" class="level1">
+<h1>Indicator Species</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(indicspecies)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -7133,6 +7137,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 </code></pre>
 </div>
 <section id="looking-at-different-seasons-for-each-process" class="level3">
 <h3 class="anchored" data-anchor-id="looking-at-different-seasons-for-each-process">Looking at different seasons for each process</h3>
+</section>
 </section>
 <section id="function-to-assign-seasons-based-on-month" class="level1">
 <h1>Function to assign seasons based on month</h1>

@@ -1,4 +1,4 @@
-#Here the goal is to classify species based on high or low SRT times and see if there are any highly growing species
+# Indicator Species
 ```{r}
 #| output = FALSE
 library(indicspecies)
