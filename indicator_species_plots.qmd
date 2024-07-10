@@ -95,6 +95,8 @@ sig.otus <- sig.otus %>% mutate(otu = rownames(.)) %>%
 ### Attaching taxonomic informaiton to indicator species in each group
 Shown by variables: ad, as, eff, inf, tf, tss, and was
 ```{r}
+#| cache: true
+#| output = FALSE
 taxa = read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/tax.xlsx")
 
 merged_df <- merge(sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
@@ -112,9 +114,37 @@ inf <- unique(grouped_list$Values[grouped_list$index == "Inf"][[1]])
 tf <- unique(grouped_list$Values[grouped_list$index == "TF"][[1]])
 tss <- unique(grouped_list$Values[grouped_list$index == "TSS"][[1]])
 was <- unique(grouped_list$Values[grouped_list$index == "WAS"][[1]])
-
 ```
 
+#### AD Species
+```{r}
+print(ad)
+```
+#### AS Species
+```{r}
+print(as)
+```
+#### Eff Species
+```{r}
+print(eff)
+```
+#### Inf Species
+```{r}
+print(inf)
+```
+#### TF Species
+```{r}
+print(tf)
+```
+#### TSS Species
+```{r}
+print(tss)
+```
+
+#### WAS Species
+```{r}
+print(was)
+```
 
 ## Looking at different seasons for each process
 ```{r}
@@ -223,28 +253,12 @@ ad_sig.otus <- indval_ad$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
 ad_sig.otus <- ad_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 grouped_list_ad <- ad_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall"][[1]]
-spring_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Spring"][[1]]
-summer_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Summer"][[1]]
-winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Winter"][[1]]
-fall_spring_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring"][[1]]
-fall_summer_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Summer"][[1]]
-fall_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Winter"][[1]]
-spring_summer_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Spring-Summer"][[1]]
-spring_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Spring-Winter"][[1]]
-#summer_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Summer-Winter"][[1]]
-fall_spring_summer_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Summer-Winter"][[1]]
-#spring_summer_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_ad <- grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes <- c(
@@ -286,6 +300,29 @@ plot(fit, labels = list(fontfamily = "serif"),
 
 ```
 
+#### AD Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_ad <- merge(ad_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_ad <- ad_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall"][[1]])
+spring_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Spring"][[1]])
+summer_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Summer"][[1]])
+winter_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Winter"][[1]])
+fall_spring_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring"][[1]])
+fall_summer_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Summer"][[1]])
+fall_winter_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Winter"][[1]])
+spring_summer_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Spring-Summer"][[1]])
+spring_winter_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Spring-Winter"][[1]])
+fall_spring_summer_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_ad <- unique(grouped_list_ad$Values[grouped_list_ad$index == "Fall-Summer-Winter"][[1]])
+
+```
 ### Activated Sludge 
 ```{r}
 #| cache: true
@@ -315,28 +352,12 @@ as_sig.otus <- indval_as$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
 as_sig.otus <- as_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 grouped_list_as <- as_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_as <- grouped_list_as$Values[grouped_list_as$index == "Fall"][[1]]
-spring_as <- grouped_list_as$Values[grouped_list_as$index == "Spring"][[1]]
-summer_as <- grouped_list_as$Values[grouped_list_as$index == "Summer"][[1]]
-winter_as <- grouped_list_as$Values[grouped_list_as$index == "Winter"][[1]]
-fall_spring_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Spring"][[1]]
-fall_summer_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Summer"][[1]]
-fall_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Winter"][[1]]
-spring_summer_as <- grouped_list_as$Values[grouped_list_as$index == "Spring-Summer"][[1]]
-spring_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Spring-Winter"][[1]]
-#summer_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Summer-Winter"][[1]]
-fall_spring_summer_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Summer-Winter"][[1]]
-#spring_summer_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_as <- grouped_list_as$Values[grouped_list_as$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_as <- c(
@@ -369,6 +390,29 @@ plot(fit_as, labels = list(fontfamily = "serif"),
 
 ```
 
+#### AS Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_as <- merge(as_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_as <- as_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall"][[1]])
+spring_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Spring"][[1]])
+summer_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Summer"][[1]])
+winter_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Winter"][[1]])
+fall_spring_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Spring"][[1]])
+fall_summer_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Summer"][[1]])
+fall_winter_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Winter"][[1]])
+spring_summer_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Spring-Summer"][[1]])
+spring_winter_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Spring-Winter"][[1]])
+fall_spring_summer_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_as <- unique(grouped_list_as$Values[grouped_list_as$index == "Fall-Summer-Winter"][[1]])
+```
+
 ### Effluent
 ```{r}
 #| cache: true
@@ -398,30 +442,14 @@ eff_sig.otus <- indval_eff$sign %>% mutate(index = case_when(index == 1 ~ "Fall"
 eff_sig.otus <- eff_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 #create a new dataframe for each unique index value
 
 grouped_list_eff <- eff_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall"][[1]]
-spring_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Spring"][[1]]
-summer_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Summer"][[1]]
-winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Winter"][[1]]
-fall_spring_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring"][[1]]
-fall_summer_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Summer"][[1]]
-fall_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Winter"][[1]]
-spring_summer_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Spring-Summer"][[1]]
-spring_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Spring-Winter"][[1]]
-summer_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Summer-Winter"][[1]]
-fall_spring_summer_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Summer-Winter"][[1]]
-spring_summer_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_eff <- grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_eff <- c(
@@ -454,6 +482,31 @@ plot(fit_eff, labels = list(fontfamily = "serif"),
 
 ```
 
+#### Eff Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_eff <- merge(ad_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_eff <- eff_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall"][[1]])
+spring_eff <-unique(grouped_list_eff$Values[grouped_list_eff$index == "Spring"][[1]])
+summer_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Summer"][[1]])
+winter_eff <-unique(grouped_list_eff$Values[grouped_list_eff$index == "Winter"][[1]])
+fall_spring_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring"][[1]])
+fall_summer_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Summer"][[1]])
+fall_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Winter"][[1]])
+spring_summer_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Spring-Summer"][[1]])
+spring_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Spring-Winter"][[1]])
+summer_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Summer-Winter"][[1]])
+fall_spring_summer_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Fall-Summer-Winter"][[1]])
+spring_summer_winter_eff <- unique(grouped_list_eff$Values[grouped_list_eff$index == "Spring-Summer-Winter"][[1]])
+```
+
 ### Influent
 ```{r}
 #| cache: true
@@ -483,31 +536,14 @@ inf_sig.otus <- indval_inf$sign %>% mutate(index = case_when(index == 1 ~ "Fall"
 inf_sig.otus <- inf_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 #create a new dataframe for each unique index value
 
 grouped_list_inf <- inf_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall"][[1]]
-spring_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Spring"][[1]]
-summer_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Summer"][[1]]
-winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Winter"][[1]]
-fall_spring_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring"][[1]]
-fall_summer_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Summer"][[1]]
-fall_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Winter"][[1]]
-spring_summer_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Spring-Summer"][[1]]
-spring_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Spring-Winter"][[1]]
-summer_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Summer-Winter"][[1]]
-fall_spring_summer_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Summer-Winter"][[1]]
-spring_summer_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_inf <- grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring-Summer-Winter"][[1]]
-
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_inf <- c(
@@ -540,6 +576,33 @@ plot(fit_inf, labels = list(fontfamily = "serif"),
 
 ```
 
+#### Inf Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_inf <- merge(inf_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_inf <- inf_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall"][[1]])
+spring_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Spring"][[1]])
+summer_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Summer"][[1]])
+winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Winter"][[1]])
+fall_spring_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring"][[1]])
+fall_summer_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Summer"][[1]])
+fall_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Winter"][[1]])
+spring_summer_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Spring-Summer"][[1]])
+spring_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Spring-Winter"][[1]])
+summer_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Summer-Winter"][[1]])
+fall_spring_summer_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Fall-Summer-Winter"][[1]])
+spring_summer_winter_inf <- unique(grouped_list_inf$Values[grouped_list_inf$index == "Spring-Summer-Winter"][[1]])
+
+```
+
+
 ### Trickling Filter
 ```{r}
 #| cache: true
@@ -569,28 +632,12 @@ tf_sig.otus <- indval_tf$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
 tf_sig.otus <- tf_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 grouped_list_tf <- tf_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall"][[1]]
-spring_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Spring"][[1]]
-summer_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Summer"][[1]]
-winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Winter"][[1]]
-fall_spring_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring"][[1]]
-fall_summer_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Summer"][[1]]
-fall_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Winter"][[1]]
-spring_summer_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Spring-Summer"][[1]]
-spring_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Spring-Winter"][[1]]
-summer_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Summer-Winter"][[1]]
-fall_spring_summer_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Summer-Winter"][[1]]
-spring_summer_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_tf <- grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_tf <- c(
@@ -620,8 +667,31 @@ fit_tf <- euler(filtered_data_tf)
 # Plot the Euler diagram
 plot(fit_tf, labels = list(fontfamily = "serif"),
      quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in TF system")
+```
 
+#### Trickling Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_tf <- merge(tf_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
 
+grouped_list_tf <- tf_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall"][[1]])
+spring_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Spring"][[1]])
+summer_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Summer"][[1]])
+winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Winter"][[1]])
+fall_spring_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring"][[1]])
+fall_summer_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Summer"][[1]])
+fall_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Winter"][[1]])
+spring_summer_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Spring-Summer"][[1]])
+spring_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Spring-Winter"][[1]])
+summer_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Summer-Winter"][[1]])
+fall_spring_summer_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Fall-Summer-Winter"][[1]])
+spring_summer_winter_tf <- unique(grouped_list_tf$Values[grouped_list_tf$index == "Spring-Summer-Winter"][[1]])
 ```
 
 ### TSS
@@ -631,8 +701,6 @@ plot(fit_tf, labels = list(fontfamily = "serif"),
 groupings = tss_df$Group
 indval_tss <- multipatt(tss_df[,c(2:ncol(tss_df))], groupings, 
                         control = how(nperm=999),duleg = FALSE)
-
-summary(indval_tss, indvalcomp=TRUE, alpha = 0.001)
 
 #change index column values if index=1 then change to AD-Fall etc
 tss_sig.otus <- indval_tss$sign %>% mutate(index = case_when(index == 1 ~ "Fall",
@@ -655,28 +723,12 @@ tss_sig.otus <- indval_tss$sign %>% mutate(index = case_when(index == 1 ~ "Fall"
 tss_sig.otus <- tss_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 grouped_list_tss <- tss_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall"][[1]]
-spring_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Spring"][[1]]
-summer_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Summer"][[1]]
-winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Winter"][[1]]
-fall_spring_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring"][[1]]
-fall_summer_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Summer"][[1]]
-fall_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Winter"][[1]]
-spring_summer_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Spring-Summer"][[1]]
-spring_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Spring-Winter"][[1]]
-summer_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Summer-Winter"][[1]]
-fall_spring_summer_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Summer-Winter"][[1]]
-spring_summer_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_tss <- grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_tss <- c(
@@ -708,6 +760,31 @@ plot(fit_tss, labels = list(fontfamily = "serif"),
      quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in TSS system")
 ```
 
+#### TSS Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_tss <- merge(tss_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_tss <- tss_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall"][[1]])
+spring_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Spring"][[1]])
+summer_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Summer"][[1]])
+winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Winter"][[1]])
+fall_spring_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring"][[1]])
+fall_summer_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Summer"][[1]])
+fall_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Winter"][[1]])
+spring_summer_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Spring-Summer"][[1]])
+spring_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Spring-Winter"][[1]])
+summer_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Summer-Winter"][[1]])
+fall_spring_summer_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Fall-Summer-Winter"][[1]])
+spring_summer_winter_tss <- unique(grouped_list_tss$Values[grouped_list_tss$index == "Spring-Summer-Winter"][[1]])
+```
+
 ### WAS
 ```{r}
 #| cache: true
@@ -737,30 +814,14 @@ was_sig.otus <- indval_was$sign %>% mutate(index = case_when(index == 1 ~ "Fall"
 was_sig.otus <- was_sig.otus %>% mutate(otu = rownames(.)) %>% 
   filter(p.value < 0.05) %>% filter(stat > 0.5) %>% 
   select(index, stat, p.value, otu) %>% 
-  mutate(Value = paste0("Zotu",otu))
+  mutate(Value = paste0("Zotu",otu))%>%
+  rename(OTU = Value)
 
 #create a new dataframe for each unique index value
 
 grouped_list_was <- was_sig.otus %>%
   group_by(index) %>%
-  summarize(Values = list(Value))
-
-fall_was <- grouped_list_was$Values[grouped_list_was$index == "Fall"][[1]]
-spring_was <- grouped_list_was$Values[grouped_list_was$index == "Spring"][[1]]
-summer_was <- grouped_list_was$Values[grouped_list_was$index == "Summer"][[1]]
-winter_was <- grouped_list_was$Values[grouped_list_was$index == "Winter"][[1]]
-fall_spring_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Spring"][[1]]
-fall_summer_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Summer"][[1]]
-fall_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Winter"][[1]]
-spring_summer_was <- grouped_list_was$Values[grouped_list_was$index == "Spring-Summer"][[1]]
-spring_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Spring-Winter"][[1]]
-summer_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Summer-Winter"][[1]]
-fall_spring_summer_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Spring-Summer"][[1]]
-fall_spring_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Spring-Winter"][[1]]
-fall_summer_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Summer-Winter"][[1]]
-spring_summer_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Spring-Summer-Winter"][[1]]
-#fall_spring_summer_winter_was <- grouped_list_was$Values[grouped_list_was$index == "Fall-Spring-Summer-Winter"][[1]]
-
+  summarize(Values = list(OTU))
 
 # Define the sizes of each set and their intersections
 set_sizes_was <- c(
@@ -790,5 +851,31 @@ fit_was <- euler(filtered_data_was)
 # Plot the Euler diagram
 plot(fit_was, labels = list(fontfamily = "serif"),
      quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in WAS system")
+
+```
+
+#### WAS Seasonal Indicator Species
+```{r}
+#| cache: true
+merged_df_was <- merge(was_sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
+
+grouped_list_was <- was_sig.otus %>%
+  group_by(index) %>%
+  summarize(Values = list(OTU))
+
+fall_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall"][[1]])
+spring_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Spring"][[1]])
+summer_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Summer"][[1]])
+winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Winter"][[1]])
+fall_spring_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Spring"][[1]])
+fall_summer_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Summer"][[1]])
+fall_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Winter"][[1]])
+spring_summer_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Spring-Summer"][[1]])
+spring_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Spring-Winter"][[1]])
+summer_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Summer-Winter"][[1]])
+fall_spring_summer_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Spring-Summer"][[1]])
+fall_spring_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Spring-Winter"][[1]])
+fall_summer_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Fall-Summer-Winter"][[1]])
+spring_summer_winter_was <- unique(grouped_list_was$Values[grouped_list_was$index == "Spring-Summer-Winter"][[1]])
 
 ```
