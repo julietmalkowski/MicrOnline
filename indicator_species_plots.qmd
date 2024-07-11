@@ -96,7 +96,6 @@ sig.otus <- sig.otus %>% mutate(otu = rownames(.)) %>%
 Shown by variables: ad, as, eff, inf, tf, tss, and was
 ```{r}
 #| cache: true
-#| output = FALSE
 taxa = read_excel("/Users/julietmalkowski/Desktop/Research/Kinetic_Model/tax.xlsx")
 
 merged_df <- merge(sig.otus, taxa[, c("OTU", "genus")], by = "OTU")
