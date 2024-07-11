@@ -126,7 +126,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Cointegration between species</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -237,253 +237,152 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#run-ad-dickey-fuller-test" id="toc-run-ad-dickey-fuller-test" class="nav-link active" data-scroll-target="#run-ad-dickey-fuller-test">Run AD-Dickey Fuller Test</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
-
-
-<p>Cointegration of species</p>
-<div id="ad3ddecc" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.vector_ar.vecm <span class="im">import</span> coint_johansen</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.tsa.stattools <span class="im">as</span> ts</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> adfuller</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cointegration between species</h1>
 </div>
-<div id="ee473634" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> pd.read_excel(<span class="st">'/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx'</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first 4 characters in every column name</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>abundance_table.columns <span class="op">=</span> abundance_table.columns.<span class="bu">str</span>[<span class="dv">4</span>:] </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#split string in column to get date and process</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>abundance_table[[<span class="st">'Process'</span>,<span class="st">'Date'</span>]] <span class="op">=</span> abundance_table[<span class="st">'le'</span>].<span class="bu">str</span>.split(<span class="st">'_'</span>,expand<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>abundance_table <span class="op">=</span> abundance_table.drop(columns<span class="op">=</span>[<span class="st">'le'</span>])</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#keep only AS-1 and AS-2 data</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>processes <span class="op">=</span> [<span class="st">'AS-1'</span>, <span class="st">'AS-2'</span>]</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> abundance_table[abundance_table[<span class="st">'Process'</span>].isin(processes)]</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.drop(columns<span class="op">=</span>[<span class="st">'Process'</span>])</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#group by date and find the mean of all values</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.groupby([<span class="st">'Date'</span>]).mean()</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#remove last two rows of as_abundance_table</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> as_abundance_table.iloc[:,:<span class="op">-</span><span class="dv">2</span>]</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a.reset_index()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Steps: 1. check for stationarity for all species by running a unit root test 2. check for stationarity in difference between all species</p>
+<div id="eb49fb02" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># import pandas as pd</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># import numpy as np</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># from statsmodels.tsa.vector_ar.vecm import coint_johansen</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># import statsmodels.tsa.stattools as ts</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># from statsmodels.tsa.stattools import adfuller</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="61e446b4" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># #remove first 4 characters in every column name</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># abundance_table.columns = abundance_table.columns.str[4:] </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># #split string in column to get date and process</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># abundance_table = abundance_table.drop(columns=['le'])</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># #keep only AS-1 and AS-2 data</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># processes = ['AS-1', 'AS-2']</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># as_abundance_table = as_abundance_table.drop(columns=['Process'])</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># #group by date and find the mean of all values</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># as_abundance_table = as_abundance_table.groupby(['Date']).mean()</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># #remove last two rows of as_abundance_table</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># a = as_abundance_table.iloc[:,:-2]</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># a = a.reset_index()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Transpose data so numpy array is for each species</p>
-<div id="b186f44e" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> a.T</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first row </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> species.iloc[<span class="dv">1</span>:,:]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> species.reset_index()</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> species.iloc[:,<span class="dv">0</span>]</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> species.iloc[:,<span class="dv">1</span>:]</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> headers.to_numpy()</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> species.to_numpy()</span>
+<div id="3ca76355" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># species = a.T</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># #remove first row </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># species = species.iloc[1:,:]</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># species = species.reset_index()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># headers = species.iloc[:,0]</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># species = species.iloc[:,1:]</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># headers = headers.to_numpy()</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># species = species.to_numpy()</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#structured_array = np.core.records.fromarrays(species, names=headers)</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#tranform to numpy array</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#species = species.to_numpy()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="b3d2c234" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stationary_test(species):</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create deque array</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> deque()</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    constant_counter <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, value <span class="kw">in</span> <span class="bu">enumerate</span>(species):</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> value.<span class="bu">max</span>() <span class="op">==</span> value.<span class="bu">min</span>():</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            result.append(<span class="dv">1</span>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            constant_counter <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        result.append(ts.adfuller(value, regression <span class="op">=</span> <span class="st">'n'</span>)[<span class="dv">1</span>])</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(constant_counter, <span class="st">'species were constant (could not compute adfuller)'</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(result)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> stationary_test(species)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the mask</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> (<span class="fl">0.001</span> <span class="op">&lt;</span> result) <span class="op">&amp;</span> (result <span class="op">&lt;</span> <span class="fl">0.05</span>)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>headers_p_modified <span class="op">=</span> headers[mask]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
-/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/statsmodels/regression/linear_model.py:958: RuntimeWarning: divide by zero encountered in log
-  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2</code></pre>
+<section id="filter-species-that-sum-less-than-10" class="level4">
+<h4 class="anchored" data-anchor-id="filter-species-that-sum-less-than-10">Filter species that sum less than 10</h4>
+<div id="a7728a3d" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mask = np.sum(species, axis=1) &gt; 10</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># #remove numpy arrrays who sum to less than 10 counts</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># headers = headers[mask]</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># species = species[mask]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>920 species were constant (could not compute adfuller)</code></pre>
+</section>
+<section id="run-ad-dickey-fuller-test" class="level3">
+<h3 class="anchored" data-anchor-id="run-ad-dickey-fuller-test">Run AD-Dickey Fuller Test</h3>
+<div id="a453825a" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from collections import deque</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># def stationary_test(species):</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#     # create deque array</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     result = deque()</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     constant_counter = 0</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     for i, value in enumerate(species):</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#         if value.max() == value.min():</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#             result.append(1)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#             constant_counter += 1</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#             continue</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#         result.append(ts.adfuller(value)[1], 'n')</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     print(constant_counter, 'species were constant (could not compute adfuller)')</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     return np.array(result)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># result = stationary_test(species)</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # Create the mask</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># mask1 = (0.001 &lt; result) &amp; (result &lt; 0.05)</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># mask2 = result &gt; 0.05</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># headers_stationary = headers[mask1]</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># headers_non_stationary = headers[mask2]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div id="aba66578" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># species_non_stationary = species[mask2]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># species_non_stationary = species_non_stationary.astype(np.float64)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># species_stationary = species[mask1]</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># species_stationary= species_stationary.astype(np.float64)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>For non-stationary data: shape = 4162</p>
+<p>#Johansen Test with only 12 groups Perform Johansen Test</p>
+<div id="5d13cfc7" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Johansen test</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># j_test = coint_johansen(species_non_stationary, det_order=0, k_ar_diff=1)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Display the test statistics and critical values</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># trace_stat = j_test.lr1</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># critical_values = j_test.cvt</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># resulting_species = deque()</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># insufficient_data_species = deque()</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># for i in range(len(trace_stat)):</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#     if trace_stat[i] &gt; critical_values[i][0]:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#         resulting_species.append(0)</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     if trace_stat[i] &lt; critical_values[i][0]:</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#         resulting_species.append(1)</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#     if np.isnan(critical_values[i][0]) == True :</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#         resulting_species.append(0.5)</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#         insufficient_data_species.append(1)</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># cointegrated_mask = (resulting_species == 0)</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># headers_cointegrated = headers_stationary[cointegrated_mask ]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If the trace statistic is greater than the critical value at a given significance level (e.g., 95%), reject the null hypothesis of no cointegration for that rank.</p>
+<p>For stationary data: shape = 2646</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

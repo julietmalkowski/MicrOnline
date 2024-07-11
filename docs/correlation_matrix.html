@@ -244,7 +244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#correlation-between-count-data-with-pearson-correlation-coefficient" id="toc-correlation-between-count-data-with-pearson-correlation-coefficient" class="nav-link active" data-scroll-target="#correlation-between-count-data-with-pearson-correlation-coefficient">Correlation between count data with Pearson Correlation Coefficient</a></li>
   <li><a href="#correlation-with-spearman-correlation-coefficient" id="toc-correlation-with-spearman-correlation-coefficient" class="nav-link" data-scroll-target="#correlation-with-spearman-correlation-coefficient">Correlation with Spearman Correlation Coefficient</a></li>
-  <li><a href="#cointegration-between-species" id="toc-cointegration-between-species" class="nav-link" data-scroll-target="#cointegration-between-species">Cointegration between species</a></li>
+  <li><a href="#correlation-between-input-parameters-and-otu-counts" id="toc-correlation-between-input-parameters-and-otu-counts" class="nav-link" data-scroll-target="#correlation-between-input-parameters-and-otu-counts">Correlation between Input Parameters and OTU Counts</a></li>
   </ul>
 </nav>
     </div>
@@ -275,7 +275,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="correlation-between-count-data-with-pearson-correlation-coefficient">Correlation between count data with Pearson Correlation Coefficient</h2>
 <p>Pearson’s Product - Moment Correlation Coefficient is a statistical measure of the strength of a linear relationship between paired data. It assumes that the data is: - interval or ratio level - linearly related - bivariate normally distributed</p>
 <p>This graph shows correlations higher than 75%</p>
-<div id="974da84f" class="cell" data-execution_count="2">
+<div id="ea162951" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(a.T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/julietmalkowski/Desktop/Research/Micro/env/lib/python3.10/site-packages/numpy/lib/_function_base_impl.py:2922: RuntimeWarning: invalid value encountered in divide
@@ -284,7 +284,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   c /= stddev[None, :]</code></pre>
 </div>
 </div>
-<div id="0fa4bf81" class="cell" data-execution_count="3">
+<div id="73f714b0" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> ((correlation <span class="op">&gt;</span> <span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&lt;</span> <span class="fl">0.99</span>)) <span class="op">|</span> ((correlation <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.75</span>) <span class="op">&amp;</span> (correlation <span class="op">&gt;</span> <span class="op">-</span><span class="fl">0.99</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>triangle_mask <span class="op">=</span> np.tri(correlation.shape[<span class="dv">0</span>], k<span class="op">=</span><span class="dv">0</span>)</span>
@@ -316,70 +316,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="correlation-with-spearman-correlation-coefficient" class="level2">
 <h2 class="anchored" data-anchor-id="correlation-with-spearman-correlation-coefficient">Correlation with Spearman Correlation Coefficient</h2>
 <p>Before learning about Spearman’s correllation it is important to understand Spearman’s Correlation Coefficient assumes a monotonic relationship- where the value of one variable increases then the other never does A monotonic relationship is a relationship that does one of the following: (1) as the value of one variable increases, so does the value of the other variable; or (2) as the value of one variable increases, the other variable value decreases</p>
-<div id="c4604adc" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>as_abundance_table[<span class="st">'sum'</span>] <span class="op">=</span> as_abundance_table.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>as_abundance_table <span class="op">=</span> as_abundance_table.reset_index()</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance_table.set_index(<span class="st">'Date'</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#find percentage each column by dividing by sum</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.div(as_abundance[<span class="st">'sum'</span>], axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.drop(columns<span class="op">=</span>[<span class="st">'sum'</span>])</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#pivot dataframe from wide to long format</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.reset_index()</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Abundance'</span>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#remove all rows with an abundance less than 0.01</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#as_abundance_low_filter = as_abundance[as_abundance['Abundance'] &gt;= 0.0005] </span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance[as_abundance[<span class="st">'Abundance'</span>] <span class="op">&gt;=</span> <span class="fl">0.005</span>] </span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shannon_index(x):</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span> <span class="op">*</span> np.<span class="bu">sum</span>(x<span class="op">*</span>np.log(x))</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>Shannon_Diversity <span class="op">=</span> as_abundance.groupby(<span class="st">'Date'</span>)[<span class="st">'Abundance'</span>].agg(shannon_index).reset_index()</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.merge(Shannon_Diversity, on<span class="op">=</span><span class="st">'Date'</span>)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>as_abundance <span class="op">=</span> as_abundance.rename(columns<span class="op">=</span>{<span class="st">'Abundance_x'</span>:<span class="st">'Abundance'</span>, <span class="st">'Abundance_y'</span>:<span class="st">'Shannon Index'</span>})</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>as_abundance_table_moved <span class="op">=</span> as_abundance_table.melt(id_vars<span class="op">=</span>[<span class="st">'Date'</span>], var_name<span class="op">=</span><span class="st">'OTU'</span>, value_name<span class="op">=</span><span class="st">'Counts'</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#merging with as_abundance</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>unfiltered_data <span class="op">=</span> as_abundance.merge(as_abundance_table_moved, on<span class="op">=</span>[<span class="st">'Date'</span>,<span class="st">'OTU'</span>])</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> unfiltered_data.iloc[:,<span class="dv">0</span>:<span class="dv">3</span>]</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> pd.pivot(data <span class="op">=</span> unfiltered_abundnace, index <span class="op">=</span> <span class="st">'Date'</span>, columns <span class="op">=</span> <span class="st">'OTU'</span> , values <span class="op">=</span> <span class="st">'Abundance'</span>) </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#replace NAN values with 0</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>unfiltered_abundnace <span class="op">=</span> unfiltered_abundnace.fillna(<span class="dv">0</span>)</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace =unfiltered_abundnace.reset_index()</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#remove first column</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#unfiltered_abundnace = unfiltered_abundnace.to_numpy()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="9781ebc7" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>corr_matrix, p_matrix <span class="op">=</span> scipy.stats.spearmanr(unfiltered_abundnace, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#statistical significance level of 0.05</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>corr_matrix[p_matrix<span class="op">&gt;</span><span class="fl">0.05</span>] <span class="op">=</span> np.nan</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>corr_matrix[corr_matrix<span class="op">&gt;</span><span class="fl">0.99</span>] <span class="op">=</span> np.nan</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>triangle_mask <span class="op">=</span> np.tri(corr_matrix.shape[<span class="dv">0</span>], k<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'P-value Matrix of OTU Counts Over Time Using Spearman'</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>masked_correlation <span class="op">=</span> np.ma.masked_where(triangle_mask, corr_matrix)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>triangle_mask[triangle_mask <span class="op">==</span> <span class="dv">0</span>] <span class="op">=</span> np.nan</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>cax <span class="op">=</span> ax.pcolormesh(corr_matrix,cmap<span class="op">=</span><span class="st">'coolwarm'</span>, vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ax.imshow(triangle_mask, cmap<span class="op">=</span><span class="st">'twilight'</span>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>fig.colorbar(cax)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="2633947b" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>corr_matrix, p_matrix <span class="op">=</span> scipy.stats.spearmanr(filtered_abundance_time, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>corr_matrix[p_matrix<span class="op">&gt;</span><span class="fl">0.05</span>] <span class="op">=</span> np.nan</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>corr_matrix[corr_matrix<span class="op">&gt;</span><span class="fl">0.99</span>] <span class="op">=</span> np.nan</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> np.triu(np.ones_like(corr_matrix, dtype<span class="op">=</span><span class="bu">bool</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>masked_correlation_matrix <span class="op">=</span> np.ma.masked_where(mask, corr_matrix)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'P-value Matrix of OTU Counts Over Time Using Spearman'</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>cax <span class="op">=</span> ax.pcolormesh(masked_correlation_matrix,cmap<span class="op">=</span><span class="st">'coolwarm'</span>, vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>fig.colorbar(cax)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="correlation_matrix_files/figure-html/cell-6-output-1.png" width="518" height="459" class="figure-img"></p>
+<p><img src="correlation_matrix_files/figure-html/cell-6-output-1.png" width="574" height="459" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="cointegration-between-species" class="level2">
-<h2 class="anchored" data-anchor-id="cointegration-between-species">Cointegration between species</h2>
-<p>Steps: 1. check for stationarity for all species by running a unit root test 2. check for stationarity in difference between all species</p>
+<section id="correlation-between-input-parameters-and-otu-counts" class="level1">
+<h1>Correlation between Input Parameters and OTU Counts</h1>
 
 
 </section>

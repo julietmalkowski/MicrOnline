@@ -1,72 +1,128 @@
-Cointegration of species
 
+## Cointegration between species
+Steps:
+1. check for stationarity for all species by running a unit root test
+2. check for stationarity in difference between all species
 ```{python}
-import pandas as pd
-import numpy as np
-from statsmodels.tsa.vector_ar.vecm import coint_johansen
-import statsmodels.tsa.stattools as ts
-from statsmodels.tsa.stattools import adfuller
+# import pandas as pd
+# import numpy as np
+# from statsmodels.tsa.vector_ar.vecm import coint_johansen
+# import statsmodels.tsa.stattools as ts
+# from statsmodels.tsa.stattools import adfuller
 
 ```
 
 ```{python}
-abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
-#remove first 4 characters in every column name
-abundance_table.columns = abundance_table.columns.str[4:] 
-#split string in column to get date and process
-abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)
-abundance_table = abundance_table.drop(columns=['le'])
-#keep only AS-1 and AS-2 data
-processes = ['AS-1', 'AS-2']
-as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
-as_abundance_table = as_abundance_table.drop(columns=['Process'])
-#group by date and find the mean of all values
-as_abundance_table = as_abundance_table.groupby(['Date']).mean()
-#remove last two rows of as_abundance_table
-a = as_abundance_table.iloc[:,:-2]
-a = a.reset_index()
+# abundance_table = pd.read_excel('/Users/julietmalkowski/Desktop/Research/Kinetic_Model/abundance_table.xlsx')
+# #remove first 4 characters in every column name
+# abundance_table.columns = abundance_table.columns.str[4:] 
+# #split string in column to get date and process
+# abundance_table[['Process','Date']] = abundance_table['le'].str.split('_',expand=True)
+# abundance_table = abundance_table.drop(columns=['le'])
+# #keep only AS-1 and AS-2 data
+# processes = ['AS-1', 'AS-2']
+# as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
+# as_abundance_table = as_abundance_table.drop(columns=['Process'])
+# #group by date and find the mean of all values
+# as_abundance_table = as_abundance_table.groupby(['Date']).mean()
+# #remove last two rows of as_abundance_table
+# a = as_abundance_table.iloc[:,:-2]
+# a = a.reset_index()
 ```
 
 Transpose data so numpy array is for each species
 ``` {python}
-species = a.T
-#remove first row 
-species = species.iloc[1:,:]
-species = species.reset_index()
-headers = species.iloc[:,0]
-species = species.iloc[:,1:]
-headers = headers.to_numpy()
-species = species.to_numpy()
+# species = a.T
+# #remove first row 
+# species = species.iloc[1:,:]
+# species = species.reset_index()
+# headers = species.iloc[:,0]
+# species = species.iloc[:,1:]
+# headers = headers.to_numpy()
+# species = species.to_numpy()
 #structured_array = np.core.records.fromarrays(species, names=headers)
 
 #tranform to numpy array
 #species = species.to_numpy()
 ```
 
+#### Filter species that sum less than 10
 ```{python}
-from collections import deque
-
-def stationary_test(species):
-    # create deque array
-    result = deque()
-    constant_counter = 0
-    for i, value in enumerate(species):
-        if value.max() == value.min():
-            result.append(1)
-            constant_counter += 1
-            continue
-        result.append(ts.adfuller(value, regression = 'n')[1])
-
-    print(constant_counter, 'species were constant (could not compute adfuller)')
-    return np.array(result)
-
-result = stationary_test(species)
-# Create the mask
-mask = (0.001 < result) & (result < 0.05)
-
-headers_p_modified = headers[mask]
+# mask = np.sum(species, axis=1) > 10
+# #remove numpy arrrays who sum to less than 10 counts
+# headers = headers[mask]
+# species = species[mask]
 ```
 
+### Run AD-Dickey Fuller Test
+```{python}
+# from collections import deque
+
+# def stationary_test(species):
+#     # create deque array
+#     result = deque()
+#     constant_counter = 0
+#     for i, value in enumerate(species):
+#         if value.max() == value.min():
+#             result.append(1)
+#             constant_counter += 1
+#             continue
+#         result.append(ts.adfuller(value)[1], 'n')
+
+#     print(constant_counter, 'species were constant (could not compute adfuller)')
+#     return np.array(result)
+
+# result = stationary_test(species)
+
+# # Create the mask
+# mask1 = (0.001 < result) & (result < 0.05)
+# mask2 = result > 0.05
+
+# headers_stationary = headers[mask1]
+# headers_non_stationary = headers[mask2]
+```
+
+```{python}
+# species_non_stationary = species[mask2]
+# species_non_stationary = species_non_stationary.astype(np.float64)
+
+# species_stationary = species[mask1]
+# species_stationary= species_stationary.astype(np.float64)
+```
+
+For non-stationary data: shape = 4162
+
+#Johansen Test with only 12 groups
+Perform Johansen Test
+```{python}
+# Johansen test
+# j_test = coint_johansen(species_non_stationary, det_order=0, k_ar_diff=1)
+
+# # Display the test statistics and critical values
+# trace_stat = j_test.lr1
+# critical_values = j_test.cvt
+
+# resulting_species = deque()
+# insufficient_data_species = deque()
+
+# for i in range(len(trace_stat)):
+#     if trace_stat[i] > critical_values[i][0]:
+#         resulting_species.append(0)
+#     if trace_stat[i] < critical_values[i][0]:
+#         resulting_species.append(1)
+#     if np.isnan(critical_values[i][0]) == True :
+#         resulting_species.append(0.5)
+#         insufficient_data_species.append(1)
+
+# cointegrated_mask = (resulting_species == 0)
+
+# headers_cointegrated = headers_stationary[cointegrated_mask ]
+```
+
+If the trace statistic is greater than the critical value at a given significance level (e.g., 95%), reject the null hypothesis of no cointegration for that rank.
+
+
+For stationary data: shape = 2646
 ```{python}
 
 ```

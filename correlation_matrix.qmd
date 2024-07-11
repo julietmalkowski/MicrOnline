@@ -27,6 +27,9 @@ a = a.reset_index()
 #remove first column in a
 a = a.iloc[:,1:]
 a = a.to_numpy()
+as_abundance_table['sum'] = as_abundance_table.sum(axis=1)
+as_abundance_table = as_abundance_table.reset_index()
+
 ```
 
 ## Correlation between count data with Pearson Correlation Coefficient 
@@ -69,8 +72,7 @@ Spearman's Correlation Coefficient assumes a monotonic relationship- where the v
 A monotonic relationship is a relationship that does one of the following: (1) as the value of one variable increases, so does the value of the other variable; or (2) as the value of one variable increases, the other variable value decreases
 
 ```{python}
-as_abundance_table['sum'] = as_abundance_table.sum(axis=1)
-as_abundance_table = as_abundance_table.reset_index()
+#| include: false
 as_abundance = as_abundance_table.set_index('Date')
 #find percentage each column by dividing by sum
 as_abundance = as_abundance.div(as_abundance['sum'], axis=0)
@@ -80,52 +82,54 @@ as_abundance = as_abundance.reset_index()
 as_abundance = as_abundance.melt(id_vars=['Date'], var_name='OTU', value_name='Abundance')
 #remove all rows with an abundance less than 0.01
 #as_abundance_low_filter = as_abundance[as_abundance['Abundance'] >= 0.0005] 
-as_abundance = as_abundance[as_abundance['Abundance'] >= 0.005] 
+as_abundance = as_abundance[as_abundance['Abundance'] >= 0.0005] 
+filtered_abundance = pd.pivot(data = as_abundance, index = 'OTU', columns = 'Date', values = 'Abundance') 
+filtered_abundance = filtered_abundance.reset_index()
+filtered_otu_names = filtered_abundance.iloc[:, 0]
+filtered_abundance_time = filtered_abundance.iloc[:, 1:]
 
-def shannon_index(x):
-    return -1 * np.sum(x*np.log(x))
+filtered_otu_names = filtered_otu_names.to_numpy()
+filtered_abundance_time = filtered_abundance_time.to_numpy()
+filtered_abundance_time = filtered_abundance_time.astype(float)
+filtered_abundance_time[np.isnan(filtered_abundance_time)] = 0
+# def shannon_index(x):
+#     return -1 * np.sum(x*np.log(x))
 
-Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()
+# Shannon_Diversity = as_abundance.groupby('Date')['Abundance'].agg(shannon_index).reset_index()
 
-as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')
-as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})
+# as_abundance = as_abundance.merge(Shannon_Diversity, on='Date')
+# as_abundance = as_abundance.rename(columns={'Abundance_x':'Abundance', 'Abundance_y':'Shannon Index'})
 
-as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')
+# as_abundance_table_moved = as_abundance_table.melt(id_vars=['Date'], var_name='OTU', value_name='Counts')
 
-#merging with as_abundance
-unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])
-unfiltered_abundnace = unfiltered_data.iloc[:,0:3]
-unfiltered_abundnace = pd.pivot(data = unfiltered_abundnace, index = 'Date', columns = 'OTU' , values = 'Abundance') 
-#replace NAN values with 0
-unfiltered_abundnace = unfiltered_abundnace.fillna(0)
-#unfiltered_abundnace =unfiltered_abundnace.reset_index()
-#remove first column
-#unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]
-#unfiltered_abundnace = unfiltered_abundnace.to_numpy()
+# #merging with as_abundance
+# unfiltered_data = as_abundance.merge(as_abundance_table_moved, on=['Date','OTU'])
+# unfiltered_abundnace = unfiltered_data.iloc[:,0:3]
+# unfiltered_abundnace = pd.pivot(data = unfiltered_abundnace, index = 'Date', columns = 'OTU' , values = 'Abundance') 
+# #replace NAN values with 0
+# unfiltered_abundnace = unfiltered_abundnace.fillna(0)
+# #unfiltered_abundnace =unfiltered_abundnace.reset_index()
+# #remove first column
+# #unfiltered_abundnace = unfiltered_abundnace.iloc[:, 1:]
+# #unfiltered_abundnace = unfiltered_abundnace.to_numpy()
 ```
 
 
 ```{python}
-corr_matrix, p_matrix = scipy.stats.spearmanr(unfiltered_abundnace, axis=0)
-#statistical significance level of 0.05
+corr_matrix, p_matrix = scipy.stats.spearmanr(filtered_abundance_time, axis=1)
 corr_matrix[p_matrix>0.05] = np.nan
 corr_matrix[corr_matrix>0.99] = np.nan
-triangle_mask = np.tri(corr_matrix.shape[0], k=0)
+mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+masked_correlation_matrix = np.ma.masked_where(mask, corr_matrix)
 
 fig = plt.figure()
 fig.suptitle('P-value Matrix of OTU Counts Over Time Using Spearman')
 ax = fig.add_subplot(111)
-masked_correlation = np.ma.masked_where(triangle_mask, corr_matrix)
-triangle_mask[triangle_mask == 0] = np.nan
 
-cax = ax.pcolormesh(corr_matrix,cmap='coolwarm', vmin=-1, vmax=1)
-ax.imshow(triangle_mask, cmap='twilight')
+cax = ax.pcolormesh(masked_correlation_matrix,cmap='coolwarm', vmin=-1, vmax=1)
 fig.colorbar(cax)
 plt.show()
-
 ```
 
-## Cointegration between species
-Steps:
-1. check for stationarity for all species by running a unit root test
-2. check for stationarity in difference between all species
+
+# Correlation between Input Parameters and OTU Counts

@@ -759,7 +759,7 @@ filtered_data_tss <- filter_data(set_sizes_tss)
 fit_tss <- euler(filtered_data_tss)
 
 # Plot the Euler diagram
-plot(fit_tss,labels = list(font = 3, col = "blue", cex = 1.7),
+plot(fit_tss,labels = list(font = 3, col = "blue", cex = 1.25),
      quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in TSS system")
 ```
 
