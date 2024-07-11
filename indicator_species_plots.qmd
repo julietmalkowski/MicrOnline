@@ -272,9 +272,9 @@ set_sizes <- c(
   "Spring&Summer" = ad_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = ad_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = ad_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = ad_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = ad_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = ad_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = ad_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = ad_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = ad_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = ad_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = ad_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -295,8 +295,9 @@ filtered_data <- filter_data(set_sizes)
 fit <- euler(filtered_data)
 
 # Plot the Euler diagram
-plot(fit, labels = list(fontfamily = "serif"),
-                quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in AD system")
+# Plot the Euler diagram
+plot(fit, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in AD system")
 
 ```
 
@@ -371,9 +372,9 @@ set_sizes_as <- c(
   "Spring&Summer" = as_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = as_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = as_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = as_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = as_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = as_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = as_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = as_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = as_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = as_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = as_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -385,8 +386,10 @@ filtered_data_as <- filter_data(set_sizes_as)
 fit_as <- euler(filtered_data_as)
 
 # Plot the Euler diagram
-plot(fit_as, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in AS system")
+plot(fit_as, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), 
+     main = "Seasonal Comparison of Indicator Species in AS system")
+
 
 ```
 
@@ -463,9 +466,9 @@ set_sizes_eff <- c(
   "Spring&Summer" = eff_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = eff_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = eff_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = eff_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = eff_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = eff_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = eff_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = eff_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = eff_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = eff_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = eff_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -477,8 +480,8 @@ filtered_data_eff <- filter_data(set_sizes_eff)
 fit_eff <- euler(filtered_data_eff)
 
 # Plot the Euler diagram
-plot(fit_eff, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in Eff system")
+plot(fit_eff,labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in Eff system")
 
 ```
 
@@ -557,9 +560,9 @@ set_sizes_inf <- c(
   "Spring&Summer" = inf_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = inf_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = inf_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = inf_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = inf_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = inf_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = inf_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = inf_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = inf_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = inf_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = inf_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -571,8 +574,8 @@ filtered_data_inf <- filter_data(set_sizes_inf)
 fit_inf <- euler(filtered_data_inf)
 
 # Plot the Euler diagram
-plot(fit_inf, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in Inf system")
+plot(fit_inf, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in Inf system")
 
 ```
 
@@ -651,9 +654,9 @@ set_sizes_tf <- c(
   "Spring&Summer" = tf_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = tf_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = tf_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = tf_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = tf_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = tf_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = tf_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = tf_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = tf_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = tf_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = tf_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -665,8 +668,9 @@ filtered_data_tf <- filter_data(set_sizes_tf)
 fit_tf <- euler(filtered_data_tf)
 
 # Plot the Euler diagram
-plot(fit_tf, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in TF system")
+plot(fit_tf, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in TF system")
+
 ```
 
 #### Trickling Seasonal Indicator Species
@@ -742,9 +746,9 @@ set_sizes_tss <- c(
   "Spring&Summer" = tss_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = tss_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = tss_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = tss_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = tss_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = tss_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = tss_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = tss_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = tss_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = tss_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = tss_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -756,8 +760,8 @@ filtered_data_tss <- filter_data(set_sizes_tss)
 fit_tss <- euler(filtered_data_tss)
 
 # Plot the Euler diagram
-plot(fit_tss, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in TSS system")
+plot(fit_tss,labels = list(font = 3, col = "blue", cex = 1.7),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in TSS system")
 ```
 
 #### TSS Seasonal Indicator Species
@@ -818,7 +822,6 @@ was_sig.otus <- was_sig.otus %>% mutate(otu = rownames(.)) %>%
   rename(OTU = Value)
 
 #create a new dataframe for each unique index value
-
 grouped_list_was <- was_sig.otus %>%
   group_by(index) %>%
   summarize(Values = list(OTU))
@@ -835,9 +838,9 @@ set_sizes_was <- c(
   "Spring&Summer" = was_sig.otus %>% filter(index == "Spring-Summer") %>% nrow(),
   "Spring&Winter" = was_sig.otus %>% filter(index == "Spring-Winter") %>% nrow(),
   "Summer&Winter" = was_sig.otus %>% filter(index == "Summer-Winter") %>% nrow(),
-  "Fall&Spring-Summer" = was_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
-  "Fall&Spring-Winter" = was_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
-  "Fall&Summer-Winter" = was_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
+  "Fall&Spring&Summer" = was_sig.otus %>% filter(index == "Fall-Spring-Summer") %>% nrow(),
+  "Fall&Spring&Winter" = was_sig.otus %>% filter(index == "Fall-Spring-Winter") %>% nrow(),
+  "Fall&Summer&Winter" = was_sig.otus %>% filter(index == "Fall-Summer-Winter") %>% nrow(),
   "Spring&Summer&Winter" = was_sig.otus %>% filter(index == "Spring-Summer-Winter") %>% nrow(),
   "Fall&Spring&Summer&Winter" = was_sig.otus %>% filter(index == "Fall-Spring-Summer-Winter") %>% nrow()
 )
@@ -849,8 +852,9 @@ filtered_data_was <- filter_data(set_sizes_was)
 fit_was <- euler(filtered_data_was)
 
 # Plot the Euler diagram
-plot(fit_was, labels = list(fontfamily = "serif"),
-     quantities = list(type = "counts", font = 3), main = "Seasonal Comparison of Indicator Species in WAS system")
+plot(fit_was, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75), main = "Seasonal Comparison of Indicator Species in WAS system")
+
 
 ```
 

@@ -4,6 +4,9 @@ Cointegration of species
 import pandas as pd
 import numpy as np
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
+import statsmodels.tsa.stattools as ts
+from statsmodels.tsa.stattools import adfuller
+
 ```
 
 ```{python}
@@ -19,14 +22,51 @@ as_abundance_table = abundance_table[abundance_table['Process'].isin(processes)]
 as_abundance_table = as_abundance_table.drop(columns=['Process'])
 #group by date and find the mean of all values
 as_abundance_table = as_abundance_table.groupby(['Date']).mean()
-
 #remove last two rows of as_abundance_table
 a = as_abundance_table.iloc[:,:-2]
 a = a.reset_index()
-print(a.head())
-#remove first column in a
-a = a.iloc[:,1:]
+```
+
+Transpose data so numpy array is for each species
+``` {python}
+species = a.T
+#remove first row 
+species = species.iloc[1:,:]
+species = species.reset_index()
+headers = species.iloc[:,0]
+species = species.iloc[:,1:]
+headers = headers.to_numpy()
+species = species.to_numpy()
+#structured_array = np.core.records.fromarrays(species, names=headers)
+
 #tranform to numpy array
-a = a.to_numpy()
+#species = species.to_numpy()
+```
+
+```{python}
+from collections import deque
+
+def stationary_test(species):
+    # create deque array
+    result = deque()
+    constant_counter = 0
+    for i, value in enumerate(species):
+        if value.max() == value.min():
+            result.append(1)
+            constant_counter += 1
+            continue
+        result.append(ts.adfuller(value, regression = 'n')[1])
+
+    print(constant_counter, 'species were constant (could not compute adfuller)')
+    return np.array(result)
+
+result = stationary_test(species)
+# Create the mask
+mask = (0.001 < result) & (result < 0.05)
+
+headers_p_modified = headers[mask]
+```
+
+```{python}
 
 ```
