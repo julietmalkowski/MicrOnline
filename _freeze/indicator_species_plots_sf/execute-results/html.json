@@ -1,0 +1,20 @@
+{
+  "hash": "c8cffcf25b9de9bad71ef774fb36c88b",
+  "result": {
+    "markdown": "---\ntitle: Indicator Species Analysis\nformat: html\necho: false\n---\n\n::: {.cell}\n\n:::\n\n\n### in AD samples\n\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n```{ojs}\ngenus = FileAttachment(\"indicator_data/indicator_genus_process.csv\").csv({typed: true})\n\ngenusProcess = genus.filter(function(table) {\n  return processjs == table.Process\n})\n\notu = FileAttachment(\"indicator_data/indicator_otu_season.csv\").csv({typed: true})\n\notuProcess = otu.filter(function(table) {\n  return processjs == table.Process\n})\n\notuProcessSeason = otuProcess.filter(function(table) {\n  return collocationsCat.includes(table.seasoncooccurrence)\n})\n\notuProcessSeason2 = otuProcess.filter(function(table) {\n  return collocationsCat == table.seasoncooccurrence\n})\n```\n\n#### All Significant Indicator Genera in AD\n\n```{ojs}\nInputs.table(genusProcess)\n```\n\n#### Co-occurence of Indicator OTUs by Season in AD\n\n::: {.cell}\n::: {.cell-output-display}\n![](indicator_species_plots_sf_files/figure-html/otu euler plot-1.png){width=672}\n:::\n:::\n\n```{ojs}\nviewof collocations = Inputs.checkbox([\"Fall\",\"Spring\",\"Summer\",\"Winter\"], {label: \"Select seasons to view OTUs:\"})\ncollocationsCat = collocations.join(\"-\")\n```\n\n\n::: {.panel-tabset}\n\n## Exclusive list\n\n```{ojs}\nInputs.table(otuProcessSeason2)\n```\n\n\n## Inclusive list\n\n```{ojs}\nInputs.table(otuProcessSeason)\n```\n\n\n:::\n\n\n",
+    "supporting": [
+      "indicator_species_plots_sf_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-in-header": [
+        "<script type=\"ojs-define\">\n{\"contents\":[{\"name\":\"processjs\",\"value\":\"AD\"}]}\n</script>\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
