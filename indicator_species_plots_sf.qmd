@@ -1,0 +1,223 @@
+---
+title: Indicator Species Analysis
+format: html
+echo: false
+---
+
+```{r choose process}
+process <- "AD"
+ojs_define(processjs=process)
+```
+
+### in `r process` samples
+
+```{r dependencies and functions - not run}
+#| output: FALSE
+library(indicspecies)
+library(readxl)
+#library(ape)
+library(tidyverse)
+#library(fmsb)
+library(eulerr)
+library(DT)
+
+# Function to filter out small overlaps
+filter_data <- function(data, threshold = 0.01) {
+  # Calculate the total size
+  total <- sum(data)
+  # Filter out entries that are below the threshold percentage of the total size
+  filtered_data <- data[data / total >= threshold]
+  return(filtered_data)
+}
+```
+
+```{r read data for analysis - not run}
+#| eval: false
+#| echo: false
+
+# connect indicspecies output to process
+p_id <- tibble("Process" = c("AD", "AS", "Eff", "Inf", "TF", "TSS", "WAS"),
+               "process_index" = seq(1,7,1))
+
+# connect indicspecies output to season overlap
+s_id <- tibble("seasoncooccurrence" = c("Fall","Spring","Summer","Winter","Fall-Spring","Fall-Summer","Fall-Winter","Spring-Summer","Spring-Winter","Summer-Winter","Fall-Spring-Summer","Fall-Spring-Winter","Fall-Summer-Winter","Spring-Summer-Winter","Fall-Spring-Summer-Winter"),
+               "season_cooccurence_index" = seq(1,15,1))
+
+# read taxonomy data
+taxa <- read_excel("./tax.xlsx")
+
+# read and format abundance data
+abundance_table <- read_excel("~/Documents/annacis_quarto/abundance_table.xlsx") %>% 
+  dplyr::rename_with(~ substr(., 5, length(.))) %>% 
+  separate(le, into = c("Process", "Date"), sep = "_") %>% 
+  separate(Date, into = c("Month", "Day", "Year"), sep = "/") %>% 
+  mutate(Month = as.numeric(Month)) %>% 
+  mutate(Process = case_when(Process %in% c("AS-1", "AS-2") ~ "AS", T ~ Process)) %>% 
+  left_join(p_id) %>%
+  mutate(Season = case_match(Month,
+                             c(12,1,2) ~ "Winter",
+                             c(3,4,5) ~ "Spring",
+                             c(6,7,8) ~ "Summer",
+                             c(9,10,11) ~ "Fall")) %>% 
+  group_by(Season, Process) %>%
+  mutate(season_process_index = cur_group_id()) %>%
+  ungroup() %>% 
+  select(Month, Day, Year, Process, process_index, Season, season_process_index, everything())
+```
+
+```{r indicatorspecies by process - not run}
+#| eval: false
+#| echo: false
+groupings <- abundance_table$process_index
+
+#duleg = TRUE which means that site group combinations will not be considered
+indval <- multipatt(abundance_table[,c(8:ncol(abundance_table))], groupings, 
+                    control = how(nperm = 999), duleg = TRUE) 
+
+sig.otus <- indval$sign %>%
+  rename("process_index" = index) %>% 
+  left_join(p_id) %>% 
+  mutate(otu = rownames(.)) %>% 
+  filter(p.value < 0.05) %>% filter(stat > 0.5) %>% # filter only significant results
+  select(Process, process_index, stat, p.value, otu) %>% 
+  mutate(OTU = paste0("Zotu", otu), .keep = "unused") %>% 
+  left_join(taxa %>% select(OTU, "Genus" = genus)) # Attaching taxonomic informaiton to indicator species
+
+sig.genus <- sig.otus %>% 
+  group_by(Process, Genus) %>% # group by Genus
+  summarise("# of OTUs" = n()) %>% 
+  ungroup()
+
+write.csv(sig.genus, "indicator_data/indicator_genus_process.csv", row.names = F) # save output for plotting
+```
+
+```{r indicatorspecies by season for each process - not run}
+#| eval: false
+#| echo: false
+
+# make empty data frames to fill with for loop
+sig.otus.all <- data.frame()
+all.sets.all <- data.frame()
+
+for (process in p_id$Process) { # loop through processes running season overlap analysis for each
+
+  df.p <- abundance_table %>% filter(Process == process)
+  
+  groupings.p <-  df.p$season_process_index
+  
+  #duleg = FALSE which means that site group combinations will be considered
+  indval.p <- multipatt(df.p[,c(8:ncol(df.p))], groupings.p, 
+                         control = how(nperm=999), duleg = FALSE) 
+  
+  rm(df.p) # remove to save RAM
+  
+  sig.otus.p <- indval.p$sign %>% 
+    rename("season_cooccurence_index" = index) %>% 
+    left_join(s_id)%>%
+    mutate(otu = rownames(.)) %>% 
+    filter(p.value < 0.05) %>% filter(stat > 0.5) %>% # filter only significant results
+    select(seasoncooccurrence, season_cooccurence_index, stat, p.value, otu) %>% 
+    mutate(OTU = paste0("Zotu", otu), .keep = "unused") %>% 
+    left_join(taxa %>% select(OTU, "Genus" = genus)) %>% 
+    mutate(Process = process)
+  
+  sig.otus.all <- sig.otus.all %>% # bind results to full list
+    bind_rows(sig.otus.p) 
+  
+  # Define the sizes of each set and their intersections
+  all.sets.p <- c()
+  n = 1
+  for (season in s_id$seasoncooccurrence) {
+    all.sets.p[n] <- sig.otus.p %>% filter(seasoncooccurrence == season) %>% nrow()
+    names(all.sets.p)[n] <- season
+    n = n + 1
+  }
+  
+  # reformat for euler
+  names(all.sets.p) <- gsub("-", "&", names(all.sets.p))
+  
+  # Filter the data to remove small overlaps and improve euler plot
+  filtered.sets.p <- filter_data(all.sets.p)
+  
+  all.sets.all <- all.sets.all %>% # bind results to full list
+    bind_rows(data.frame("Process" = process, 
+                         "Set" = I(list(all.sets.p)),
+                         "Filter Set" = I(list(filtered.sets.p))))
+} # end for loop
+
+# save outputs for plotting
+write.csv(sig.otus.all %>% select(Genus, OTU, p.value, seasoncooccurrence, Process), "indicator_data/indicator_otu_season.csv", row.names = F)
+
+saveRDS(all.sets.all, "indicator_data/euler_sets.rds")
+```
+
+```{r prepare r data objects}
+#| output: false
+euler.r <- readRDS("indicator_data/euler_sets.rds") %>% dplyr::filter(Process == process)
+euler.r <- euler.r[[1,3]]
+names(euler.r) <- gsub("-", "&", names(euler.r)) # can remove if fix is implemented upon creation
+euler.obj <- euler(euler.r) # read Filtered Sets, use [[1,2]] for full Sets
+```
+
+```{ojs prepare js data objects}
+genus = FileAttachment("indicator_data/indicator_genus_process.csv").csv({typed: true})
+
+genusProcess = genus.filter(function(table) {
+  return processjs == table.Process
+})
+
+otu = FileAttachment("indicator_data/indicator_otu_season.csv").csv({typed: true})
+
+otuProcess = otu.filter(function(table) {
+  return processjs == table.Process
+})
+
+otuProcessSeason = otuProcess.filter(function(table) {
+  return collocationsCat.includes(table.seasoncooccurrence)
+})
+
+otuProcessSeason2 = otuProcess.filter(function(table) {
+  return collocationsCat == table.seasoncooccurrence
+})
+```
+
+```{r section heading 1}
+#| output: asis
+cat(paste("#### All Significant Indicator Genera in", process))
+```
+
+```{ojs genera table}
+Inputs.table(genusProcess)
+```
+
+```{r section heading 2}
+#| output: asis
+cat(paste("#### Co-occurence of Indicator OTUs by Season in", process))
+```
+
+```{r otu euler plot}
+#| echo: false
+plot(euler.obj, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75))
+```
+
+```{ojs checkbox selection}
+viewof collocations = Inputs.checkbox(["Fall","Spring","Summer","Winter"], {label: "Select seasons to view OTUs:"})
+collocationsCat = collocations.join("-")
+```
+
+::: {.panel-tabset}
+
+## Exclusive list
+```{ojs table with only overlap}
+Inputs.table(otuProcessSeason2)
+```
+
+## Inclusive list
+```{ojs table with all of selected groups}
+Inputs.table(otuProcessSeason)
+```
+
+:::
+
+

@@ -26,7 +26,7 @@ website:
       - section: "Observable Patterns"
         contents:
           - correlation_matrix.qmd
-          - indicator_species_plots.qmd
+          - indicator_species_plots_sf.qmd
         
 format:
   html:
