@@ -1,4 +1,4 @@
-"Genus","OTU","p.value","seasoncooccurrence","Process"
+"Genus","OTU","pvalue","seasoncooccurrence","Process"
 "Dechloromonas","Zotu2",0.049,"Fall-Summer","AD"
 "Lentimicrobium","Zotu7",0.002,"Fall-Summer","AD"
 "Rhodoferax","Zotu8",0.002,"Fall-Summer","AD"

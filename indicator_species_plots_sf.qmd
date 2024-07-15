@@ -4,12 +4,21 @@ format: html
 echo: false
 ---
 
-```{r choose process}
-process <- "AD"
-ojs_define(processjs=process)
+```{ojs}
+//| panel: input
+viewof processjs = Inputs.radio(
+  new Map([
+    ["Anaerobic Digester Influent", "AD"], 
+    ["Activated Sludge", "AS"], 
+    ["Effluent", "Eff"], 
+    ["Influent", "Inf"], 
+    ["Trickling Filter", "TF"], 
+    ["Anaerobic Digester Effluent", "TSS"], 
+    ["Waste Activated Sludge", "WAS"]
+  ]),
+  {value: "AD", label: "Select a Sampling Location:"}
+)
 ```
-
-### in `r process` samples
 
 ```{r dependencies and functions - not run}
 #| output: FALSE
@@ -151,13 +160,24 @@ write.csv(sig.otus.all %>% select(Genus, OTU, p.value, seasoncooccurrence, Proce
 saveRDS(all.sets.all, "indicator_data/euler_sets.rds")
 ```
 
-```{r prepare r data objects}
-#| output: false
-euler.r <- readRDS("indicator_data/euler_sets.rds") %>% dplyr::filter(Process == process)
-euler.r <- euler.r[[1,3]]
-names(euler.r) <- gsub("-", "&", names(euler.r)) # can remove if fix is implemented upon creation
-euler.obj <- euler(euler.r) # read Filtered Sets, use [[1,2]] for full Sets
+```{r generate euler plots}
+#| eval: false
+#| echo: false
+euler.all <- readRDS("indicator_data/euler_sets.rds")
+
+n <- 1
+for (process in c("AD", "AS", "Eff", "Inf", "TF", "TSS", "WAS")) {
+  euler.r <- euler.all %>% dplyr::filter(Process == process)
+  euler.r <- euler.r[[1,3]]
+  names(euler.r) <- gsub("-", "&", names(euler.r)) # can remove if fix is implemented upon creation
+  euler.obj <- euler(euler.r) # read Filtered Sets, use [[1,2]] for full Sets
+  svg(paste0("indicator_data/", process, "_euler.svg"))
+  print(plot(euler.obj, labels = list(font = 3, col = "blue", cex = 1.25),
+     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75)))
+  dev.off()
+}
 ```
+
 
 ```{ojs prepare js data objects}
 genus = FileAttachment("indicator_data/indicator_genus_process.csv").csv({typed: true})
@@ -182,24 +202,46 @@ otuProcessSeason2 = otuProcess.filter(function(table) {
 ```
 
 ```{r section heading 1}
-#| output: asis
-cat(paste("#### All Significant Indicator Genera in", process))
+#| eval: false
+#| echo: false
+cat(paste("#### All Significant Indicator Genera in", processr))
 ```
 
+#### All Significant Indicator Genera in ${processjs}
 ```{ojs genera table}
 Inputs.table(genusProcess)
 ```
 
-```{r section heading 2}
-#| output: asis
-cat(paste("#### Co-occurence of Indicator OTUs by Season in", process))
+#### Co-occurence of Indicator OTUs by Season in ${processjs}
+```{ojs euler plot js}
+urlad = FileAttachment('indicator_data/AD_euler.svg')
+urlas = FileAttachment('indicator_data/AS_euler.svg')
+urleff = FileAttachment('indicator_data/Eff_euler.svg')
+urlinf = FileAttachment('indicator_data/Inf_euler.svg')
+urltf = FileAttachment('indicator_data/TF_euler.svg')
+urltss = FileAttachment('indicator_data/TSS_euler.svg')
+urlwas = FileAttachment('indicator_data/WAS_euler.svg')
+
+{
+  if (processjs == "AD") {
+    return urlad.image()
+  } else if (processjs == "AS") {
+    return urlas.image()
+  } else if (processjs == "Eff") {
+    return urleff.image()
+  } else if (processjs == "Inf") {
+    return urlinf.image()
+  } else if (processjs == "TF") {
+    return urltf.image()
+  } else if (processjs == "TSS") {
+    return urltss.image()
+  } else if (processjs == "WAS") {
+    return urlwas.image()
+  }
+}
+
 ```
 
-```{r otu euler plot}
-#| echo: false
-plot(euler.obj, labels = list(font = 3, col = "blue", cex = 1.25),
-     quantities = list(type = "counts", font = 1, col = "black", cex = 0.75))
-```
 
 ```{ojs checkbox selection}
 viewof collocations = Inputs.checkbox(["Fall","Spring","Summer","Winter"], {label: "Select seasons to view OTUs:"})
@@ -210,12 +252,22 @@ collocationsCat = collocations.join("-")
 
 ## Exclusive list
 ```{ojs table with only overlap}
-Inputs.table(otuProcessSeason2)
+Inputs.table(otuProcessSeason2, {
+  header: {
+    pvalue: "P value",
+    seasoncooccurrence: "Season Overlap"
+  }
+})
 ```
 
 ## Inclusive list
 ```{ojs table with all of selected groups}
-Inputs.table(otuProcessSeason)
+Inputs.table(otuProcessSeason, {
+  header: {
+    pvalue: "P value",
+    seasoncooccurrence: "Season Overlap"
+  }
+})
 ```
 
 :::
